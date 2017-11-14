@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">BubbleUP</string>
     <string name="title_activity_maps">BubbleMap</string>
+    <string name="title_activity_add_marker">AddMarkerActivity</string>
 </resources>
