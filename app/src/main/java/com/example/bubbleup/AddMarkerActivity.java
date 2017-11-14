@@ -34,6 +34,7 @@ public class AddMarkerActivity extends AppCompatActivity {
             @Override
             public void onClick(final View view) {
                 MarkerOptions marker = new MarkerOptions().position(latlng);
+
                 if (title.getText() != null) {
                     marker.title(title.getText().toString());
                 }

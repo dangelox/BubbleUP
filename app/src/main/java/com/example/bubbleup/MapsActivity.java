@@ -16,7 +16,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private Marker myMarker;
+    Marker myMarker;
+    Marker markerArray[] = new Marker[7];//all initialized to null here
+    int markerArraySize = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +49,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
+
+        //add a marker in Lawrence
         LatLng lawrence = new LatLng(38.9717, -95.2353);
         myMarker = mMap.addMarker(new MarkerOptions()
                 .position(lawrence)
                 .title("Lawrence"));
 
+        //add marker to Array and increment size
+        markerArray[markerArraySize] = myMarker;
+        markerArraySize++;
+
+        //set listener to call addMarkerActivity when a click is registerd on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng latLng) {
@@ -63,17 +72,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            switch(requestCode) {
-                case (1) : {
-                    if (resultCode == Activity.RESULT_OK) {
-                        MarkerOptions markerOptions = data.getParcelableExtra("marker");
-                        mMap.addMarker(markerOptions);
-                    }
-                    break;
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (1) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    MarkerOptions markerOptions = data.getParcelableExtra("marker");
+                    mMap.addMarker(markerOptions);
                 }
+                break;
             }
         }
-
+    }
 }
