@@ -10,7 +10,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -21,17 +24,21 @@ public class AddMarkerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_marker);
 
+        final SeekBar colorBar = (SeekBar) findViewById(R.id.seekBar);
+
         final LatLng latlng = (LatLng) getIntent().getParcelableExtra("location");
 
         final EditText title = (EditText) findViewById(R.id.editText);
-        Button boton = (Button) findViewById(R.id.button3);
-        boton.setOnClickListener(new View.OnClickListener() {
+        Button markerButton = (Button) findViewById(R.id.createMarkerButton);
+        markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 MarkerOptions marker = new MarkerOptions().position(latlng);
                 if (title.getText() != null) {
                     marker.title(title.getText().toString());
                 }
+
+                marker.icon(BitmapDescriptorFactory.defaultMarker(colorBar.getProgress()*360/100));
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("marker", marker);
