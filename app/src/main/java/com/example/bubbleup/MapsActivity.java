@@ -1,6 +1,7 @@
 package com.example.bubbleup;
 
 //<<<<<<< HEAD
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 //=======
@@ -57,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
      * installed Google Play services and returned to the app.
      */
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
@@ -68,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
-                    mMap.setMyLocationEnabled(true);
+                    mMap.setMyLocationEnabled(true);//Silenced warning.
                 }
             }
         }
@@ -95,8 +97,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //Permission Check
+        getLocationPermission();
+        //If permission is granted then create location button.
+        if(mLocationPermissionGranted){
+            Log.d("BubbleUp","Permission has already been Granted");
+            mMap.setOnMyLocationButtonClickListener(this);
+            mMap.setOnMyLocationClickListener(this);
+        }
 
-//<<<<<<< HEAD
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -135,14 +144,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }
                 break;
             }
-        }
-//=======
-        getLocationPermission();
-
-        if(mLocationPermissionGranted){
-            Log.d("BubbleUp","Permission has already been Granted");
-            mMap.setOnMyLocationButtonClickListener(this);
-            mMap.setOnMyLocationClickListener(this);
         }
     }
 
