@@ -39,7 +39,7 @@ public class AddMarkerActivity extends AppCompatActivity {
                     marker.title(title.getText().toString());
                 }
 
-                marker.icon(BitmapDescriptorFactory.defaultMarker(colorBar.getProgress()*360/100));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(colorBar.getProgress()*359/100));
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("marker", marker);
