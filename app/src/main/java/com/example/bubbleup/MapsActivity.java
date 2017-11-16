@@ -1,16 +1,13 @@
 package com.example.bubbleup;
 
-//<<<<<<< HEAD
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-//=======
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-//>>>>>>> origin/master
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -21,20 +18,38 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    //List where we will store all bubbles, may wanna use a different data structure in the future.
+    List<GroundOverlay> myBubbles;
+
     Marker myMarker;
     Marker markerArray[] = new Marker[7];//all initialized to null here
     int markerArraySize = 0;
 
+    //Handler
+    private Handler mHandler;
+
+    //Trajectory control variables, each bubble should have its own, create new class?
+    double wobbler1;
+    double wobbler2;
+
     private boolean mLocationPermissionGranted;
 
+    //Permission key.
     final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 123;
 
     @Override
@@ -45,6 +60,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mHandler = new Handler();//Create handler
     }
 
 
@@ -94,9 +111,51 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
     }
 
+    //Draws a bubble, and return the ground overlay object.
+    public GroundOverlay bubbleMake(LatLng location, float width, float height){
+        GroundOverlayOptions bubbleMake = new GroundOverlayOptions()
+                .image(BitmapDescriptorFactory.fromResource(R.drawable.crystal_bubble))
+                .position(location, width, height);//position(location, width, height)
+        return mMap.addGroundOverlay(bubbleMake);
+    }
+
+    //TODO: Might want to move some of this functions to their own java class. Needs more modularity.
+    public void wobbleBubbles (List<GroundOverlay> bubbles){
+        wobbler1 = wobbler1 + .01;
+        wobbler2 = wobbler2 + .02;
+        //iterate over the list, uses for each syntax, nice Java 8 feature. Can parallelize?
+        for (GroundOverlay currentBubble : bubbles) {
+            double moveY = currentBubble.getPosition().latitude + Math.cos(wobbler1) / 12000.0 + Math.cos(wobbler2) / 13000.0;
+            double moveX = currentBubble.getPosition().longitude + Math.sin(wobbler1) / 12000.0 + Math.cos(wobbler2) / 13000.0;
+
+            currentBubble.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
+            currentBubble.setVisible(true);//Re-draws the bubble in its new position.
+        }
+    }
+
+    //this should update all bubbles. All bubbles should be added to some sort of array or data structure.
+    Runnable bubbleUpdater = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                if(!myBubbles.isEmpty()){
+                    wobbleBubbles(myBubbles);//Changes bubbles coordinates
+                }else{
+                    Log.d("BubbleUp", "Bubble list is empty.");
+                }
+            } finally {
+                // this code always executes even if try is successful.
+                mHandler.postDelayed(bubbleUpdater, 40);//setting update delay to 10 milliseconds.
+            }
+        }
+    };
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        myBubbles = new ArrayList<>();
+
         //Permission Check
         getLocationPermission();
         //If permission is granted then create location button.
@@ -106,11 +165,22 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             mMap.setOnMyLocationClickListener(this);
         }
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //TODO: Make bubbles/groundMark interactive?
+        //Example Bubble
+        GroundOverlay myBubble = bubbleMake(new LatLng(38.97, -95.23), 8600f, 8600f);//Draws a bubble near lawrence
+        GroundOverlay myBubble2 = bubbleMake(new LatLng(38.90, -95.10), 8600f, 8600f);//Draws a bubble near lawrence
+        GroundOverlay myBubble3 = bubbleMake(new LatLng(39.00, -95.00), 8600f, 8600f);//Draws a bubble near lawrence
+        GroundOverlay myBubble4 = bubbleMake(new LatLng(38.75, -95.30), 8600f, 8600f);//Draws a bubble near lawrence
+        //Add Bubble to array.
+        myBubbles.add(myBubble);
+        myBubbles.add(myBubble2);
+        myBubbles.add(myBubble3);
+        myBubbles.add(myBubble4);
 
+        //TODO: Make a bubble creation activity.
+
+        //Initiate bubble updater
+        bubbleUpdater.run();//Run the bubble updater.
 
         //add a marker in Lawrence
         LatLng lawrence = new LatLng(38.9717, -95.2353);
@@ -158,6 +228,5 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
-//>>>>>>> origin/master
     }
 }
