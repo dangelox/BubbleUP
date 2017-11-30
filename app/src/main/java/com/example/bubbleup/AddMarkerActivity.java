@@ -26,20 +26,31 @@ public class AddMarkerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_marker);
 
-        final SeekBar colorBar = (SeekBar) findViewById(R.id.seekBar);
+        //no longer a feature
+        //final SeekBar colorBar = (SeekBar) findViewById(R.id.seekBar);
 
         final LatLng latlng = (LatLng) getIntent().getParcelableExtra("location");
 
-        final EditText title = (EditText) findViewById(R.id.editText);
+        //getting user input title
+        final EditText userTitle = (EditText) findViewById(R.id.editTitle);
+
+        final EditText userSnippet = (EditText) findViewById(R.id.editSnippet);
+
         Button markerButton = (Button) findViewById(R.id.createMarkerButton);
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
                 MarkerOptions marker = new MarkerOptions().position(latlng);
 
-                if (title.getText() != null) {
-                    marker.title(title.getText().toString());
+                if(userSnippet.getText() != null){
+                    marker.snippet(userSnippet.getText().toString());
                 }
+                //set the title to the input from user
+                if (userTitle.getText() != null) {
+                    marker.title(userTitle.getText().toString());
+                }
+
+                //markers have info window to customize what data we show
 
 
 
