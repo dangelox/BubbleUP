@@ -2,6 +2,8 @@ package com.example.bubbleup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,7 +41,16 @@ public class AddMarkerActivity extends AppCompatActivity {
                     marker.title(title.getText().toString());
                 }
 
-                marker.icon(BitmapDescriptorFactory.defaultMarker(colorBar.getProgress()*359/100));
+
+
+                //creates a bitMap from our cyrstal bubble image
+                Bitmap bitMap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.crystal_bubble);
+
+                //scales the bitmap to a predetermined size
+                Bitmap scaledBitMap = Bitmap.createScaledBitmap(bitMap, 320,320, true);
+
+                //adds the scaled bitmap to our marker icon
+                marker.icon(BitmapDescriptorFactory.fromBitmap(scaledBitMap)); //(BitmapDescriptorFactory.fromResource(R.drawable.crystal_bubble));// defaultMarker(colorBar.getProgress()*359/100));
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("marker", marker);

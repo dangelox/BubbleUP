@@ -37,8 +37,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     List<GroundOverlay> myBubbles;
 
     Marker myMarker;
-    Marker markerArray[] = new Marker[7];//all initialized to null here
-    int markerArraySize = 0;
 
     //Handler
     private Handler mHandler;
@@ -130,6 +128,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
             currentBubble.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
             currentBubble.setVisible(true);//Re-draws the bubble in its new position.
+
+            if(mMap.getCameraPosition().zoom > 8){
+                currentBubble.setVisible(true);
+            }
+            else{
+                currentBubble.setVisible(false);
+            }
         }
     }
 
@@ -187,10 +192,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         myMarker = mMap.addMarker(new MarkerOptions()
                 .position(lawrence)
                 .title("Lawrence"));
-
-        //add marker to Array and increment size
-        markerArray[markerArraySize] = myMarker;
-        markerArraySize++;
 
         //set listener to call addMarkerActivity when a click is registerd on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
