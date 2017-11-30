@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,6 +41,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     //Handler
     private Handler mHandler;
+
+    //To pass the intent to switch case later
+    private static final int addMarkerIntent = 1;
 
     //Trajectory control variables, each bubble should have its own, create new class?
     double wobbler1;
@@ -199,7 +203,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onMapClick(final LatLng latLng) {
                 Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
                 edit.putExtra("location", latLng);
-                MapsActivity.this.startActivityForResult(edit, 1);
+                MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
+            }
+        });
+
+
+        //experementing with fragment sharing
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+
+
             }
         });
 
@@ -208,7 +222,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-            case (1) : {
+            case (addMarkerIntent) : {
                 if (resultCode == Activity.RESULT_OK) {
                     MarkerOptions markerOptions = data.getParcelableExtra("marker");
                     mMap.addMarker(markerOptions);
@@ -230,4 +244,5 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         // (the camera animates to the user's current position).
         return false;
     }
+
 }
