@@ -22,6 +22,7 @@ android {
 apply plugin: 'com.android.application'
 dependencies {
     implementation 'com.android.support:design:25.4.0'
+    implementation 'com.android.support:support-v4:25.4.0'
     compile 'com.google.android.gms:play-services-maps:11.6.0'
     // maps
     compile fileTree(include: ['*.jar'], dir: 'libs')

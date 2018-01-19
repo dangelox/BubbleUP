@@ -1,6 +1,8 @@
 package com.example.bubbleup;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,5 +27,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(myIntent);
             }
         });
+
+        /*
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        BlankFragment fragment = new BlankFragment();
+        fragmentTransaction.add(R.id.zone, fragment);
+        fragmentTransaction.commit();
+        */
     }
 }
