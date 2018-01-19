@@ -3,13 +3,9 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/zone">
 
-        <fragment
-            android:id="@+id/zone"
-            android:name="com.example.bubbleup.BlankFragment"
-            android:layout_width="match_parent"
-            android:layout_height="300px" />
 
         <fragment
             android:id="@+id/map"

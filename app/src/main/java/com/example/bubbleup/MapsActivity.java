@@ -55,6 +55,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Permission key.
     final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 123;
 
+    public FragmentManager fragmentManager = getSupportFragmentManager();
+    public FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    public BlankFragment myFragment = new BlankFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +70,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+
+        fragmentTransaction.add(R.id.zone, myFragment);
+        fragmentTransaction.commit();
 
         mHandler = new Handler();//Create handler
     }
@@ -243,6 +250,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMyLocationButtonClick() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Log.d("BubbleUp","Remove Attempt");
+        fragmentTransaction.remove(myFragment);
+        Log.d("BubbleUp","Comiting..");
+        fragmentTransaction.commit();
+        Log.d("BubbleUp","Done. Toasting...");
+
         Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
