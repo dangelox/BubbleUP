@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback {
+        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, BlankFragment.OnFragmentInteractionListener {
 
     private GoogleMap mMap;
 
@@ -65,13 +66,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-
-        //FragmentManager fragmentManager = getSupportFragmentManager();
-        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        //BlankFragment fragment = new BlankFragment();
-        //fragmentTransaction.add(R.id.map, fragment);
-        //fragmentTransaction.commit();
 
         mHandler = new Handler();//Create handler
     }
@@ -255,4 +249,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         return false;
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }
