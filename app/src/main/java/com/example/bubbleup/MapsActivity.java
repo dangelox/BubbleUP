@@ -1,20 +1,28 @@
 package com.example.bubbleup;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.transition.TransitionInflater;
+import android.transition.TransitionSet;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -55,10 +63,20 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Permission key.
     final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 123;
 
-    public FragmentManager fragmentManager = getSupportFragmentManager();
-    public FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    public BlankFragment myFragment = new BlankFragment();
+    //Fragment Manager global?
+    FragmentManager fragmentManager = getSupportFragmentManager();
 
+    //Content Fragment
+    public BlankFragment myFragment = new BlankFragment();
+    boolean fragment_display;
+
+    //Map Fragment, make local or global? Check Transitions guides.
+    SupportMapFragment mapFragment;
+
+    //Buttons
+    Button content_button;
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,15 +84,34 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         setContentView(R.layout.activity_maps);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
 
-        fragmentTransaction.add(R.id.zone, myFragment);
-        fragmentTransaction.commit();
+        fragment_display = false;
 
         mHandler = new Handler();//Create handler
+
+        //Buttons
+        content_button = (Button) findViewById(R.id.content_show);
+
+        content_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                if(fragment_display){
+                    fragmentTransaction.remove(myFragment);
+                    fragmentTransaction.commit();
+                    fragment_display = false;
+                    Log.d("BubbleUp","Hiding content.");
+                }else{
+                    fragmentTransaction.add(R.id.zone, myFragment);
+                    fragmentTransaction.commit();
+                    fragment_display = true;
+                    Log.d("BubbleUp","Showing content.");
+                }
+            }
+        });
     }
 
 
@@ -172,7 +209,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
+
+        //((ViewGroup) findViewById(R.id.map)).getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
         myBubbles = new ArrayList<>();
 
@@ -250,12 +290,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMyLocationButtonClick() {
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Log.d("BubbleUp","Remove Attempt");
-        fragmentTransaction.remove(myFragment);
-        Log.d("BubbleUp","Comiting..");
-        fragmentTransaction.commit();
-        Log.d("BubbleUp","Done. Toasting...");
+        //Transaction
+        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //fragmentTransaction.remove(myFragment);
+        //fragmentTransaction.commit();
 
         Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
