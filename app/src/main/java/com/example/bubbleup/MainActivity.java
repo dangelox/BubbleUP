@@ -25,14 +25,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(myIntent);
             }
         });
-
-        /*
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        BlankFragment fragment = new BlankFragment();
-        fragmentTransaction.add(R.id.zone, fragment);
-        fragmentTransaction.commit();
-        */
     }
 }

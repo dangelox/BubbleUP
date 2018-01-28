@@ -1,6 +1,5 @@
 package com.example.bubbleup;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -17,11 +16,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.transition.TransitionInflater;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -44,7 +40,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private GoogleMap mMap;
 
     //List where we will store all bubbles, may wanna use a different data structure in the future.
-    List<GroundOverlay> myBubbles;
+    //List<GroundOverlay> myBubbles;
+
+    List<BubbleMarker> myBubbles;
 
     Marker myMarker;
 
@@ -161,32 +159,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
     }
 
-    //Draws a bubble, and return the ground overlay object.
-    public GroundOverlay bubbleMake(LatLng location, float width, float height){
-        GroundOverlayOptions bubbleMake = new GroundOverlayOptions()
-                .image(BitmapDescriptorFactory.fromResource(R.drawable.crystal_bubble))
-                .position(location, width, height);//position(location, width, height)
-        return mMap.addGroundOverlay(bubbleMake);
-    }
-
-    //TODO: Might want to move some of this functions to their own java class. Needs more modularity.
-    public void wobbleBubbles (List<GroundOverlay> bubbles){
-        wobbler1 = wobbler1 + .01;
-        wobbler2 = wobbler2 + .02;
+    public void wobbleBubbles (List<BubbleMarker> bubbles){
         //iterate over the list, uses for each syntax, nice Java 8 feature. Can parallelize?
-        for (GroundOverlay currentBubble : bubbles) {
-            double moveY = currentBubble.getPosition().latitude + Math.cos(wobbler1) / 12000.0 + Math.cos(wobbler2) / 13000.0;
-            double moveX = currentBubble.getPosition().longitude + Math.sin(wobbler1) / 12000.0 + Math.cos(wobbler2) / 13000.0;
-
-            currentBubble.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
-            currentBubble.setVisible(true);//Re-draws the bubble in its new position.
-
-            if(mMap.getCameraPosition().zoom > 8){
-                currentBubble.setVisible(true);
-            }
-            else{
-                currentBubble.setVisible(false);
-            }
+        for (BubbleMarker currentBubble : bubbles) {
+            currentBubble.wobble();
         }
     }
 
@@ -225,46 +201,30 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             mMap.setOnMyLocationClickListener(this);
         }
 
-        //TODO: Make bubbles/groundMark interactive?
-        //Example Bubble
-        GroundOverlay myBubble = bubbleMake(new LatLng(38.97, -95.23), 8600f, 8600f);//Draws a bubble near lawrence
-        GroundOverlay myBubble2 = bubbleMake(new LatLng(38.90, -95.10), 8600f, 8600f);//Draws a bubble near lawrence
-        GroundOverlay myBubble3 = bubbleMake(new LatLng(39.00, -95.00), 8600f, 8600f);//Draws a bubble near lawrence
-        GroundOverlay myBubble4 = bubbleMake(new LatLng(38.75, -95.30), 8600f, 8600f);//Draws a bubble near lawrence
-        //Add Bubble to array.
-        myBubbles.add(myBubble);
-        myBubbles.add(myBubble2);
-        myBubbles.add(myBubble3);
-        myBubbles.add(myBubble4);
+        //BubbleMarker Maker Example
+        BubbleMarker myBubble1 = new BubbleMarker(new LatLng(38.9717, -95.2353), "", "", 320, 320, getApplicationContext());//Draws a bubble near lawrence
+        myBubble1.addMarker(mMap);
+        myBubbles.add(myBubble1);
 
         //TODO: Make a bubble creation activity.
 
         //Initiate bubble updater
         bubbleUpdater.run();//Run the bubble updater.
 
-        //add a marker in Lawrence
-        LatLng lawrence = new LatLng(38.9717, -95.2353);
-        myMarker = mMap.addMarker(new MarkerOptions()
-                .position(lawrence)
-                .title("Lawrence"));
-
         //set listener to call addMarkerActivity when a click is registerd on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng latLng) {
-                Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
-                edit.putExtra("location", latLng);
-                MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
             }
         });
 
 
-        //experementing with fragment sharing
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-
-
+                Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
+                edit.putExtra("location", latLng);
+                MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
             }
         });
 
@@ -275,8 +235,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         switch(requestCode) {
             case (addMarkerIntent) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    MarkerOptions markerOptions = data.getParcelableExtra("marker");
-                    mMap.addMarker(markerOptions);
+                    //BubbleMarker newMarker = (LatLng) data.getParcelableExtra("marker");
+                    LatLng latlng = (LatLng) data.getParcelableExtra("latlng");
+                    String snipet = data.getParcelableExtra("snipet");
+                    String tittle = data.getParcelableExtra("string");
+                    BubbleMarker newMarker = new BubbleMarker(latlng, snipet, tittle, 320, 320, getApplicationContext());//Draws a bubble near lawrence
+                    newMarker.addMarker(mMap);
+                    myBubbles.add(newMarker);
                 }
                 break;
             }
@@ -290,11 +255,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public boolean onMyLocationButtonClick() {
-        //Transaction
-        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        //fragmentTransaction.remove(myFragment);
-        //fragmentTransaction.commit();
-
         Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).

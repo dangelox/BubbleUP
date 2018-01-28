@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +18,10 @@ import android.widget.SeekBar;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.Serializable;
 
 public class AddMarkerActivity extends AppCompatActivity {
 
@@ -40,31 +44,29 @@ public class AddMarkerActivity extends AppCompatActivity {
         markerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                MarkerOptions marker = new MarkerOptions().position(latlng);
+                String snipet = "";
+                String tittle = "";
+
+                BubbleMarker myBubble = new BubbleMarker(latlng, "", "", 320, 320, getApplicationContext());//Draws a bubble near lawrence
 
                 if(userSnippet.getText() != null){
-                    marker.snippet(userSnippet.getText().toString());
+                    myBubble.bubbleMarkerOption.snippet(userSnippet.getText().toString());
+                    myBubble.msg = userSnippet.getText().toString();
+                    snipet = userSnippet.getText().toString();
                 }
                 //set the title to the input from user
                 if (userTitle.getText() != null) {
-                    marker.title(userTitle.getText().toString());
+                    myBubble.bubbleMarkerOption.title(userTitle.getText().toString());
+                    myBubble.tittle = userTitle.getText().toString();
+                    tittle = userTitle.getText().toString();
                 }
 
-                //markers have info window to customize what data we show
-
-
-
-                //creates a bitMap from our cyrstal bubble image
-                Bitmap bitMap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.crystal_bubble);
-
-                //scales the bitmap to a predetermined size
-                Bitmap scaledBitMap = Bitmap.createScaledBitmap(bitMap, 320,320, true);
-
-                //adds the scaled bitmap to our marker icon
-                marker.icon(BitmapDescriptorFactory.fromBitmap(scaledBitMap)); //(BitmapDescriptorFactory.fromResource(R.drawable.crystal_bubble));// defaultMarker(colorBar.getProgress()*359/100));
-
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("marker", marker);
+                //resultIntent.putExtra("marker", myBubble);
+                resultIntent.putExtra("latlng",latlng);
+                resultIntent.putExtra("snipet", snipet);
+                resultIntent.putExtra("tittle", tittle);
+
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();
             }
