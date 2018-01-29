@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.Serializable;
 
+//This Class should also upload the composed bubble to the database.
 public class AddMarkerActivity extends AppCompatActivity {
 
     @Override
@@ -62,7 +63,7 @@ public class AddMarkerActivity extends AppCompatActivity {
                 }
 
                 Intent resultIntent = new Intent();
-                //resultIntent.putExtra("marker", myBubble);
+                //resultIntent.putExtra("marker", myBubble);//TODO: Figure out if there is a way to send objects beteen activities.
                 resultIntent.putExtra("latlng",latlng);
                 resultIntent.putExtra("snipet", snipet);
                 resultIntent.putExtra("tittle", tittle);
