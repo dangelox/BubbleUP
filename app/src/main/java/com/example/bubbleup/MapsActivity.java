@@ -37,6 +37,8 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, BlankFragment.OnFragmentInteractionListener {
 
+    int logout = 0;
+
     private GoogleMap mMap;
 
     //List where we will store all bubbles, may wanna use a different data structure in the future.
@@ -264,5 +266,22 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    //Handle Back Button Press.
+    @Override
+    public void onBackPressed() {
+        boolean logedIn = true;
+        if (logedIn) {
+            logout++;
+            if(logout >= 3) {
+                Intent resultIntent = new Intent();
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
+            }else
+                Toast.makeText(this, "Press back 2 times to logout", Toast.LENGTH_SHORT).show();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
