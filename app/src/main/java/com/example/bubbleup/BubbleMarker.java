@@ -20,6 +20,8 @@ public class BubbleMarker implements Serializable{
     public int zoomUpBound;
     public int zoomDownBound;
 
+    public int id;
+
     public MarkerOptions bubbleMarkerOption;
     public Marker bubbleMarker;
 
@@ -28,6 +30,8 @@ public class BubbleMarker implements Serializable{
 
     public BubbleMarker(LatLng mCoor, String text, String tittle, int width, int height, Context myContext){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
+
+        bubbleMarkerOption.snippet(text);
 
         msg = text;//Text message to be displayed
 
@@ -51,8 +55,8 @@ public class BubbleMarker implements Serializable{
         if(bubbleMarker != null && bubbleMarker.isVisible()){
             wobbler1 += .01;
             wobbler2 += .02;
-            double moveY = bubbleMarker.getPosition().latitude + Math.cos(wobbler1)/12000.0 + Math.cos(wobbler2)/13000.0;
-            double moveX = bubbleMarker.getPosition().longitude + Math.sin(wobbler1)/12000.0 + Math.cos(wobbler2)/13000.0;
+            double moveY = bubbleMarker.getPosition().latitude + Math.cos(wobbler1)/15000.0 + Math.cos(wobbler2)/16000.0;
+            double moveX = bubbleMarker.getPosition().longitude + Math.sin(wobbler1)/15000.0 + Math.cos(wobbler2)/16000.0;
 
             bubbleMarker.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
             bubbleMarker.setVisible(true);//Re-draws the bubble in its new position.

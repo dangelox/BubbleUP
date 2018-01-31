@@ -1,7 +1,6 @@
 package com.example.bubbleup;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -23,9 +22,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
                             mTextView.setText("Response: "+ response.toString());
 
                             Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
-                            token_success.putExtra("token", saved_token);
+                            token_success.putExtra("myToken", saved_token);
+                            token_success.putExtra("log_status", true);
                             //startActivity(token_success);
                             MainActivity.this.startActivityForResult(token_success,log_off);
                         }
@@ -125,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, MapsActivity.class);
+                myIntent.putExtra("log_status", false);
                 startActivity(myIntent);
             }
         });
@@ -162,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putString("saved_token", saved_token);
                                 editor.commit();
 
-                                Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
-                                token_success.putExtra("token", saved_token);
-                                //startActivity(token_success);
-                                MainActivity.this.startActivityForResult(token_success,log_off);
+                                Intent login_success = new Intent(MainActivity.this, MapsActivity.class);
+                                login_success.putExtra("myToken", saved_token);
+                                login_success.putExtra("log_status",true);
+                                MainActivity.this.startActivityForResult(login_success,log_off);//log_off meaning it expects a log_off result at some point
                             }
                         }, new Response.ErrorListener() {
                     @Override
@@ -218,7 +216,8 @@ public class MainActivity extends AppCompatActivity {
                 }){
                     @Override
                     public byte[] getBody() throws AuthFailureError {
-                        String httpPostBody="{\"name\": \"newuser\", \"email\": \"" + user + "\", \"password\": \"" + pass + "\"}";
+                        String httpPostBody=
+                                "{\"name\": \"newuser\", \"email\": \"" + user + "\", \"password\": \"" + pass + "\"}";
                         // usually you'd have a field with some values you'd want to escape, you need to do it yourself if overriding getBody. here's how you do it
                         return httpPostBody.getBytes();
                     }

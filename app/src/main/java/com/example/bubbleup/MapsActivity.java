@@ -3,6 +3,7 @@ package com.example.bubbleup;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -21,23 +22,41 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlay;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, BlankFragment.OnFragmentInteractionListener {
 
+    public static final String SAVEDLOCATION_PREF = "previous_location";
+
     int logout = 0;
+    boolean log_status = false;
+
+    String url_posts ="https://bubbleup-api.herokuapp.com/posts";
+
+    String token;
 
     private GoogleMap mMap;
 
@@ -76,12 +95,31 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Buttons
     Button content_button;
 
+    double saved_lat;
+    double saved_lng;
+    int saved_zoom;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences saved_settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+        saved_lat = Double.longBitsToDouble(saved_settings.getLong("saved_lat",0));
+        saved_lng = Double.longBitsToDouble(saved_settings.getLong("saved_lng",0));
+        saved_zoom = saved_settings.getInt("saved_zoom",0);
+
+        log_status = getIntent().getBooleanExtra("log_status",false);
+
+        if(log_status) {
+            Log.d("BubbleUp","log_status = true");
+            token = getIntent().getStringExtra("myToken");
+            Log.d("BubbleUp","Token = " + token);
+        }
+
         setContentView(R.layout.activity_maps);
+
+        //Call a method that loads bubbles in to a structure.
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -175,8 +213,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             try {
                 if(!myBubbles.isEmpty()){
                     wobbleBubbles(myBubbles);//Changes bubbles coordinates
-                }else{
-                    Log.d("BubbleUp", "Bubble list is empty.");
                 }
             } finally {
                 // this code always executes even if try is successful.
@@ -190,6 +226,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         mMap = googleMap;
 
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(saved_lat,saved_lng),saved_zoom));
+
         //((ViewGroup) findViewById(R.id.map)).getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
 
         myBubbles = new ArrayList<>();
@@ -198,15 +236,20 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         getLocationPermission();
         //If permission is granted then create location button.
         if(mLocationPermissionGranted){
-            Log.d("BubbleUp","Permission has already been Granted");
+            Log.d("BubbleUp","Internet Permission access has already been Granted");
             mMap.setOnMyLocationButtonClickListener(this);
             mMap.setOnMyLocationClickListener(this);
         }
 
         //BubbleMarker Maker Example
-        BubbleMarker myBubble1 = new BubbleMarker(new LatLng(38.9717, -95.2353), "", "", 320, 320, getApplicationContext());//Draws a bubble near lawrence
+        /*
+        BubbleMarker myBubble1 = new BubbleMarker(new LatLng(38.9717, -95.2353), "Deafult Bubble", "Hello World!", 320, 320, getApplicationContext());//Draws a bubble near lawrence
         myBubble1.addMarker(mMap);
         myBubbles.add(myBubble1);
+        */
+
+        //BubbleLoader
+        bubbleLoader();
 
         //TODO: Make a bubble creation activity.
 
@@ -226,10 +269,68 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onMapLongClick(LatLng latLng) {
                 Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
                 edit.putExtra("location", latLng);
+                edit.putExtra("myToken",token);
                 MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
             }
         });
 
+    }
+
+    public void bubbleLoader(){
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+
+        if(log_status) {
+            StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_posts,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            String id;
+                            String body;
+                            boolean visible = false;
+                            double lat;
+                            double lng;
+                            Log.d("BubbleUp", "JSOn Response: \n" + response.toString());
+                            try {
+                                JSONArray json_response = new JSONArray(response.toString());
+
+                                myBubbles.clear();//empty the array.
+
+                                for (int i = 0; i < json_response.length(); i++) {
+                                    JSONObject myJson = (JSONObject) json_response.get(i);
+                                    id = myJson.get("id").toString();
+                                    body = myJson.get("body").toString();
+                                    visible = Boolean.parseBoolean(myJson.get("visible").toString());
+                                    lat = Double.parseDouble(myJson.get("lat").toString());
+                                    lng = Double.parseDouble(myJson.get("lng").toString());
+
+                                    //Check for id so that you don't duplicate bubbles.
+
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), body, "", 320, 320, getApplicationContext());
+                                    newBubble.addMarker(mMap);
+                                    myBubbles.add(newBubble);
+                                }
+                            } catch (JSONException e) {
+                                Log.d("BubbleUp", "JSON object problem!");
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("BubbleUp", "Bubble Loader Error! " + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap();
+                    params.put("Authorization", "JWT " + token);
+                    return params;
+                }
+            };
+            queue.add(tokenRequest);
+        }else{//Free View
+
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -238,12 +339,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             case (addMarkerIntent) : {
                 if (resultCode == Activity.RESULT_OK) {
                     //BubbleMarker newMarker = (LatLng) data.getParcelableExtra("marker");
+                    /*
                     LatLng latlng = (LatLng) data.getParcelableExtra("latlng");
                     String snipet = data.getParcelableExtra("snipet");
                     String tittle = data.getParcelableExtra("string");
                     BubbleMarker newMarker = new BubbleMarker(latlng, snipet, tittle, 320, 320, getApplicationContext());//Draws a bubble near lawrence
                     newMarker.addMarker(mMap);
                     myBubbles.add(newMarker);
+                    */
+                    bubbleLoader();
                 }
                 break;
             }
@@ -260,6 +364,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
+
         return false;
     }
 
@@ -271,8 +376,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Handle Back Button Press.
     @Override
     public void onBackPressed() {
-        boolean logedIn = true;
-        if (logedIn) {
+        if (log_status) {
             logout++;
             if(logout >= 3) {
                 Intent resultIntent = new Intent();
@@ -283,5 +387,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        // call the superclass method first
+        super.onStop();
+
+        SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putLong("saved_lat",Double.doubleToRawLongBits(mMap.getMyLocation().getLatitude()));
+        editor.putLong("saved_lng",Double.doubleToRawLongBits(mMap.getMyLocation().getLongitude()));
+        editor.putInt("saved_zoom",(int) mMap.getCameraPosition().zoom);
+
+        editor.commit();
+
     }
 }
