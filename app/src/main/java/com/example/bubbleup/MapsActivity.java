@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 
 import org.joda.time.DateTime;
@@ -204,9 +206,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     public void wobbleBubbles (List<BubbleMarker> bubbles){
+        LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;//Efficiency?
         //iterate over the list, uses for each syntax, nice Java 8 feature. Can parallelize?
         for (BubbleMarker currentBubble : bubbles) {
-            currentBubble.wobble();
+            if(currentBound.contains(currentBubble.bubbleMarker.getPosition()))
+                currentBubble.wobble();
         }
     }
 
@@ -220,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }
             } finally {
                 // this code always executes even if try is successful.
-                mHandler.postDelayed(bubbleUpdater, 40);//setting update delay to 10 milliseconds.
+                mHandler.postDelayed(bubbleUpdater, 50);//setting update delay to 10 milliseconds.
             }
         }
     };
@@ -229,6 +233,20 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = mMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.night_mode));
+            if (!success) {
+                Log.e("BubbleUp", "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e("BubbleUP", "Can't find style. Error: ", e);
+        }
+
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(saved_lat,saved_lng),saved_zoom));
 
