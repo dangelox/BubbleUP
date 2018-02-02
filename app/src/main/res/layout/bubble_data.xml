@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="500px"
@@ -12,10 +13,32 @@
         android:scrollIndicators="right"
         android:scrollbars="vertical">
 
-        <TextView
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/hello_blank_fragment" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:src="@drawable/common_google_signin_btn_icon_dark" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Name" />
+
+            <ToggleButton
+                android:id="@+id/toggleButton"
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:layout_column="11"
+                android:layout_row="0"
+                android:background="@drawable/like_button"
+                android:text="ToggleButton" />
+
+        </GridLayout>
     </ScrollView>
 
 </FrameLayout>
