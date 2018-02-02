@@ -37,6 +37,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
+import org.joda.time.Minutes;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,10 +76,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     //To pass the intent to switch case later
     private static final int addMarkerIntent = 1;
-
-    //Trajectory control variables, each bubble should have its own, create new class?
-    double wobbler1;
-    double wobbler2;
 
     private boolean mLocationPermissionGranted;
 
@@ -267,10 +267,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
-                edit.putExtra("location", latLng);
-                edit.putExtra("myToken",token);
-                MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
+                if(log_status) {
+                    Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
+                    edit.putExtra("location", latLng);
+                    edit.putExtra("myToken", token);
+                    MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -284,11 +288,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            String id;
+                            String user_id;
+                            String post_id;
                             String body;
                             boolean visible = false;
                             double lat;
                             double lng;
+                            String date;
                             Log.d("BubbleUp", "JSOn Response: \n" + response.toString());
                             try {
                                 JSONArray json_response = new JSONArray(response.toString());
@@ -296,16 +302,43 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 myBubbles.clear();//empty the array.
 
                                 for (int i = 0; i < json_response.length(); i++) {
+
                                     JSONObject myJson = (JSONObject) json_response.get(i);
-                                    id = myJson.get("id").toString();
+                                    post_id = myJson.get("id").toString();
+                                    user_id = myJson.get("user_id").toString();
                                     body = myJson.get("body").toString();
+                                    String date_str = myJson.get("created_at").toString().substring(5,10);
+                                    Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0,4));
+                                    Integer month = Integer.parseInt(date_str.substring(0,2));
+                                    Integer day = Integer.parseInt(date_str.substring(3,5));
+                                    String time_str = myJson.get("created_at").toString().substring(11,16);
+                                    Integer hour = Integer.parseInt(time_str.substring(0,2));
+                                    Integer minute = Integer.parseInt(time_str.substring(3,5));
+
+                                    DateTime bubbleTime = new DateTime(year,month,day,hour,minute, DateTimeZone.UTC);
+                                    DateTime currentTime = new DateTime();//Local Date Time
+
+                                    int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
+                                    int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
+
+                                    //Log.d("BubbleUp",bubbleTime.toString());
+                                    //Log.d("BubbleUp",currentTime.toString());
+
+                                    double size_calc = 250 * Math.pow(0.65,minDiff/1440.0) + 100;
+                                    int size = (int) size_calc;
+
+                                    Log.d("BubbleUp","Double = " + Double.toString(Math.pow(0.5,minDiff/1440.0)) + ", wtf = " + Double.toString(Math.pow(0.5,0.9)));
+                                    Log.d("BubbleUp","post_id = "+ post_id +", dayDiff = " + Integer.toString(dayDiff) + ", minDiff = " + Integer.toString(minDiff) +", CALCULATED SIZE = " + size);
+
+                                    date = date_str +" "+ time_str;
+
                                     visible = Boolean.parseBoolean(myJson.get("visible").toString());
                                     lat = Double.parseDouble(myJson.get("lat").toString());
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
                                     //Check for id so that you don't duplicate bubbles.
 
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), body, "", 320, 320, getApplicationContext());
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), body + " #" + post_id, "User#"+user_id+" "+date,"", size, size, getApplicationContext());
                                     newBubble.addMarker(mMap);
                                     myBubbles.add(newBubble);
                                 }
@@ -328,7 +361,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }
             };
             queue.add(tokenRequest);
-        }else{//Free View
+        }else{
+            //TODO: ADD FREE VIEW ROUTE TO HEROKU?
 
         }
     }
@@ -338,15 +372,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         switch(requestCode) {
             case (addMarkerIntent) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    //BubbleMarker newMarker = (LatLng) data.getParcelableExtra("marker");
-                    /*
-                    LatLng latlng = (LatLng) data.getParcelableExtra("latlng");
-                    String snipet = data.getParcelableExtra("snipet");
-                    String tittle = data.getParcelableExtra("string");
-                    BubbleMarker newMarker = new BubbleMarker(latlng, snipet, tittle, 320, 320, getApplicationContext());//Draws a bubble near lawrence
-                    newMarker.addMarker(mMap);
-                    myBubbles.add(newMarker);
-                    */
                     bubbleLoader();
                 }
                 break;
@@ -379,6 +404,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         if (log_status) {
             logout++;
             if(logout >= 3) {
+                log_status = false;//Redundant?
                 Intent resultIntent = new Intent();
                 setResult(Activity.RESULT_OK, resultIntent);
                 finish();

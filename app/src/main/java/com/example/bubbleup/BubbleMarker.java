@@ -28,10 +28,11 @@ public class BubbleMarker implements Serializable{
     private double wobbler1 = 0;
     private double wobbler2 = 0;
 
-    public BubbleMarker(LatLng mCoor, String text, String tittle, int width, int height, Context myContext){
+    public BubbleMarker(LatLng mCoor, String text, String poster, String tittle, int width, int height, Context myContext){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 
         bubbleMarkerOption.snippet(text);
+        bubbleMarkerOption.title(poster);
 
         msg = text;//Text message to be displayed
 
@@ -44,23 +45,26 @@ public class BubbleMarker implements Serializable{
         //adds the scaled bitmap to our marker icon
         bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(scaledBitMap));
 
+        wobbler1 = mCoor.latitude * mCoor.latitude;
+        wobbler2 = mCoor.longitude * mCoor.longitude;
+
         //bubbleMarker = mMap.addMarker(bubble);
     }
 
-    public void addMarker(GoogleMap mMap){
+    public Marker addMarker(GoogleMap mMap){
         bubbleMarker = mMap.addMarker(bubbleMarkerOption);
+        return bubbleMarker;
     }
 
     public void wobble(){
         if(bubbleMarker != null && bubbleMarker.isVisible()){
             wobbler1 += .01;
             wobbler2 += .02;
-            double moveY = bubbleMarker.getPosition().latitude + Math.cos(wobbler1)/15000.0 + Math.cos(wobbler2)/16000.0;
-            double moveX = bubbleMarker.getPosition().longitude + Math.sin(wobbler1)/15000.0 + Math.cos(wobbler2)/16000.0;
+            double moveY = bubbleMarker.getPosition().latitude + Math.cos(wobbler1)/185000.0 + Math.cos(wobbler2)/187000.0;
+            double moveX = bubbleMarker.getPosition().longitude + Math.sin(wobbler1)/185000.0 + Math.cos(wobbler2)/187000.0;
 
             bubbleMarker.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
             bubbleMarker.setVisible(true);//Re-draws the bubble in its new position.
-
 
             //Log.d("BubbleUp", "Y = " + wobbler1 + "X = " + wobbler2);
 
