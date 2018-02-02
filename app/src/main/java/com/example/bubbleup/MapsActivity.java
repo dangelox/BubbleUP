@@ -114,6 +114,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         saved_lat = Double.longBitsToDouble(saved_settings.getLong("saved_lat",0));
         saved_lng = Double.longBitsToDouble(saved_settings.getLong("saved_lng",0));
         saved_zoom = saved_settings.getInt("saved_zoom",0);
+        curTheme = saved_settings.getInt("myTheme", R.raw.standard_mode);
 
 
         log_status = getIntent().getBooleanExtra("log_status",false);
@@ -283,7 +284,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             // in a raw resource file.
             boolean success = mMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.standard_mode));
+                            this, curTheme));
             if (!success) {
                 Log.e("BubbleUp", "Style parsing failed.");
             }
@@ -492,6 +493,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         editor.putLong("saved_lat",Double.doubleToRawLongBits(mMap.getMyLocation().getLatitude()));
         editor.putLong("saved_lng",Double.doubleToRawLongBits(mMap.getMyLocation().getLongitude()));
         editor.putInt("saved_zoom",(int) mMap.getCameraPosition().zoom);
+        editor.putInt("myTheme", curTheme);
 
         editor.commit();
 
