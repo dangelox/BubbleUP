@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -54,7 +55,10 @@ public class ContentFragment extends Fragment {
         for (BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
-                myList.addView(myInflater.inflate(R.layout.fragment_post_container, myList, false));
+                View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
+                TextView text = (TextView) container.findViewById(R.id.textView);
+                text.setText(currentBubble.msg);
+                myList.addView(container);
             }
         }
     }
