@@ -115,6 +115,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         saved_lng = Double.longBitsToDouble(saved_settings.getLong("saved_lng",0));
         saved_zoom = saved_settings.getInt("saved_zoom",0);
 
+
         log_status = getIntent().getBooleanExtra("log_status",false);
 
         if(log_status) {
@@ -152,9 +153,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
-                    myFragment.sendToFragment(myBubbles, currentBound);
-
                     fragmentTransaction.commit();
+                    myFragment.sendToFragment(myBubbles, currentBound);
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
                 }
