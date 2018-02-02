@@ -35,6 +35,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 
 import org.joda.time.DateTime;
@@ -144,6 +145,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     Log.d("BubbleUp","Hiding content.");
                 }else{
                     fragmentTransaction.add(R.id.zone, myFragment);
+
+                    LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
+                    myFragment.sendToFragment(myBubbles, currentBound);
+
                     fragmentTransaction.commit();
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");

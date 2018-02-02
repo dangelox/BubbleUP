@@ -4,9 +4,14 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.maps.model.LatLngBounds;
+
+import java.util.List;
 
 
 /**
@@ -29,8 +34,19 @@ public class BlankFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    List<BubbleMarker> myBubbles;
+
     public BlankFragment() {
         // Required empty public constructor
+    }
+
+    public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
+        myBubbles = bubbleList;//Necessary?
+        for (BubbleMarker currentBubble : bubbleList) {
+            if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
+                Log.d("BubbleUp_Fragment",currentBubble.msg);
+            }
+        }
     }
 
     /**
