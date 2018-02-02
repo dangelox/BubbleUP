@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
@@ -39,6 +40,8 @@ public class ContentFragment extends Fragment {
 
     View myView;
 
+    LayoutInflater myInflater;
+
     public ContentFragment() {
         // Required empty public constructor
     }
@@ -46,9 +49,12 @@ public class ContentFragment extends Fragment {
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
         //ListView myList = (ListView) myView.findViewById(R.id.scroll_view);
         //myList.setAdapter(new ArrayAdapter(getContext(),R.layout.fragment_scroll_view));
+        LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
+
         for (BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
+                myList.addView(myInflater.inflate(R.layout.fragment_post_container, myList, false));
             }
         }
     }
@@ -84,8 +90,9 @@ public class ContentFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        myInflater = inflater;
         myView = inflater.inflate(R.layout.bubble_data, container, false);
-        ScrollView myList = (ScrollView) myView.findViewById(R.id.scroll_view);
+
         return myView;
     }
 

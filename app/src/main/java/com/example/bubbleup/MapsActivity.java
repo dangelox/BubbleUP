@@ -154,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
-                    fragmentTransaction.commit();
+                    fragmentTransaction.commitNow();
                     myFragment.sendToFragment(myBubbles, currentBound);
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
