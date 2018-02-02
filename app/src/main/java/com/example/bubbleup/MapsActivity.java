@@ -94,8 +94,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Map Fragment, make local or global? Check Transitions guides.
     SupportMapFragment mapFragment;
 
+    //Integer to hold theme choice
+    int curTheme = 1; //1 = night mode, 0 = retro mode
+
     //Buttons
     Button content_button;
+    Button theme_button;
 
     double saved_lat;
     double saved_lng;
@@ -154,6 +158,46 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
                 }
+            }
+        });
+
+        theme_button = (Button) findViewById(R.id.button_theme_change);
+
+        theme_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(curTheme == 1){
+                    curTheme = 0;
+                    try {
+                        // Customise the styling of the base map using a JSON object defined
+                        // in a raw resource file.
+                        boolean success = mMap.setMapStyle(
+                                MapStyleOptions.loadRawResourceStyle(
+                                        getApplicationContext(), R.raw.retro_mode));
+                        if (!success) {
+                            curTheme = 1;
+                            Log.e("BubbleUp", "Style parsing failed.");
+                        }
+                    } catch (Resources.NotFoundException e) {
+                        Log.e("BubbleUP", "Can't find style. Error: ", e);
+                    }
+                }
+                else{
+                    curTheme = 1;
+                    try {
+                        // Customise the styling of the base map using a JSON object defined
+                        // in a raw resource file.
+                        boolean success = mMap.setMapStyle(
+                                MapStyleOptions.loadRawResourceStyle(
+                                        getApplicationContext(), R.raw.night_mode));
+                        if (!success) {
+                            curTheme = 0;
+                            Log.e("BubbleUp", "Style parsing failed.");
+                        }
+                    } catch (Resources.NotFoundException e) {
+                        Log.e("BubbleUP", "Can't find style. Error: ", e);
+                    }
+                }
+
             }
         });
     }
