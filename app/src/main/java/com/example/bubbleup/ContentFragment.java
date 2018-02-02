@@ -17,12 +17,12 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link BlankFragment.OnFragmentInteractionListener} interface
+ * {@link ContentFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link BlankFragment#newInstance} factory method to
+ * Use the {@link ContentFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BlankFragment extends Fragment {
+public class ContentFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -34,14 +34,11 @@ public class BlankFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    List<BubbleMarker> myBubbles;
-
-    public BlankFragment() {
+    public ContentFragment() {
         // Required empty public constructor
     }
 
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
-        myBubbles = bubbleList;//Necessary?
         for (BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
@@ -58,8 +55,8 @@ public class BlankFragment extends Fragment {
      * @return A new instance of fragment BlankFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static BlankFragment newInstance(String param1, String param2) {
-        BlankFragment fragment = new BlankFragment();
+    public static ContentFragment newInstance(String param1, String param2) {
+        ContentFragment fragment = new ContentFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

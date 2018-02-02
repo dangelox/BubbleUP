@@ -29,7 +29,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -52,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, BlankFragment.OnFragmentInteractionListener {
+        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
@@ -87,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     FragmentManager fragmentManager = getSupportFragmentManager();
 
     //Content Fragment
-    public BlankFragment myFragment = new BlankFragment();
+    public ContentFragment myFragment = new ContentFragment();
     boolean fragment_display;
 
     //Map Fragment, make local or global? Check Transitions guides.
@@ -329,7 +328,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     //Log.d("BubbleUp",bubbleTime.toString());
                                     //Log.d("BubbleUp",currentTime.toString());
 
-                                    double size_calc = 250 * Math.pow(0.65,minDiff/1440.0) + 100;
+                                    double size_calc = 200 * Math.pow(0.65,minDiff/1440.0) + 100;
                                     int size = (int) size_calc;
 
                                     Log.d("BubbleUp","Double = " + Double.toString(Math.pow(0.5,minDiff/1440.0)) + ", wtf = " + Double.toString(Math.pow(0.5,0.9)));
