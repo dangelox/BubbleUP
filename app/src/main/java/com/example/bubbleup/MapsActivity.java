@@ -95,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     SupportMapFragment mapFragment;
 
     //Integer to hold theme choice
-    int curTheme = 1; //1 = night mode, 0 = retro mode
+    int curTheme = R.raw.standard_mode; //0 = standard mode, 1 = night mode, 2 = silver mode, 3 = night2 mode, 4 = retro mode, 5 = dark mode
 
     //Buttons
     Button content_button;
@@ -165,37 +165,37 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         theme_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(curTheme == 1){
-                    curTheme = 0;
-                    try {
-                        // Customise the styling of the base map using a JSON object defined
-                        // in a raw resource file.
-                        boolean success = mMap.setMapStyle(
-                                MapStyleOptions.loadRawResourceStyle(
-                                        getApplicationContext(), R.raw.retro_mode));
-                        if (!success) {
-                            curTheme = 1;
-                            Log.e("BubbleUp", "Style parsing failed.");
-                        }
-                    } catch (Resources.NotFoundException e) {
-                        Log.e("BubbleUP", "Can't find style. Error: ", e);
-                    }
+                switch (curTheme) {
+                    case R.raw.standard_mode:
+                        curTheme = R.raw.night_mode;
+                        break;
+                    case R.raw.night_mode:
+                        curTheme = R.raw.silver_mode;
+                        break;
+                    case R.raw.silver_mode:
+                        curTheme = R.raw.night2_mode;
+                        break;
+                    case R.raw.night2_mode:
+                        curTheme = R.raw.retro_mode;
+                        break;
+                    case R.raw.retro_mode:
+                        curTheme = R.raw.dark_mode;
+                        break;
+                    case R.raw.dark_mode:
+                        curTheme = R.raw.standard_mode;
+                        break;
                 }
-                else{
-                    curTheme = 1;
-                    try {
-                        // Customise the styling of the base map using a JSON object defined
-                        // in a raw resource file.
-                        boolean success = mMap.setMapStyle(
-                                MapStyleOptions.loadRawResourceStyle(
-                                        getApplicationContext(), R.raw.night_mode));
-                        if (!success) {
-                            curTheme = 0;
-                            Log.e("BubbleUp", "Style parsing failed.");
-                        }
-                    } catch (Resources.NotFoundException e) {
-                        Log.e("BubbleUP", "Can't find style. Error: ", e);
+                try {
+                    // Customise the styling of the base map using a JSON object defined
+                    // in a raw resource file.
+                    boolean success = mMap.setMapStyle(
+                            MapStyleOptions.loadRawResourceStyle(
+                                    getApplicationContext(), curTheme));
+                    if (!success) {
+                        Log.e("BubbleUp", "Style parsing failed.");
                     }
+                } catch (Resources.NotFoundException e) {
+                    Log.e("BubbleUP", "Can't find style. Error: ", e);
                 }
 
             }
@@ -283,7 +283,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             // in a raw resource file.
             boolean success = mMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.night_mode));
+                            this, R.raw.standard_mode));
             if (!success) {
                 Log.e("BubbleUp", "Style parsing failed.");
             }
