@@ -1,6 +1,7 @@
 package com.example.bubbleup;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,10 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -58,6 +61,18 @@ public class ContentFragment extends Fragment {
                 View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
                 TextView text = (TextView) container.findViewById(R.id.textView);
                 text.setText(currentBubble.msg);
+                String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
+                ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
+                switch(userName){
+                    case "User#1": userImage.setBackgroundColor(Color.parseColor("#ff9555"));
+                        break;
+                    case "User#2": userImage.setBackgroundColor(Color.parseColor("#9044D3"));
+                        break;
+                    case "User#9": userImage.setBackgroundColor(Color.parseColor("#EA2F7E"));
+                        break;
+                    default: userImage.setBackgroundColor(Color.parseColor("#28E1D3"));
+                        break;
+                }
                 myList.addView(container);
             }
         }

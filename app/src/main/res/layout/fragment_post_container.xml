@@ -4,9 +4,10 @@
     android:layout_height="match_parent">
 
     <ImageButton
-        android:id="@+id/imageButtonThemeChanger"
+        android:id="@+id/imageButton"
         android:layout_width="95dp"
         android:layout_height="95dp"
+        android:background="@color/colorAccent"
         android:src="@drawable/common_google_signin_btn_icon_dark" />
 
     <TextView
