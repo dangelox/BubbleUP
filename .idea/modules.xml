@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BubbleUP.iml" filepath="$PROJECT_DIR$/BubbleUP.iml" />
+      <module fileurl="file://C:\Users\andyk\AndroidStudioProjects\BubbleUP\BubbleUP.iml" filepath="C:\Users\andyk\AndroidStudioProjects\BubbleUP\BubbleUP.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\andyk\AndroidStudioProjects\BubbleUP\app\app.iml" filepath="C:\Users\andyk\AndroidStudioProjects\BubbleUP\app\app.iml" />
     </modules>
   </component>
 </project>
