@@ -6,7 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.location.Location;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -21,6 +26,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -98,8 +105,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     int curTheme = R.raw.standard_mode; //0 = standard mode, 1 = night mode, 2 = silver mode, 3 = night2 mode, 4 = retro mode, 5 = dark mode
 
     //Buttons
-    Button content_button;
-    Button theme_button;
+    ImageButton content_button;
+    ImageButton theme_button;
+    ImageButton profile_button;
+
+    //Colors
+    String backGroundColor;
+    String buttonColor;
+    String buttonTextColor;
 
     double saved_lat;
     double saved_lng;
@@ -140,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mHandler = new Handler();//Create handler
 
         //Buttons
-        content_button = (Button) findViewById(R.id.content_show);
+        content_button = (ImageButton) findViewById(R.id.content_show);
 
         content_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -162,30 +175,48 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         });
 
-        theme_button = (Button) findViewById(R.id.button_theme_change);
+        theme_button = (ImageButton) findViewById(R.id.button_theme_change);
 
         theme_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 switch (curTheme) {
                     case R.raw.standard_mode:
                         curTheme = R.raw.night_mode;
+                        backGroundColor = "#515c6d";//water labels.text.fill
+                        buttonColor = "#515c6d";
+                        buttonTextColor = "#515c6d";
                         break;
                     case R.raw.night_mode:
-                        curTheme = R.raw.silver_mode;
-                        break;
-                    case R.raw.silver_mode:
                         curTheme = R.raw.night2_mode;
+                        backGroundColor = "#515c6d";
+                        buttonColor = "#515c6d";
                         break;
                     case R.raw.night2_mode:
                         curTheme = R.raw.retro_mode;
+                        backGroundColor = "#515c6d";
+                        buttonColor = "#515c6d";
                         break;
                     case R.raw.retro_mode:
                         curTheme = R.raw.dark_mode;
+                        backGroundColor = "#515c6d";
+                        buttonColor = "#515c6d";
                         break;
                     case R.raw.dark_mode:
                         curTheme = R.raw.standard_mode;
+                        backGroundColor = "#515c6d";
+                        buttonColor = "#515c6d";
                         break;
                 }
+                if(backGroundColor != null && buttonColor != null && buttonTextColor != null) {
+                    findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
+
+                }
+                //theme_button.setBackgroundColor();
+                //theme_button.setTextColor();
+
+                //content_button.setBackgroundColor();
+                //content_button.setTextColor();
+
                 try {
                     // Customise the styling of the base map using a JSON object defined
                     // in a raw resource file.
@@ -199,6 +230,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     Log.e("BubbleUP", "Can't find style. Error: ", e);
                 }
 
+            }
+        });
+
+        profile_button = (ImageButton) findViewById(R.id.button_profile);
+
+        //Use this if we have a user profile image?
+        //Bitmap bitMap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_avatar);
+        //Bitmap scaledBitMap = Bitmap.createScaledBitmap(bitMap, 90,90, true);
+        //profile_button.setImageBitmap(scaledBitMap);
+
+        profile_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent profile_intent = new Intent(MapsActivity.this, UserSettings.class);
+                startActivity(profile_intent);
             }
         });
     }
@@ -417,7 +463,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d("BubbleUp", "Bubble Loader Error! " + error.toString());
+                    Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
                 }
             }) {
                 @Override
@@ -490,8 +536,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putLong("saved_lat",Double.doubleToRawLongBits(mMap.getMyLocation().getLatitude()));
-        editor.putLong("saved_lng",Double.doubleToRawLongBits(mMap.getMyLocation().getLongitude()));
+        editor.putLong("saved_lat",Double.doubleToRawLongBits(mMap.getCameraPosition().target.latitude));
+        editor.putLong("saved_lng",Double.doubleToRawLongBits(mMap.getCameraPosition().target.longitude));
         editor.putInt("saved_zoom",(int) mMap.getCameraPosition().zoom);
         editor.putInt("myTheme", curTheme);
 

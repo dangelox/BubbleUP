@@ -9,45 +9,52 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:animateLayoutChanges="true" >
-
-        <Button
-            android:id="@+id/button_theme_change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Theme"
-            app:layout_constraintBottom_toTopOf="@+id/content_show"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.019" />
 
         <fragment
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:context="com.example.bubbleup.MapsActivity"
             tools:ignore="MissingConstraints" />
 
-        <Button
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/dashboard"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="81dp"
+        tools:layout_editor_absoluteY="501dp">
+
+
+        <ImageButton
+            android:id="@+id/button_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_avatar" />
+
+
+        <ImageButton
             android:id="@+id/content_show"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Show Content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/map"
-            app:layout_constraintVertical_bias="0.917" />
-    </android.support.constraint.ConstraintLayout>
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_action_name" />
+
+        <ImageButton
+            android:id="@+id/button_theme_change"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_theme" />
+    </LinearLayout>
 
 </LinearLayout>
 
