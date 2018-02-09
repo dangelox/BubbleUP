@@ -64,13 +64,13 @@ public class ContentFragment extends Fragment {
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
                 switch(userName){
-                    case "User#1": userImage.setBackgroundColor(Color.parseColor("#ff9555"));
+                    case "User#1": userImage.setColorFilter(Color.parseColor("#ff9555"));;//setBackgroundColor(Color.parseColor("#ff9555"));
                         break;
-                    case "User#2": userImage.setBackgroundColor(Color.parseColor("#9044D3"));
+                    case "User#2": userImage.setColorFilter(Color.parseColor("#9044D3"));//setBackgroundColor(Color.parseColor("#9044D3"));
                         break;
-                    case "User#9": userImage.setBackgroundColor(Color.parseColor("#EA2F7E"));
+                    case "User#9": userImage.setColorFilter(Color.parseColor("#EA2F7E"));//setBackgroundColor(Color.parseColor("#EA2F7E"));
                         break;
-                    default: userImage.setBackgroundColor(Color.parseColor("#28E1D3"));
+                    default: userImage.setColorFilter(Color.parseColor("#28E1D3"));//setBackgroundColor(Color.parseColor("#28E1D3"));
                         break;
                 }
                 myList.addView(container);

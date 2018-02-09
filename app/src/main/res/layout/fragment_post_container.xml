@@ -7,8 +7,10 @@
         android:id="@+id/imageButton"
         android:layout_width="95dp"
         android:layout_height="95dp"
-        android:background="@color/colorAccent"
-        android:src="@drawable/common_google_signin_btn_icon_dark" />
+        android:background="@drawable/ic_avatar"
+        android:backgroundTintMode="src_over"
+        android:src="@drawable/crystal_bubble"
+        android:scaleType="fitCenter"/>
 
     <TextView
         android:id="@+id/textView"
