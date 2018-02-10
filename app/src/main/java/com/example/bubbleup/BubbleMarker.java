@@ -1,8 +1,15 @@
 package com.example.bubbleup;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.os.AsyncTask;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -10,7 +17,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 
 public class BubbleMarker implements Serializable{
 
@@ -20,7 +29,8 @@ public class BubbleMarker implements Serializable{
     public int zoomUpBound;
     public int zoomDownBound;
 
-    public int id;
+    public int myUser_id;
+    public int myPost_id;
 
     public MarkerOptions bubbleMarkerOption;
     public Marker bubbleMarker;
@@ -28,27 +38,45 @@ public class BubbleMarker implements Serializable{
     private double wobbler1 = 0;
     private double wobbler2 = 0;
 
-    public BubbleMarker(LatLng mCoor, String text, String poster, String tittle, int width, int height, Context myContext){
+    public Bitmap profile_image;
+    public Bitmap overlay;
+
+    public int myWidth;
+    public int myHeight;
+
+    public BubbleMarker(LatLng mCoor, int user_id,String text, String poster, String tittle, int width, int height, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
+
+        profile_image = image;
+
+        myUser_id = user_id;
+
+        myWidth = width;
+        myHeight = height;
 
         bubbleMarkerOption.snippet(text);
         bubbleMarkerOption.title(poster);
 
         msg = text;//Text message to be displayed
 
-        //creates a bitMap from our cyrstal bubble image
-        Bitmap bitMap = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.crystal_bubble);
+        //creates a bitMap from our crystal bubble image
+        overlay = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.crystal_bubble);
 
         //scales the bitmap to a predetermined size
-        Bitmap scaledBitMap = Bitmap.createScaledBitmap(bitMap, width,height, true);
+        overlay = Bitmap.createScaledBitmap(overlay, width,height, true);
+
+        //TODO: Might want to edit this?
+        if(image != null) {
+            RoundedBitmapDrawable img = RoundedBitmapDrawableFactory.create(Resources.getSystem(), image);
+            img.setCircular(true);
+            overlay = overlay(overlay, Bitmap.createScaledBitmap(img.getBitmap(),myWidth,myHeight,true));
+        }
 
         //adds the scaled bitmap to our marker icon
-        bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(scaledBitMap));
+        bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(overlay));
 
         wobbler1 = mCoor.latitude * mCoor.latitude;
         wobbler2 = mCoor.longitude * mCoor.longitude;
-
-        //bubbleMarker = mMap.addMarker(bubble);
     }
 
     public Marker addMarker(GoogleMap mMap){
@@ -66,16 +94,29 @@ public class BubbleMarker implements Serializable{
             bubbleMarker.setPosition(new LatLng(moveY, moveX));//changes the bubble position.
             bubbleMarker.setVisible(true);//Re-draws the bubble in its new position.
 
-            //Log.d("BubbleUp", "Y = " + wobbler1 + "X = " + wobbler2);
-
-            /*
-            if(mMap.getCameraPosition().zoom > 8){
-                currentBubble.bubble.visible(true);
-            }else{
-                currentBubble.bubble.visible(false);
-            }
-            */
         }
+    }
+
+    public void updateImage(Bitmap image){
+        profile_image = image;
+        RoundedBitmapDrawable img = RoundedBitmapDrawableFactory.create(Resources.getSystem(), image);
+        img.setCircular(true);
+        Bitmap result = overlay(Bitmap.createScaledBitmap(img.getBitmap(),myWidth,myHeight,true), overlay);
+        if(bubbleMarker != null){
+            bubbleMarker.setIcon(BitmapDescriptorFactory.fromBitmap(result));
+        }
+    }
+
+    private Bitmap overlay(Bitmap image1, Bitmap image2) {
+        Bitmap bmOverlay = Bitmap.createBitmap(image1.getWidth(), image1.getHeight(), image1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(image1, new Matrix(), null);
+        canvas.drawBitmap(image2, new Matrix(), null);
+        return bmOverlay;
+    }
+
+    public Bitmap getProfileImage(){
+        return profile_image;
     }
 }
 

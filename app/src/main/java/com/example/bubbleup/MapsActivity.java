@@ -9,10 +9,12 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -23,7 +25,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -41,6 +46,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -54,10 +60,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
@@ -68,10 +78,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     boolean log_status = false;
 
     String url_posts ="https://bubbleup-api.herokuapp.com/posts";
+    String url_links ="https://bubbleup-api.herokuapp.com/user/image/";
+
 
     String token;
 
     private GoogleMap mMap;
+
+    Bitmap profile_picture;
 
     //List where we will store all bubbles, may wanna use a different data structure in the future.
     //List<GroundOverlay> myBubbles;
@@ -118,6 +132,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     double saved_lng;
     int saved_zoom;
 
+    RequestQueue queue;
+
+    private String profile_pic_link = "";
+    ArrayList<Integer> user_id_list;
+    HashMap<Integer, Bitmap> profilePictureStorageBitmap;
+    HashMap<Integer, String> profilePictureStorageLink;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +152,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
 
         log_status = getIntent().getBooleanExtra("log_status",false);
+        profile_pic_link = getIntent().getStringExtra("profile_link");
 
         if(log_status) {
             Log.d("BubbleUp","log_status = true");
@@ -296,12 +318,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
     }
 
-    public void wobbleBubbles (List<BubbleMarker> bubbles){
+    public void updateBubbles (List<BubbleMarker> bubbles){
         LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;//Efficiency?
         //iterate over the list, uses for each syntax, nice Java 8 feature. Can parallelize?
         for (BubbleMarker currentBubble : bubbles) {
-            if(currentBound.contains(currentBubble.bubbleMarker.getPosition()))
+            if(currentBound.contains(currentBubble.bubbleMarker.getPosition())) {
                 currentBubble.wobble();
+                if(currentBubble.getProfileImage() == null && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
+                    currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id));
+                }
+            }
         }
     }
 
@@ -311,7 +337,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         public void run() {
             try {
                 if(!myBubbles.isEmpty()){
-                    wobbleBubbles(myBubbles);//Changes bubbles coordinates
+                    updateBubbles(myBubbles);//Changes bubbles coordinates
                 }
             } finally {
                 // this code always executes even if try is successful.
@@ -325,6 +351,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         mMap = googleMap;
 
+        profilePictureStorageLink = new HashMap<>();
+
+        profilePictureStorageBitmap = new HashMap<>();
+
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -336,6 +366,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         } catch (Resources.NotFoundException e) {
             Log.e("BubbleUP", "Can't find style. Error: ", e);
+            curTheme = R.raw.standard_mode;
         }
 
 
@@ -394,31 +425,34 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     public void bubbleLoader(){
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+        queue = Volley.newRequestQueue(getApplicationContext());
+
+        user_id_list = new ArrayList();
 
         if(log_status) {
             StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_posts,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            String user_id;
+                            int user_id;
                             String post_id;
                             String body;
                             boolean visible = false;
                             double lat;
                             double lng;
                             String date;
-                            Log.d("BubbleUp", "JSOn Response: \n" + response.toString());
+                            //Log.d("BubbleUp", "JSOn Response: \n" + response.toString());
+                            Log.d("BubbleUp", "JSOn Post Get Response Successful");
                             try {
                                 JSONArray json_response = new JSONArray(response.toString());
 
                                 myBubbles.clear();//empty the array.
 
                                 for (int i = 0; i < json_response.length(); i++) {
-
                                     JSONObject myJson = (JSONObject) json_response.get(i);
+
                                     post_id = myJson.get("id").toString();
-                                    user_id = myJson.get("user_id").toString();
+                                    user_id = Integer.parseInt(myJson.get("user_id").toString());
                                     body = myJson.get("body").toString();
                                     String date_str = myJson.get("created_at").toString().substring(5,10);
                                     Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0,4));
@@ -427,6 +461,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     String time_str = myJson.get("created_at").toString().substring(11,16);
                                     Integer hour = Integer.parseInt(time_str.substring(0,2));
                                     Integer minute = Integer.parseInt(time_str.substring(3,5));
+
+                                    if(user_id_list != null && !user_id_list.contains(user_id)){
+                                        user_id_list.add(user_id);
+                                        Log.d("BubbleUp","Added User to List " + user_id);
+                                    }
 
                                     DateTime bubbleTime = new DateTime(year,month,day,hour,minute, DateTimeZone.UTC);
                                     DateTime currentTime = new DateTime();//Local Date Time
@@ -437,11 +476,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     //Log.d("BubbleUp",bubbleTime.toString());
                                     //Log.d("BubbleUp",currentTime.toString());
 
-                                    double size_calc = 200 * Math.pow(0.65,minDiff/1440.0) + 100;
+                                    double size_calc = 180 * Math.pow(0.65,minDiff/1440.0) + 50;
                                     int size = (int) size_calc;
 
-                                    Log.d("BubbleUp","Double = " + Double.toString(Math.pow(0.5,minDiff/1440.0)) + ", wtf = " + Double.toString(Math.pow(0.5,0.9)));
-                                    Log.d("BubbleUp","post_id = "+ post_id +", dayDiff = " + Integer.toString(dayDiff) + ", minDiff = " + Integer.toString(minDiff) +", CALCULATED SIZE = " + size);
+                                    //Log.d("BubbleUp","post_id = "+ post_id +", dayDiff = " + Integer.toString(dayDiff) + ", minDiff = " + Integer.toString(minDiff) +", CALCULATED SIZE = " + size);
 
                                     date = date_str +" "+ time_str;
 
@@ -449,12 +487,58 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     lat = Double.parseDouble(myJson.get("lat").toString());
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
-                                    //Check for id so that you don't duplicate bubbles.
-
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), body + " #" + post_id, "User#"+user_id+" "+date,"", size, size, getApplicationContext());
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id,body + " #" + post_id, "User#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
                                     newBubble.addMarker(mMap);
                                     myBubbles.add(newBubble);
                                 }
+
+                                Log.d("BubbleUp", "JSON Requesting ID Links");
+                                for (final Integer id : user_id_list) {
+                                    //TODO: Query ID Links
+                                    Log.d("BubbleUp", "JSON Request for ID #" + id);
+                                    StringRequest id_profile_link_request = new StringRequest(Request.Method.GET, url_links + id,
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+
+                                                    Log.d("BubbleUp", "ID get JSOn Response: \n" + response);
+                                                    try {
+                                                        JSONObject json_response = new JSONObject(response);
+                                                        String link = json_response.getString("profile_image");
+
+                                                        fetchImageAsync imageFetch = new fetchImageAsync();
+                                                        imageFetch.execute(Pair.create(id, link));
+
+                                                    } catch (JSONException e) {
+                                                        Log.d("BubbleUp", "JSON IDs get problem!");
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("BubbleUp", " : ID get JSOn Response Error! " + error.toString());
+                                        }
+                                    }) {
+                                        @Override
+                                        public Map<String,String> getParams(){
+                                            Map<String, String> params = new HashMap();
+                                            params.put("id","\"" + id.toString() + "\"");
+                                            return params;
+                                        }
+                                        @Override
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> headers = new HashMap();
+                                            headers.put("Authorization", "JWT " + token);
+                                            headers.put("Content-Type","application/json");
+                                            return headers;
+                                        }
+                                    };
+
+                                    queue.add(id_profile_link_request);
+                                }
+
+
                             } catch (JSONException e) {
                                 Log.d("BubbleUp", "JSON object problem!");
                                 e.printStackTrace();
@@ -476,8 +560,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             queue.add(tokenRequest);
         }else{
             //TODO: ADD FREE VIEW ROUTE TO HEROKU?
-
         }
+
+
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -543,5 +628,32 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         editor.commit();
 
+    }
+
+    private class fetchImageAsync extends AsyncTask<Pair<Integer,String>, Void, Pair<Integer,Bitmap>> {
+        @Override
+        protected Pair<Integer,Bitmap> doInBackground(Pair<Integer,String>... params) {
+            int usrId = params[0].first;
+            String url = params[0].second;
+
+            Bitmap profile_image;
+            try {
+                Log.d("BubbleUp", "Trying profile picture fetch. From: " + url);
+                profile_image = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+                Log.d("BubbleUp", "Success profile picture fetch. From: " + url);
+            } catch (Exception e) {
+                Log.d("BubbleUp", "Profile picture fetch failed. " + e.toString());
+                profile_image = null;
+            }
+
+            return Pair.create(usrId, profile_image);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<Integer,Bitmap> usr_id_image) {
+            if(usr_id_image.second != null) {
+                profilePictureStorageBitmap.put(usr_id_image.first,usr_id_image.second);
+            }
+        }
     }
 }

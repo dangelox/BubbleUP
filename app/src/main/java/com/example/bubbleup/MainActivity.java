@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TOKEN_PREF = "user_token";
 
     private String saved_token = "";
+    private String profile_pic_link;
 
 
     @Override
@@ -74,10 +76,13 @@ public class MainActivity extends AppCompatActivity {
                             String user_name = "";
                             String email = "";
                             try {
+                                Log.d("BubbleUp","Token Response:" + response);
                                 JSONObject json_response = new JSONObject(response.toString());
+                                profile_pic_link = (String) json_response.get("profile_image");
                                 id = (int) json_response.get("id");
                                 user_name = (String) json_response.get("name");
                                 email = (String) json_response.get("email");
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -87,12 +92,18 @@ public class MainActivity extends AppCompatActivity {
                             Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
                             token_success.putExtra("myToken", saved_token);
                             token_success.putExtra("log_status", true);
+                            token_success.putExtra("profile_link", profile_pic_link);
                             //startActivity(token_success);
                             MainActivity.this.startActivityForResult(token_success,log_off);
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    Log.d("BubbleUp","Response error:" + error.toString());
+                    Log.d("BubbleUp","Response error msg:" + error.getMessage());
+
+                    //com.android.volley.TimeoutError
+
                     mTextView.setText("Token Authentication Failure! Deleting token.");
                     saved_token = null;
 
@@ -109,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
                     return params;
                 }
             };
+
+            //In case the first attempt gets timed out
+            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
             queue.add(tokenRequest);
         }
@@ -127,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         bt_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,15 +162,17 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(String response) {
                                 // Display the first 500 characters of the response string.
-                                mTextView.setText("Response: "+ response.toString());
+                                mTextView.setText("Response: "+ response);
+                                Log.d("BubbleUp","Login Success: " + response);
 
                                 //TODO: Convert this string into a JSOn object and then just extract the token.
                                 try {
-                                    JSONObject json_response = new JSONObject(response.toString());
+                                    JSONObject json_response = new JSONObject(response);
                                     saved_token = (String) json_response.get("token");
+                                    profile_pic_link = (String) json_response.get("profile_image");
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                    saved_token = response.toString();
+                                    saved_token = response;
                                 }
 
                                 SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
@@ -163,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent login_success = new Intent(MainActivity.this, MapsActivity.class);
                                 login_success.putExtra("myToken", saved_token);
                                 login_success.putExtra("log_status",true);
+                                login_success.putExtra("profile_link", profile_pic_link);
                                 MainActivity.this.startActivityForResult(login_success,log_off);//log_off meaning it expects a log_off result at some point
                             }
                         }, new Response.ErrorListener() {

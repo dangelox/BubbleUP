@@ -76,11 +76,7 @@ public class AddMarkerActivity extends AppCompatActivity {
             public void onClick(final View view) {
                 String tittle = "";
 
-                BubbleMarker myBubble = new BubbleMarker(latlng, "", "","", 320, 320, getApplicationContext());//Draws a bubble near lawrence
-
                 if(userSnippet.getText() != null && userSnippet.getText().length() > 0){
-                    myBubble.bubbleMarkerOption.snippet(userSnippet.getText().toString());
-                    myBubble.msg = userSnippet.getText().toString();
                     snippet = userSnippet.getText().toString();
                 }else{
                     Toast.makeText(getApplicationContext(), "Empty post.", Toast.LENGTH_LONG).show();
@@ -88,8 +84,6 @@ public class AddMarkerActivity extends AppCompatActivity {
                 }
                 //set the title to the input from user
                 if (userTitle.getText() != null) {
-                    myBubble.bubbleMarkerOption.title(userTitle.getText().toString());
-                    myBubble.tittle = userTitle.getText().toString();
                     tittle = userTitle.getText().toString();
                 }
 
