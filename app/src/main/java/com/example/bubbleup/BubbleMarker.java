@@ -44,6 +44,7 @@ public class BubbleMarker implements Serializable{
     public int myWidth;
     public int myHeight;
 
+
     public BubbleMarker(LatLng mCoor, int user_id,String text, String poster, String tittle, int width, int height, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 

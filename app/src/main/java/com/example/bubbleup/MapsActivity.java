@@ -596,6 +596,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     }
 
+    public void moveCamera(LatLng latlng){
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,mMap.getCameraPosition().zoom));
+    }
+
     //Handle Back Button Press.
     @Override
     public void onBackPressed() {

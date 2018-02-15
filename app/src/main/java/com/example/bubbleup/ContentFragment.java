@@ -2,8 +2,10 @@ package com.example.bubbleup;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,7 +57,7 @@ public class ContentFragment extends Fragment {
         //myList.setAdapter(new ArrayAdapter(getContext(),R.layout.fragment_scroll_view));
         LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
-        for (BubbleMarker currentBubble : bubbleList) {
+        for (final BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
                 View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
@@ -63,15 +65,34 @@ public class ContentFragment extends Fragment {
                 text.setText(currentBubble.msg);
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
-                switch(userName){
-                    case "User#1": userImage.setColorFilter(Color.parseColor("#ff9555"));;//setBackgroundColor(Color.parseColor("#ff9555"));
-                        break;
-                    case "User#2": userImage.setColorFilter(Color.parseColor("#9044D3"));//setBackgroundColor(Color.parseColor("#9044D3"));
-                        break;
-                    case "User#9": userImage.setColorFilter(Color.parseColor("#EA2F7E"));//setBackgroundColor(Color.parseColor("#EA2F7E"));
-                        break;
-                    default: userImage.setColorFilter(Color.parseColor("#28E1D3"));//setBackgroundColor(Color.parseColor("#28E1D3"));
-                        break;
+
+                container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((MapsActivity) getActivity()).moveCamera(currentBubble.bubbleMarker.getPosition());
+                    }
+                });
+
+                if(currentBubble.profile_image != null) {
+                    userImage.setImageBitmap(currentBubble.profile_image);
+                    userImage.setBackgroundResource(0);
+                }else {
+                    //TODO: Move bubble src to the foreground, and make image the src.
+                    switch (userName) {
+                        case "User#1":
+                            userImage.setColorFilter(Color.parseColor("#ff9555"));
+                            ;//setBackgroundColor(Color.parseColor("#ff9555"));
+                            break;
+                        case "User#2":
+                            userImage.setColorFilter(Color.parseColor("#9044D3"));//setBackgroundColor(Color.parseColor("#9044D3"));
+                            break;
+                        case "User#9":
+                            userImage.setColorFilter(Color.parseColor("#EA2F7E"));//setBackgroundColor(Color.parseColor("#EA2F7E"));
+                            break;
+                        default:
+                            userImage.setColorFilter(Color.parseColor("#28E1D3"));//setBackgroundColor(Color.parseColor("#28E1D3"));
+                            break;
+                    }
                 }
                 myList.addView(container);
             }
