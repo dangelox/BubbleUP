@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        queue = Volley.newRequestQueue(getApplicationContext());
+
         mTextView = (TextView) findViewById(R.id.text_greet);
 
         // Instantiate the RequestQueue.
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                             token_success.putExtra("myToken", saved_token);
                             token_success.putExtra("log_status", true);
                             token_success.putExtra("profile_link", profile_pic_link);
+                            token_success.putExtra("myUsernName", user_name);
                             //startActivity(token_success);
                             MainActivity.this.startActivityForResult(token_success,log_off);
                         }
@@ -165,11 +168,14 @@ public class MainActivity extends AppCompatActivity {
                                 mTextView.setText("Response: "+ response);
                                 Log.d("BubbleUp","Login Success: " + response);
 
+                                String user_name = "";
+
                                 //TODO: Convert this string into a JSOn object and then just extract the token.
                                 try {
                                     JSONObject json_response = new JSONObject(response);
                                     saved_token = (String) json_response.get("token");
                                     profile_pic_link = (String) json_response.get("profile_image");
+                                    user_name = (String) json_response.get("name");
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     saved_token = response;
@@ -184,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
                                 login_success.putExtra("myToken", saved_token);
                                 login_success.putExtra("log_status",true);
                                 login_success.putExtra("profile_link", profile_pic_link);
+                                login_success.putExtra("myUsernName", user_name);
                                 MainActivity.this.startActivityForResult(login_success,log_off);//log_off meaning it expects a log_off result at some point
                             }
                         }, new Response.ErrorListener() {

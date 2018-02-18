@@ -86,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     private GoogleMap mMap;
 
     Bitmap profile_picture;
+    String myUserName;
 
     //List where we will store all bubbles, may wanna use a different data structure in the future.
     //List<GroundOverlay> myBubbles;
@@ -138,6 +139,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ArrayList<Integer> user_id_list;
     HashMap<Integer, Bitmap> profilePictureStorageBitmap;
     HashMap<Integer, String> profilePictureStorageLink;
+    HashMap<Integer, String> profileNameStorage;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -152,6 +154,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
 
         log_status = getIntent().getBooleanExtra("log_status",false);
+        myUserName = getIntent().getStringExtra("myUserName");
         profile_pic_link = getIntent().getStringExtra("profile_link");
 
         if(log_status) {
@@ -327,6 +330,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(currentBubble.getProfileImage() == null && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
                     currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id));
                 }
+
+                if(currentBubble.username.equals("") && profileNameStorage.containsKey(currentBubble.myUser_id)){
+                    currentBubble.username = profileNameStorage.get(currentBubble.myUser_id);
+                    currentBubble.bubbleMarker.setTitle(currentBubble.username + currentBubble.bubbleMarker.getTitle());
+                }
             }
         }
     }
@@ -352,6 +360,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mMap = googleMap;
 
         profilePictureStorageLink = new HashMap<>();
+
+        profileNameStorage = new HashMap<>();
 
         profilePictureStorageBitmap = new HashMap<>();
 
@@ -487,7 +497,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     lat = Double.parseDouble(myJson.get("lat").toString());
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id,body + " #" + post_id, "User#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
                                     newBubble.addMarker(mMap);
                                     myBubbles.add(newBubble);
                                 }
@@ -505,6 +515,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                                     try {
                                                         JSONObject json_response = new JSONObject(response);
                                                         String link = json_response.getString("profile_image");
+                                                        String username = json_response.getString("name");
+                                                        profileNameStorage.put(id,username);
 
                                                         fetchImageAsync imageFetch = new fetchImageAsync();
                                                         imageFetch.execute(Pair.create(id, link));

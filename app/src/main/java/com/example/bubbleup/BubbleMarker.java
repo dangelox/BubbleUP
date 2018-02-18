@@ -32,6 +32,8 @@ public class BubbleMarker implements Serializable{
     public int myUser_id;
     public int myPost_id;
 
+    public String username = "";
+
     public MarkerOptions bubbleMarkerOption;
     public Marker bubbleMarker;
 
