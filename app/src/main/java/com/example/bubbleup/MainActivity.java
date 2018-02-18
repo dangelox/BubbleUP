@@ -174,8 +174,14 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     JSONObject json_response = new JSONObject(response);
                                     saved_token = (String) json_response.get("token");
-                                    profile_pic_link = (String) json_response.get("profile_image");
                                     user_name = (String) json_response.get("name");
+
+                                    //Necessary?
+                                    if(json_response.has("profile_image")){
+                                        profile_pic_link = json_response.getString("profile_image");
+                                    } else {
+                                        profile_pic_link = "";
+                                    }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     saved_token = response;
