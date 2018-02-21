@@ -29,6 +29,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -70,7 +71,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener,OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
@@ -358,6 +359,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        mMap.setOnInfoWindowClickListener(this);
 
         profilePictureStorageLink = new HashMap<>();
 
@@ -644,6 +646,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         editor.commit();
 
+    }
+
+    //To open internet links from info windows
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        if( marker.getTag() != null && Patterns.WEB_URL.matcher((String) marker.getTag()).matches()){
+            //Toast.makeText(this, "Checking for links.", Toast.LENGTH_SHORT).show();
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) marker.getTag()));
+            startActivity(browserIntent);
+        } else {
+            Toast.makeText(this, "No URL on post.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private class fetchImageAsync extends AsyncTask<Pair<Integer,String>, Void, Pair<Integer,Bitmap>> {
