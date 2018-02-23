@@ -29,6 +29,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -70,7 +71,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener,OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
@@ -325,20 +326,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;//Efficiency?
         //iterate over the list, uses for each syntax, nice Java 8 feature. Can parallelize?
         for (BubbleMarker currentBubble : bubbles) {
-            //Checking if the bubbles are visible within the current camera position
             if(currentBound.contains(currentBubble.bubbleMarker.getPosition())) {
-                //If visible then we animate the bubble.
                 currentBubble.wobble();
-
-                //We check if an image has been loaded for the current bubble.
                 if(currentBubble.getProfileImage() == null && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
-                    //Updating the bubble image.
                     currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id));
                 }
 
-                //We check if the username has been loaded for the current bubble.
                 if(currentBubble.username.equals("") && profileNameStorage.containsKey(currentBubble.myUser_id)){
-                    //Updating the bubble username variable.
                     currentBubble.username = profileNameStorage.get(currentBubble.myUser_id);
                     currentBubble.bubbleMarker.setTitle(currentBubble.username + currentBubble.bubbleMarker.getTitle());
                 }
@@ -365,6 +359,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        mMap.setOnInfoWindowClickListener(this);
 
         profilePictureStorageLink = new HashMap<>();
 
@@ -442,19 +437,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     public void bubbleLoader(){
-        //Create a request queue
         queue = Volley.newRequestQueue(getApplicationContext());
 
-        //Array for storing user ID that have been returned from the query
         user_id_list = new ArrayList();
 
         if(log_status) {
-            //If the user is logged in then we make a request for getting all users posts
             StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_posts,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            //If response is successful we proceed to create bubbles
                             int user_id;
                             String post_id;
                             String body;
@@ -462,18 +453,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                             double lat;
                             double lng;
                             String date;
+                            //Log.d("BubbleUp", "JSOn Response: \n" + response.toString());
                             Log.d("BubbleUp", "JSOn Post Get Response Successful");
                             try {
-                                //We convert the response into an JSONArray object so as to iterate through the posts.
                                 JSONArray json_response = new JSONArray(response.toString());
 
-                                myBubbles.clear();//empty the array first.
+                                myBubbles.clear();//empty the array.
 
-                                //Iterating through the JSON object array.
                                 for (int i = 0; i < json_response.length(); i++) {
                                     JSONObject myJson = (JSONObject) json_response.get(i);
-
-                                    //Getting varaibles from the JSON object
 
                                     post_id = myJson.get("id").toString();
                                     user_id = Integer.parseInt(myJson.get("user_id").toString());
@@ -486,13 +474,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     Integer hour = Integer.parseInt(time_str.substring(0,2));
                                     Integer minute = Integer.parseInt(time_str.substring(3,5));
 
-                                    //We check if the user of the current post is already on our user array.
                                     if(user_id_list != null && !user_id_list.contains(user_id)){
                                         user_id_list.add(user_id);
                                         Log.d("BubbleUp","Added User to List " + user_id);
                                     }
-
-                                    //Calculating Post Times.
 
                                     DateTime bubbleTime = new DateTime(year,month,day,hour,minute, DateTimeZone.UTC);
                                     DateTime currentTime = new DateTime();//Local Date Time
@@ -500,53 +485,41 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
                                     int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
+                                    //Log.d("BubbleUp",bubbleTime.toString());
+                                    //Log.d("BubbleUp",currentTime.toString());
+
                                     double size_calc = 180 * Math.pow(0.65,minDiff/1440.0) + 50;
                                     int size = (int) size_calc;
 
-                                    date = date_str +" "+ time_str;
+                                    //Log.d("BubbleUp","post_id = "+ post_id +", dayDiff = " + Integer.toString(dayDiff) + ", minDiff = " + Integer.toString(minDiff) +", CALCULATED SIZE = " + size);
 
-                                    //Parsing bubble coordinates.
+                                    date = date_str +" "+ time_str;
 
                                     visible = Boolean.parseBoolean(myJson.get("visible").toString());
                                     lat = Double.parseDouble(myJson.get("lat").toString());
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
-                                    //Creating the bubble marker objects.
                                     BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
-
-                                    //Adding the bubble to the google map fragment.
                                     newBubble.addMarker(mMap);
-
-                                    //Adding the bubble to the array so as to iteratively update their status.
                                     myBubbles.add(newBubble);
                                 }
 
-                                //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
-
                                 Log.d("BubbleUp", "JSON Requesting ID Links");
-
-                                //Iterating through the user array
-                                //TODO: There is now a better way for requesting user IDs, should change this at some point
                                 for (final Integer id : user_id_list) {
-
+                                    //TODO: Query ID Links
                                     Log.d("BubbleUp", "JSON Request for ID #" + id);
-
-                                    //Creating a request for each user
                                     StringRequest id_profile_link_request = new StringRequest(Request.Method.GET, url_links + id,
                                             new Response.Listener<String>() {
                                                 @Override
                                                 public void onResponse(String response) {
-                                                    //On successful response we store the user ID and assign them their corresponding data
 
+                                                    Log.d("BubbleUp", "ID get JSOn Response: \n" + response);
                                                     try {
                                                         JSONObject json_response = new JSONObject(response);
                                                         String link = json_response.getString("profile_image");
                                                         String username = json_response.getString("name");
-
-                                                        //Storing the ID on a table with his corresponding username
                                                         profileNameStorage.put(id,username);
 
-                                                        //We proceed to use the internet link to try fetch the user's profile picture
                                                         fetchImageAsync imageFetch = new fetchImageAsync();
                                                         imageFetch.execute(Pair.create(id, link));
 
@@ -675,7 +648,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     }
 
-    //This method tries to fetch a image from the internet given it recives a valid URL.
+    //To open internet links from info windows
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        if( marker.getTag() != null && Patterns.WEB_URL.matcher((String) marker.getTag()).matches()){
+            //Toast.makeText(this, "Checking for links.", Toast.LENGTH_SHORT).show();
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) marker.getTag()));
+            startActivity(browserIntent);
+        } else {
+            Toast.makeText(this, "No URL on post.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private class fetchImageAsync extends AsyncTask<Pair<Integer,String>, Void, Pair<Integer,Bitmap>> {
         @Override
         protected Pair<Integer,Bitmap> doInBackground(Pair<Integer,String>... params) {
@@ -698,7 +682,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         @Override
         protected void onPostExecute(Pair<Integer,Bitmap> usr_id_image) {
             if(usr_id_image.second != null) {
-                //If an image has been fetched successfully then we store it on a table using the user ID as the key.
                 profilePictureStorageBitmap.put(usr_id_image.first,usr_id_image.second);
             }
         }

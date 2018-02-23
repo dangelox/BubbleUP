@@ -6,10 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.PatternMatcher;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
+import android.util.Patterns;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -20,6 +23,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BubbleMarker implements Serializable{
 
@@ -46,6 +51,9 @@ public class BubbleMarker implements Serializable{
     public int myWidth;
     public int myHeight;
 
+    Uri myUri;
+
+    String myUrl;
 
     public BubbleMarker(LatLng mCoor, int user_id,String text, String poster, String tittle, int width, int height, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
@@ -56,6 +64,18 @@ public class BubbleMarker implements Serializable{
 
         myWidth = width;
         myHeight = height;
+
+        myUri = Uri.parse(text);
+
+        //Patterns.WEB_URL.matcher(text).matches();
+
+        String[] splitText = text.split("\\s+");
+
+        for(int i = 0; i < splitText.length; i++){
+            if(Patterns.WEB_URL.matcher(splitText[i]).matches()){
+                myUrl = splitText[i];
+            }
+        }
 
         bubbleMarkerOption.snippet(text);
         bubbleMarkerOption.title(poster);
@@ -84,6 +104,11 @@ public class BubbleMarker implements Serializable{
 
     public Marker addMarker(GoogleMap mMap){
         bubbleMarker = mMap.addMarker(bubbleMarkerOption);
+        if(myUrl != null){
+            bubbleMarker.setTag(myUrl);
+        } else {
+            bubbleMarker.setTag("");
+        }
         return bubbleMarker;
     }
 
