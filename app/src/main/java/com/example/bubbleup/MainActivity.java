@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
 
                             mTextView.setText("Response: "+ response.toString());
 
+                            SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putString("saved_username", user_name);
+                            editor.commit();
+
                             Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
                             token_success.putExtra("myToken", saved_token);
                             token_success.putExtra("log_status", true);
@@ -190,7 +195,9 @@ public class MainActivity extends AppCompatActivity {
                                 SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putString("saved_token", saved_token);
+                                editor.putString("saved_username", user_name);
                                 editor.commit();
+
 
                                 Intent login_success = new Intent(MainActivity.this, MapsActivity.class);
                                 login_success.putExtra("myToken", saved_token);

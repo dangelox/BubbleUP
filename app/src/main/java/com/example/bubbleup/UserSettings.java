@@ -33,6 +33,8 @@ public class UserSettings extends AppCompatActivity {
     Button set_profpic_link;
     TextView profpic_link;
 
+    TextView display_username;
+
     RequestQueue queue;
 
     String newLink;
@@ -44,6 +46,8 @@ public class UserSettings extends AppCompatActivity {
     EditText textEdit;
 
     String newUserName;
+
+    SharedPreferences settings;
 
     public static final String TOKEN_PREF = "user_token";
 
@@ -58,10 +62,14 @@ public class UserSettings extends AppCompatActivity {
         set_profpic_link = (Button) findViewById(R.id.button_profile_picture_link);
         profpic_link = (TextView) findViewById(R.id.text_profile_picture_link);
 
-        queue = Volley.newRequestQueue(getApplicationContext());
+        display_username = (TextView) findViewById((R.id.textView));
 
-        SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
+        settings = getSharedPreferences(TOKEN_PREF, 0);
+
+        display_username.setText(settings.getString("saved_username", "Could not find"));
         saved_token = settings.getString("saved_token", null);
+
+        queue = Volley.newRequestQueue(getApplicationContext());
 
         set_username.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +116,10 @@ public class UserSettings extends AppCompatActivity {
                                         @Override
                                         public void onResponse(String response) {
                                             Toast.makeText(getApplicationContext(), "Changed Name to: " + newUserName, Toast.LENGTH_SHORT).show();
+
+                                            settings.edit().putString("saved_username", newUserName).commit();
+
+                                            display_username.setText(newUserName);
 
                                             Log.d("BubbleUp", "Success Username Change: " + response);
                                         }
