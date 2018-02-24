@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                             SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
                             SharedPreferences.Editor editor = settings.edit();
                             editor.putString("saved_username", user_name);
+                            editor.putString("profile_link", profile_pic_link);
                             editor.commit();
 
                             Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
@@ -196,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putString("saved_token", saved_token);
                                 editor.putString("saved_username", user_name);
+                                editor.putString("profile_link", profile_pic_link);
                                 editor.commit();
 
 

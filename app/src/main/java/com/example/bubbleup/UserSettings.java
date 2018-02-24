@@ -3,13 +3,18 @@ package com.example.bubbleup;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +27,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +43,8 @@ public class UserSettings extends AppCompatActivity {
 
     TextView display_username;
 
+    ImageButton profpic;
+
     RequestQueue queue;
 
     String newLink;
@@ -46,6 +56,8 @@ public class UserSettings extends AppCompatActivity {
     EditText textEdit;
 
     String newUserName;
+
+    String saved_profile_link;
 
     SharedPreferences settings;
 
@@ -64,10 +76,16 @@ public class UserSettings extends AppCompatActivity {
 
         display_username = (TextView) findViewById((R.id.textView));
 
+        profpic = (ImageButton) findViewById(R.id.imageButton2);
+
         settings = getSharedPreferences(TOKEN_PREF, 0);
 
         display_username.setText(settings.getString("saved_username", "Could not find"));
         saved_token = settings.getString("saved_token", null);
+        saved_profile_link = settings.getString("profile_link", "");
+
+        fetchProfImageAsync fetcher = new fetchProfImageAsync();
+        fetcher.execute(saved_profile_link);
 
         queue = Volley.newRequestQueue(getApplicationContext());
 
@@ -211,5 +229,33 @@ public class UserSettings extends AppCompatActivity {
             }
 
         });
+    }
+
+    //This method tries to fetch a image from the internet given it recives a valid URL.
+    private class fetchProfImageAsync extends AsyncTask<String, Void, Bitmap>{
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String url = params[0];
+
+            Bitmap profile_image;
+            try {
+                Log.d("BubbleUp", "Trying profile picture fetch. From: " + url);
+                profile_image = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+                Log.d("BubbleUp", "Success profile picture fetch. From: " + url);
+            } catch (Exception e) {
+                Log.d("BubbleUp", "Profile picture fetch failed. " + e.toString());
+                profile_image = null;
+            }
+
+            return profile_image;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap usr_image) {
+            if(usr_image != null) {
+                //If an image has been fetched successfully then we store it on a table using the user ID as the key.
+                profpic.setImageBitmap(usr_image);
+            }
+        }
     }
 }
