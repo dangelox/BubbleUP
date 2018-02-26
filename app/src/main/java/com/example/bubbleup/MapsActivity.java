@@ -638,6 +638,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     }
 
     public void moveCamera(LatLng latlng){
+        //TODO: Calculate the zoom so that it zooms to a level the bubble we are centering on is not covered by many other bubbles (somehow calculate a bubble density, or a closest bubble to the current bubble and factor in that bubble's size to see if it is overlapping, should just have to worry about the closest couple bubbles)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,mMap.getCameraPosition().zoom));
     }
 
