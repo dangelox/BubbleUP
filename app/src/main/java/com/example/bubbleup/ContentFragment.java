@@ -63,6 +63,8 @@ public class ContentFragment extends Fragment {
                 View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
                 TextView text = (TextView) container.findViewById(R.id.textView);
                 text.setText(currentBubble.msg);
+                TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
+                userNameText.setText(currentBubble.username);
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
 

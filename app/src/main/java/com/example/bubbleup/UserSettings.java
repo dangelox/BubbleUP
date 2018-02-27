@@ -61,6 +61,8 @@ public class UserSettings extends AppCompatActivity {
 
     SharedPreferences settings;
 
+    fetchProfImageAsync fetcher;
+
     public static final String TOKEN_PREF = "user_token";
 
     @Override
@@ -84,7 +86,7 @@ public class UserSettings extends AppCompatActivity {
         saved_token = settings.getString("saved_token", null);
         saved_profile_link = settings.getString("profile_link", "");
 
-        fetchProfImageAsync fetcher = new fetchProfImageAsync();
+        fetcher = new fetchProfImageAsync();
         fetcher.execute(saved_profile_link);
 
         queue = Volley.newRequestQueue(getApplicationContext());
@@ -199,6 +201,12 @@ public class UserSettings extends AppCompatActivity {
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
+
+                                    settings.edit().putString("profile_link", newLink).commit();
+
+                                    fetchProfImageAsync fetcher_reload = new fetchProfImageAsync();
+                                    fetcher_reload.execute(newLink);
+
                                     Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
                                     Log.d("BubbleUp","PUT Request Successful");
                                 }

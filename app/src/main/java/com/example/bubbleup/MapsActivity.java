@@ -69,6 +69,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.StrictMath.abs;
+
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
@@ -637,8 +639,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     }
 
-    public void moveCamera(LatLng latlng){
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng,mMap.getCameraPosition().zoom));
+    public void moveCamera(LatLng latlng) {
+        LatLng currLatLng = mMap.getCameraPosition().target; //containts current camera latlng
+
+        float currZoom = mMap.getCameraPosition().zoom; //contains current camera zoom level
+
+        if ((Math.abs(currLatLng.latitude - latlng.latitude) < .001) && (Math.abs(currLatLng.longitude - latlng.longitude) < .001) && (currZoom < 20.0)) { //compares current latlng to see if we are already centered over the bubble marker we clicked on and to see if we have hit max zoom already
+            //We were already hovering over current bubble and wanted to zoom in to get a cleaner look
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, currZoom + 1));
+        } else {
+            //camera was elsewhere and need to center over bubble without zooming
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, mMap.getCameraPosition().zoom));
+        }
     }
 
     //Handle Back Button Press.
