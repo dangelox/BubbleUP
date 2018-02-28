@@ -29,6 +29,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -72,7 +73,7 @@ import java.util.Set;
 import static java.lang.StrictMath.abs;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
@@ -125,6 +126,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton content_button;
     ImageButton theme_button;
     ImageButton profile_button;
+    ImageButton reload_button;
+
 
     //Colors
     String backGroundColor;
@@ -274,6 +277,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 startActivity(profile_intent);
             }
         });
+
+        reload_button = (ImageButton) findViewById(R.id.button_reload);
+
+        reload_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bubbleLoader();
+                mMap.clear();
+            }
+        });
     }
 
 
@@ -367,6 +380,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        mMap.setOnInfoWindowClickListener(this);
 
         profilePictureStorageLink = new HashMap<>();
 
@@ -685,6 +699,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         editor.commit();
 
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        if( marker.getTag() != null && Patterns.WEB_URL.matcher((String) marker.getTag()).matches()){
+            //Toast.makeText(this, "Checking for links.", Toast.LENGTH_SHORT).show();
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) marker.getTag()));
+            startActivity(browserIntent);
+        } else {
+            Toast.makeText(this, "No URL on post.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //This method tries to fetch a image from the internet given it recives a valid URL.

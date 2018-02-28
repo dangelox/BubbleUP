@@ -136,7 +136,7 @@ public class BubbleMarker implements Serializable{
     public void updateImage(Bitmap image){
         profile_image = image;
 
-        Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image),myWidth,myHeight,true), overlay);
+        Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image)    ,myWidth,myHeight,true), overlay);
 
         if(bubbleMarker != null){
             bubbleMarker.setIcon(BitmapDescriptorFactory.fromBitmap(result));
@@ -144,6 +144,15 @@ public class BubbleMarker implements Serializable{
     }
 
     public static Bitmap getclip(Bitmap image) {
+        int dim;
+        int max;
+        if(image.getWidth() < image.getHeight()){
+            dim = image.getWidth();
+            max = image.getHeight();
+        }else{
+            dim = image.getHeight();
+            max = image.getWidth();
+        }
         Bitmap output = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
@@ -154,21 +163,24 @@ public class BubbleMarker implements Serializable{
         //setting transparent canvas
         canvas.drawARGB(0, 0, 0, 0);
         //drawing a circle
-        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 2, paint);
+        //        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 2, paint);
+
+        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, dim / 2, paint);
 
         //Some reference: https://developer.android.com/reference/android/graphics/PorterDuff.Mode.html
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         canvas.drawBitmap(image, rect, rect, paint);
+
         return output;
     }
 
-    private Bitmap overlay(Bitmap image1, Bitmap image2) {
-        Bitmap profileOverlay = Bitmap.createBitmap(image1.getWidth(), image1.getHeight(), image1.getConfig());
-        Canvas canvas = new Canvas(profileOverlay);
-        canvas.drawBitmap(image1, new Matrix(), null);
-        canvas.drawBitmap(image2, new Matrix(), null);
-        return profileOverlay;
+    private Bitmap overlay(Bitmap image, Bitmap bubbleOverlay) {
+        Bitmap finalBubble = Bitmap.createBitmap(bubbleOverlay.getWidth(), bubbleOverlay.getHeight(), bubbleOverlay.getConfig());
+        Canvas canvas = new Canvas(finalBubble);
+        canvas.drawBitmap(image, new Matrix(), null);
+        canvas.drawBitmap(bubbleOverlay, new Matrix(), null);
+        return finalBubble;
     }
 
     public Bitmap getProfileImage(){
