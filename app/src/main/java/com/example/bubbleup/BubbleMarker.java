@@ -136,7 +136,7 @@ public class BubbleMarker implements Serializable{
     public void updateImage(Bitmap image){
         profile_image = image;
 
-        Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image)    ,myWidth,myHeight,true), overlay);
+        Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image), myWidth, myHeight,true), overlay);
 
         if(bubbleMarker != null){
             bubbleMarker.setIcon(BitmapDescriptorFactory.fromBitmap(result));
@@ -144,36 +144,48 @@ public class BubbleMarker implements Serializable{
     }
 
     public static Bitmap getclip(Bitmap image) {
-        int dim;
-        int max;
+        int min, max;
         if(image.getWidth() < image.getHeight()){
-            dim = image.getWidth();
+            min = image.getWidth();
             max = image.getHeight();
         }else{
-            dim = image.getHeight();
+            min = image.getHeight();
             max = image.getWidth();
         }
-        Bitmap output = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap output = Bitmap.createBitmap(min, min, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final Paint paint = new Paint();
+
+        //final Rect rect = new Rect( 0, 0, image.getWidth(), image.getHeight());
+
+        int offset = max/2 - min/2;
+
         final Rect rect = new Rect(0, 0, image.getWidth(), image.getHeight());
 
+        //Edge Smoothing
         paint.setAntiAlias(true);
         //setting transparent canvas
         canvas.drawARGB(0, 0, 0, 0);
-        //drawing a circle
-        //        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 2, paint);
 
-        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, dim / 2, paint);
+        if(max == image.getWidth())
+            canvas.translate(0.0f - offset,0.0f);
+        else
+            canvas.translate(0.0f,0.0f - offset);
+
+        //drawing a circle
+        canvas.drawCircle(image.getWidth() / 2, image.getHeight() / 2, min / 2, paint);
 
         //Some reference: https://developer.android.com/reference/android/graphics/PorterDuff.Mode.html
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
+        //Drawing the bitmap
         canvas.drawBitmap(image, rect, rect, paint);
 
         return output;
     }
+
+
 
     private Bitmap overlay(Bitmap image, Bitmap bubbleOverlay) {
         Bitmap finalBubble = Bitmap.createBitmap(bubbleOverlay.getWidth(), bubbleOverlay.getHeight(), bubbleOverlay.getConfig());
