@@ -1,47 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:columnCount="2"
     android:background="@drawable/common_google_signin_btn_icon_dark_normal_background">
 
     <ImageButton
         android:id="@+id/imageButton"
-        android:layout_width="95dp"
-        android:layout_height="95dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_column="0"
-        android:layout_row="1"
+        android:layout_row="0"
         android:background="@drawable/ic_avatar"
         android:backgroundTintMode="src_over"
         android:scaleType="fitCenter"
         android:src="@drawable/crystal_bubble" />
 
-    <TextView
-        android:id="@+id/textView"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_gravity="fill"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_column="1"
+        android:layout_row="0"
+        android:layout_marginStart="@dimen/text_margin"
+        android:layout_marginLeft="0dp">
+
+        <TextView
+            android:id="@+id/textViewUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="UserName"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Body" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="fill"
+        android:orientation="horizontal"
         android:layout_column="1"
-        android:layout_row="1"
-        android:text="@string/app_name" />
+        android:gravity="right"
+        android:layout_row="1">
 
-    <TextView
-        android:id="@+id/textViewUserName"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_column="0"
-        android:layout_row="0"
-        android:text="UserName"
-        android:singleLine="true"
-        android:textAlignment="center" />
+        <ToggleButton
+            android:id="@+id/toggleButton_like"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ic_action_like"
+            android:textOff=""
+            android:textOn="On"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="0dp"
+            android:text="" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton"
-        android:layout_width="52dp"
-        android:layout_height="wrap_content"
-        android:layout_column="3"
-        android:layout_marginTop="50dp"
-        android:layout_row="1"
-        android:background="@drawable/like_button"
-        android:text="@string/app_name" />
+        <ToggleButton
+            android:id="@+id/toggleButton_dislike"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ic_action_dislike"
+            android:text=""
+            android:textOff=""
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="0dp"
+            android:textOn="On" />
+
+    </LinearLayout>
+
 
 </GridLayout>
 
