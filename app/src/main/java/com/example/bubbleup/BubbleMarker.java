@@ -156,17 +156,14 @@ public class BubbleMarker implements Serializable{
         Canvas canvas = new Canvas(output);
 
         final Paint paint = new Paint();
-
-        //final Rect rect = new Rect( 0, 0, image.getWidth(), image.getHeight());
-
-        int offset = max/2 - min/2;
-
         final Rect rect = new Rect(0, 0, image.getWidth(), image.getHeight());
 
         //Edge Smoothing
         paint.setAntiAlias(true);
         //setting transparent canvas
         canvas.drawARGB(0, 0, 0, 0);
+
+        int offset = max/2 - min/2;
 
         if(max == image.getWidth())
             canvas.translate(0.0f - offset,0.0f);

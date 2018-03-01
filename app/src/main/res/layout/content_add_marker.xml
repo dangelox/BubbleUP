@@ -1,11 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.bubbleup.AddMarkerActivity"
-    tools:showIn="@layout/activity_add_marker">
+    android:background="@drawable/common_google_signin_btn_icon_dark_normal_background">
 
-</android.support.constraint.ConstraintLayout>
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="95dp"
+        android:layout_height="95dp"
+        android:layout_column="0"
+        android:layout_row="1"
+        android:background="@drawable/ic_avatar"
+        android:backgroundTintMode="src_over"
+        android:scaleType="fitCenter"
+        android:src="@drawable/crystal_bubble" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_column="1"
+        android:layout_row="1"
+        android:text="@string/app_name" />
+
+    <TextView
+        android:id="@+id/textViewUserName"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_column="0"
+        android:layout_row="0"
+        android:text="UserName"
+        android:singleLine="true"
+        android:textAlignment="center" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
+        android:layout_column="3"
+        android:layout_marginTop="50dp"
+        android:layout_row="1"
+        android:background="@drawable/like_button"
+        android:text="@string/app_name" />
+
+</GridLayout>
+

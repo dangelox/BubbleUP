@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -73,7 +74,7 @@ import java.util.Set;
 import static java.lang.StrictMath.abs;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.InfoWindowAdapter ,OnMapReadyCallback, ContentFragment.OnFragmentInteractionListener {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
@@ -381,6 +382,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
+
+        mMap.setInfoWindowAdapter(this);
 
         profilePictureStorageLink = new HashMap<>();
 
@@ -710,6 +713,26 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         } else {
             Toast.makeText(this, "No URL on post.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public View getInfoWindow(Marker marker) {
+        View windowView = View.inflate(getApplicationContext(),R.layout.bubble_info_window,null);
+
+        TextView postHeader = (TextView) windowView.findViewById(R.id.bubble_info_textViewUserName);
+
+        postHeader.setText(marker.getTitle());
+
+        TextView postContent = (TextView) windowView.findViewById(R.id.bubble_info_textView);
+
+        postContent.setText(marker.getSnippet());
+
+        return windowView;
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+        return null;
     }
 
     //This method tries to fetch a image from the internet given it recives a valid URL.
