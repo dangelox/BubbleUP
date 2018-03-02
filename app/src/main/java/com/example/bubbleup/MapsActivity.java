@@ -775,23 +775,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     protected void onSaveInstanceState(Bundle outState){
-
-        /*SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
-        SharedPreferences.Editor editor = settings.edit();
-
-        editor.putBoolean("show_content_bool", fragment_display);
-
-        editor.commit();*/
-
-/*
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-*/
         if(fragment_display) {
             content_button.performClick();
-            /*fragmentTransaction.remove(myFragment);
-            fragmentTransaction.commit();
-            fragment_display=false;
-            Log.d("BubbleUp", "Hiding content.");*/
         }
 
         super.onSaveInstanceState(outState);
