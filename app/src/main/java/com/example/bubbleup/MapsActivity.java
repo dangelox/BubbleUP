@@ -241,6 +241,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }
                 if(backGroundColor != null && buttonColor != null) {
                     findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
+                    findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
                     saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
                 }
                 //theme_button.setBackgroundColor();
@@ -294,6 +295,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         if(backGroundColor != null) {
             findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
             saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
+            findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
         }
     }
 

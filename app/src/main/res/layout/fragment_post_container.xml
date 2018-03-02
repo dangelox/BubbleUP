@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:columnCount="2"
-    android:background="@drawable/common_google_signin_btn_icon_dark_normal_background">
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
+
+    android:columnCount="2">
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -18,13 +23,13 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_gravity="fill"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_column="1"
-        android:layout_row="0"
+        android:layout_gravity="fill"
+        android:layout_marginLeft="0dp"
         android:layout_marginStart="@dimen/text_margin"
-        android:layout_marginLeft="0dp">
+        android:layout_row="0"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/textViewUserName"
@@ -46,32 +51,32 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="fill"
-        android:orientation="horizontal"
         android:layout_column="1"
+        android:layout_gravity="fill"
+        android:layout_row="1"
         android:gravity="right"
-        android:layout_row="1">
+        android:orientation="horizontal">
 
         <ToggleButton
             android:id="@+id/toggleButton_like"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/ic_action_like"
-            android:textOff=""
-            android:textOn="On"
-            android:layout_marginStart="10dp"
             android:layout_marginLeft="0dp"
-            android:text="" />
+            android:layout_marginStart="10dp"
+            android:background="@drawable/ic_action_like"
+            android:text=""
+            android:textOff=""
+            android:textOn="On" />
 
         <ToggleButton
             android:id="@+id/toggleButton_dislike"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginStart="10dp"
             android:background="@drawable/ic_action_dislike"
             android:text=""
             android:textOff=""
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="0dp"
             android:textOn="On" />
 
     </LinearLayout>

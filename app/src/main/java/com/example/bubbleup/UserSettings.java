@@ -263,6 +263,7 @@ public class UserSettings extends AppCompatActivity {
             if(usr_image != null) {
                 //If an image has been fetched successfully then we store it on a table using the user ID as the key.
                 profpic.setImageBitmap(usr_image);
+                profpic.setBackgroundResource(0);
             }
         }
     }
