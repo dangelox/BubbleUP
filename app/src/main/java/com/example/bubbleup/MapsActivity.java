@@ -491,9 +491,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                             double lng;
                             String date;
                             Log.d("BubbleUp", "JSOn Post Get Response Successful");
+                            Log.d("BubbleUp", response);
+
                             try {
                                 //We convert the response into an JSONArray object so as to iterate through the posts.
                                 JSONArray json_response = new JSONArray(response.toString());
+
+                                //TODO: Server Side fix?
+                                json_response = new JSONArray(json_response.get(0).toString());
 
                                 myBubbles.clear();//empty the array first.
 
@@ -501,7 +506,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 for (int i = 0; i < json_response.length(); i++) {
                                     JSONObject myJson = (JSONObject) json_response.get(i);
 
-                                    //Getting varaibles from the JSON object
+                                    //Getting variables from the JSON object
 
                                     post_id = myJson.get("id").toString();
                                     user_id = Integer.parseInt(myJson.get("user_id").toString());
@@ -610,6 +615,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                             } catch (JSONException e) {
                                 Log.d("BubbleUp", "JSON object problem!");
+                                Toast.makeText(getApplicationContext(), "JSON Error", Toast.LENGTH_LONG).show();
                                 e.printStackTrace();
                             }
                         }
