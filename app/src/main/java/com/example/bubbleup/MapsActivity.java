@@ -115,7 +115,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     //Content Fragment
     public ContentFragment myFragment = new ContentFragment();
-    boolean fragment_display;
+    boolean fragment_display = false;
 
     //Map Fragment, make local or global? Check Transitions guides.
     SupportMapFragment mapFragment;
@@ -180,8 +180,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-
-        fragment_display = false;
 
         mHandler = new Handler();//Create handler
 
@@ -467,6 +465,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         });
 
+        SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+
     }
 
     public void bubbleLoader(){
@@ -496,9 +496,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                             try {
                                 //We convert the response into an JSONArray object so as to iterate through the posts.
                                 JSONArray json_response = new JSONArray(response.toString());
-
-                                //TODO: Server Side fix?
-                                json_response = new JSONArray(json_response.get(0).toString());
 
                                 myBubbles.clear();//empty the array first.
 
@@ -777,5 +774,27 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 profilePictureStorageBitmap.put(usr_id_image.first,usr_id_image.second);
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+
+        SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putBoolean("show_content_bool", fragment_display);
+
+        editor.commit();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if(fragment_display) {
+            fragmentTransaction.remove(myFragment);
+            fragmentTransaction.commit();
+            fragment_display=false;
+            Log.d("BubbleUp", "Hiding content.");
+        }
+
+        super.onSaveInstanceState(outState);
+
     }
 }
