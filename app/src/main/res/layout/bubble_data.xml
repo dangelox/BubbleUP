@@ -1,8 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="500px"
+    android:layout_height="270dp"
+    tools:background="@android:color/darker_gray"
     tools:context="com.example.bubbleup.ContentFragment" >
 
     <!-- TODO: Update blank fragment layout -->
@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollIndicators="right"
-        android:scrollbars="vertical">
+        android:scrollbars="vertical"
+        >
 
         <LinearLayout
             android:id="@+id/linear_view"

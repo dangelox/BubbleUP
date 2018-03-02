@@ -1,6 +1,7 @@
 package com.example.bubbleup;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -23,6 +24,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.List;
 
+import static com.example.bubbleup.MapsActivity.SAVEDLOCATION_PREF;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,6 +41,8 @@ public class ContentFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    public static final String SAVEDLOCATION_PREF = "previous_location";
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -48,6 +53,8 @@ public class ContentFragment extends Fragment {
 
     LayoutInflater myInflater;
 
+    SharedPreferences saved_settings;
+
     public ContentFragment() {
         // Required empty public constructor
     }
@@ -56,6 +63,8 @@ public class ContentFragment extends Fragment {
         //ListView myList = (ListView) myView.findViewById(R.id.scroll_view);
         //myList.setAdapter(new ArrayAdapter(getContext(),R.layout.fragment_scroll_view));
         LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
+
+        myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
         for (final BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
@@ -126,6 +135,7 @@ public class ContentFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        saved_settings = ((MapsActivity) getActivity()).getSharedPreferences(SAVEDLOCATION_PREF, 0);
     }
 
     @Override

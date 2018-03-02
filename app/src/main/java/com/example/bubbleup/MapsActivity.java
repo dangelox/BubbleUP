@@ -147,17 +147,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     HashMap<Integer, String> profilePictureStorageLink;
     HashMap<Integer, String> profileNameStorage;
 
+    SharedPreferences saved_settings;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences saved_settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+        saved_settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
         saved_lat = Double.longBitsToDouble(saved_settings.getLong("saved_lat",0));
         saved_lng = Double.longBitsToDouble(saved_settings.getLong("saved_lng",0));
         saved_zoom = saved_settings.getInt("saved_zoom",0);
         curTheme = saved_settings.getInt("myTheme", R.raw.standard_mode);
-
+        backGroundColor = saved_settings.getString("backGround_Color",null);
 
         log_status = getIntent().getBooleanExtra("log_status",false);
         myUserName = getIntent().getStringExtra("myUserName");
@@ -213,34 +215,33 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 switch (curTheme) {
                     case R.raw.standard_mode:
                         curTheme = R.raw.night_mode;
-                        backGroundColor = "#515c6d";//water labels.text.fill
+                        backGroundColor = "#4e6d70";//water labels.text.fill
                         buttonColor = "#515c6d";
-                        buttonTextColor = "#515c6d";
                         break;
                     case R.raw.night_mode:
                         curTheme = R.raw.night2_mode;
-                        backGroundColor = "#515c6d";
+                        backGroundColor = "#17263c";
                         buttonColor = "#515c6d";
                         break;
                     case R.raw.night2_mode:
                         curTheme = R.raw.retro_mode;
-                        backGroundColor = "#515c6d";
+                        backGroundColor = "#92998d";
                         buttonColor = "#515c6d";
                         break;
                     case R.raw.retro_mode:
                         curTheme = R.raw.dark_mode;
-                        backGroundColor = "#515c6d";
+                        backGroundColor = "#3d3d3d";
                         buttonColor = "#515c6d";
                         break;
                     case R.raw.dark_mode:
                         curTheme = R.raw.standard_mode;
-                        backGroundColor = "#515c6d";
+                        backGroundColor = "#f2f2f2";
                         buttonColor = "#515c6d";
                         break;
                 }
-                if(backGroundColor != null && buttonColor != null && buttonTextColor != null) {
+                if(backGroundColor != null && buttonColor != null) {
                     findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
-
+                    saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
                 }
                 //theme_button.setBackgroundColor();
                 //theme_button.setTextColor();
@@ -288,6 +289,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 mMap.clear();
             }
         });
+
+        //Set dashboard background color
+        if(backGroundColor != null) {
+            findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
+            saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
+        }
     }
 
 
