@@ -32,10 +32,12 @@ import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -481,7 +483,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         public void onResponse(String response) {
                             //If response is successful we proceed to create bubbles
                             int user_id;
-                            String post_id;
+                            int post_id;
                             String body;
                             boolean visible = false;
                             double lat;
@@ -502,7 +504,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                     //Getting variables from the JSON object
 
-                                    post_id = myJson.get("id").toString();
+                                    post_id = Integer.parseInt(myJson.get("id").toString());
                                     user_id = Integer.parseInt(myJson.get("user_id").toString());
                                     body = myJson.get("body").toString();
                                     String date_str = myJson.get("created_at").toString().substring(5,10);
@@ -512,6 +514,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     String time_str = myJson.get("created_at").toString().substring(11,16);
                                     Integer hour = Integer.parseInt(time_str.substring(0,2));
                                     Integer minute = Integer.parseInt(time_str.substring(3,5));
+
+                                    //User Like
+                                    int reaction = myJson.getInt("i_like");
 
                                     //We check if the user of the current post is already on our user array.
                                     if(user_id_list != null && !user_id_list.contains(user_id)){
@@ -539,7 +544,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
                                     //Creating the bubble marker objects.
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
 
                                     //Adding the bubble to the google map fragment.
                                     newBubble.addMarker(mMap);

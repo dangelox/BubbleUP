@@ -5,24 +5,35 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.bubbleup.MapsActivity.SAVEDLOCATION_PREF;
 
@@ -43,6 +54,9 @@ public class ContentFragment extends Fragment {
 
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
+    String url_like ="https://bubbleup-api.herokuapp.com/likes/";
+
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -50,6 +64,8 @@ public class ContentFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     View myView;
+
+
 
     LayoutInflater myInflater;
 
@@ -59,22 +75,29 @@ public class ContentFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
-        //ListView myList = (ListView) myView.findViewById(R.id.scroll_view);
-        //myList.setAdapter(new ArrayAdapter(getContext(),R.layout.fragment_scroll_view));
         LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
+        //Creating a new view for each bubble
         for (final BubbleMarker currentBubble : bubbleList) {
             if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
-                View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
+
+                final View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
+
                 TextView text = (TextView) container.findViewById(R.id.textView);
                 text.setText(currentBubble.msg);
+
+                final int myPost_id = currentBubble.myPost_id;
+
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
+
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
+
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
 
                 container.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +106,118 @@ public class ContentFragment extends Fragment {
                         ((MapsActivity) getActivity()).moveCamera(currentBubble.bubbleMarker.getPosition());
                     }
                 });
+
+                //Like / Dislike Buttons
+                ToggleButton like_button = (ToggleButton) container.findViewById(R.id.toggleButton_like);
+
+                if(currentBubble.userReaction == 1){
+                    like_button.toggle();
+                    like_button.setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
+                }
+
+                like_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            ToggleButton otherButton = (ToggleButton) container.findViewById(R.id.toggleButton_dislike);
+                            if(otherButton.isChecked())
+                                otherButton.toggle();
+
+                            //Like request
+                            StringRequest registerRequest = new StringRequest(Request.Method.POST, url_like + myPost_id,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
+                                            container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(getContext(), "Failed To like", Toast.LENGTH_SHORT).show();
+                                }
+                            }){
+                                @Override
+                                public byte[] getBody() throws AuthFailureError {
+                                    String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
+                                    return httpPostBody.getBytes();
+                                }
+                                @Override
+                                public Map<String,String> getParams(){
+                                    Map<String, String> params = new HashMap();
+                                    params.put("posts_id","\"" + myPost_id + "\"");
+                                    return params;
+                                }
+                                @Override
+                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                    Map<String,String> params = new HashMap();
+                                    params.put("Content-Type","application/json");
+                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    return params;
+                                }
+                            };
+
+                            ((MapsActivity) getActivity()).queue.add(registerRequest);
+                        } else {
+                            //Like request
+                            StringRequest registerRequest = new StringRequest(Request.Method.DELETE, url_like + myPost_id,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
+                                            container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like));
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(getContext(), "Failed To unlike", Toast.LENGTH_SHORT).show();
+                                }
+                            }){
+                                @Override
+                                public byte[] getBody() throws AuthFailureError {
+                                    String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
+                                    return httpPostBody.getBytes();
+                                }
+                                @Override
+                                public Map<String,String> getParams(){
+                                    Map<String, String> params = new HashMap();
+                                    params.put("posts_id","\"" + myPost_id + "\"");
+                                    return params;
+                                }
+                                @Override
+                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                    Map<String,String> params = new HashMap();
+                                    params.put("Content-Type","application/json");
+                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    return params;
+                                }
+                            };
+
+                            ((MapsActivity) getActivity()).queue.add(registerRequest);
+                        }
+                    }
+                });
+
+                ToggleButton dislike_button = (ToggleButton) container.findViewById(R.id.toggleButton_dislike);
+
+                if(currentBubble.userReaction == 2){
+                    dislike_button.toggle();
+                    dislike_button.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike_on));
+                }
+
+                dislike_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            ToggleButton otherButton = (ToggleButton) container.findViewById(R.id.toggleButton_like);
+                            if(otherButton.isChecked())
+                                otherButton.toggle();
+                            buttonView.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike_on));
+
+                        } else {
+                            buttonView.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike));
+                        }
+                    }
+                });
+
 
                 if(currentBubble.profile_image != null) {
                     userImage.setImageBitmap(currentBubble.profile_image);
@@ -106,6 +241,8 @@ public class ContentFragment extends Fragment {
                     }
                 }
                 myList.addView(container);
+
+                
             }
         }
     }
