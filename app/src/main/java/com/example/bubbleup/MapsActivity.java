@@ -247,8 +247,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
 
                     Window window = getWindow();
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
                             window.setStatusBarColor(Color.parseColor("#1472ff"));
@@ -311,8 +309,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
 
             Window window = getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
                     window.setStatusBarColor(Color.parseColor("#1472ff"));
