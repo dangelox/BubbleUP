@@ -31,6 +31,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -243,6 +245,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
                     findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
                     saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
+
+                    Window window = getWindow();
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
+                            window.setStatusBarColor(Color.parseColor("#1472ff"));
+                        }else{
+                            window.setStatusBarColor(Color.parseColor(backGroundColor));
+                        }
+                    }
                 }
                 //theme_button.setBackgroundColor();
                 //theme_button.setTextColor();
@@ -296,6 +309,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
             saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
             findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
+
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
+                    window.setStatusBarColor(Color.parseColor("#1472ff"));
+                }else{
+                    Toast.makeText(getApplicationContext(), backGroundColor, Toast.LENGTH_SHORT).show();
+
+                    window.setStatusBarColor(Color.parseColor(backGroundColor));
+                }
+            }
         }
     }
 
