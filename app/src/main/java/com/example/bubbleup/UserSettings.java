@@ -38,7 +38,7 @@ import java.util.Map;
 public class UserSettings extends AppCompatActivity {
 
     Button set_username;
-    TextView username_text;
+    //TextView username_text;
 
     Button set_profpic_link;
     TextView profpic_link;
@@ -77,7 +77,7 @@ public class UserSettings extends AppCompatActivity {
         setContentView(R.layout.activity_user_settings);
 
         set_username = (Button) findViewById(R.id.button_set_username);
-        username_text = (TextView) findViewById(R.id.edit_username);
+        //username_text = (TextView) findViewById(R.id.edit_username);
 
         set_profpic_link = (Button) findViewById(R.id.button_profile_picture_link);
         profpic_link = (TextView) findViewById(R.id.text_profile_picture_link);
@@ -96,7 +96,7 @@ public class UserSettings extends AppCompatActivity {
         settings2 = getSharedPreferences("previous_location", 0);
         background_color = settings2.getString("backGround_Color", "#CC564A");
 
-        findViewById(R.id.LLBackground).setBackgroundColor(Color.parseColor(background_color));
+        findViewById(R.id.ConsBackground).setBackgroundColor(Color.parseColor(background_color));
 
         fetcher = new fetchProfImageAsync();
         fetcher.execute(saved_profile_link);
