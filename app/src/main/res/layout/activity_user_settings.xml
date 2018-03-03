@@ -7,6 +7,7 @@
     tools:context="com.example.bubbleup.UserSettings">
 
     <LinearLayout
+        android:id="@+id/LLBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="0dp"

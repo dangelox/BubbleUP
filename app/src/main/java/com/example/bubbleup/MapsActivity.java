@@ -244,7 +244,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(backGroundColor != null && buttonColor != null) {
                     findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
                     findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
-                    saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
+                    saved_settings.edit().putString("backGround_Color", backGroundColor).apply();
+
+                    SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("backGround_Color",backGroundColor);
+                    editor.commit();
+
+
+
 
                     Window window = getWindow();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

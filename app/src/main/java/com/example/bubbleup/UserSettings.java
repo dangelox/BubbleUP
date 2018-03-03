@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,6 +47,8 @@ public class UserSettings extends AppCompatActivity {
 
     ImageButton profpic;
 
+    String background_color;
+
     RequestQueue queue;
 
     String newLink;
@@ -60,6 +64,8 @@ public class UserSettings extends AppCompatActivity {
     String saved_profile_link;
 
     SharedPreferences settings;
+
+    SharedPreferences settings2;
 
     fetchProfImageAsync fetcher;
 
@@ -85,6 +91,12 @@ public class UserSettings extends AppCompatActivity {
         display_username.setText(settings.getString("saved_username", "Could not find"));
         saved_token = settings.getString("saved_token", null);
         saved_profile_link = settings.getString("profile_link", "");
+
+        //The sharedPreferences settigs was taking a different key string than the one in MapsActivity that stored the backGround_color
+        settings2 = getSharedPreferences("previous_location", 0);
+        background_color = settings2.getString("backGround_Color", "#CC564A");
+
+        findViewById(R.id.LLBackground).setBackgroundColor(Color.parseColor(background_color));
 
         fetcher = new fetchProfImageAsync();
         fetcher.execute(saved_profile_link);
