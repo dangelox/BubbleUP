@@ -41,7 +41,6 @@ public class UserSettings extends AppCompatActivity {
     //TextView username_text;
 
     Button set_profpic_link;
-    TextView profpic_link;
 
     TextView display_username;
 
@@ -80,7 +79,6 @@ public class UserSettings extends AppCompatActivity {
         //username_text = (TextView) findViewById(R.id.edit_username);
 
         set_profpic_link = (Button) findViewById(R.id.button_profile_picture_link);
-        profpic_link = (TextView) findViewById(R.id.text_profile_picture_link);
 
         display_username = (TextView) findViewById((R.id.textView));
 
@@ -204,47 +202,99 @@ public class UserSettings extends AppCompatActivity {
         set_profpic_link.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                newLink = profpic_link.getText().toString();
 
-                if(newLink == null || newLink.equals("")){
-                    Toast.makeText(UserSettings.this, "Empty Link!", Toast.LENGTH_SHORT).show();
-                }else{
-                    StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_profile_pic,
-                            new Response.Listener<String>() {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UserSettings.this);
+
+                LinearLayout layout = new LinearLayout(UserSettings.this);
+                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setLayoutParams(parms);
+
+                layout.setGravity(Gravity.CLIP_VERTICAL);
+                layout.setPadding(2, 2, 2, 2);
+
+                textEdit = new EditText(UserSettings.this);
+
+                layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                alertDialogBuilder.setView(layout);
+                alertDialogBuilder.setTitle("Input your new profile pic link!");
+
+                // alertDialogBuilder.setMessage(message);
+                alertDialogBuilder.setCancelable(false);
+
+                // Setting Negative "Cancel" Button
+                alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        dialog.cancel();
+                    }
+                });
+
+                // Setting Positive "OK" Button
+                alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+
+                        newLink = textEdit.getText().toString();
+
+                        if (newLink == null || newLink.equals("")) {
+                            Toast.makeText(UserSettings.this, "Empty Link!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_profile_pic,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+
+                                            settings.edit().putString("profile_link", newLink).commit();
+
+                                            fetchProfImageAsync fetcher_reload = new fetchProfImageAsync();
+                                            fetcher_reload.execute(newLink);
+
+                                            Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
+                                            Log.d("BubbleUp", "PUT Request Successful");
+                                        }
+                                    }, new Response.ErrorListener() {
                                 @Override
-                                public void onResponse(String response) {
-
-                                    settings.edit().putString("profile_link", newLink).commit();
-
-                                    fetchProfImageAsync fetcher_reload = new fetchProfImageAsync();
-                                    fetcher_reload.execute(newLink);
-
-                                    Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
-                                    Log.d("BubbleUp","PUT Request Successful");
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("BubbleUp", error.toString());
+                                    Toast.makeText(UserSettings.this, "Communication Error!", Toast.LENGTH_SHORT).show();
                                 }
-                            }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.d("BubbleUp",error.toString());
-                            Toast.makeText(UserSettings.this, "Communication Error!", Toast.LENGTH_SHORT).show();
-                        }
-                    }){
-                        @Override
-                        public byte[] getBody() throws AuthFailureError {
-                            String httpPostBody="{\"profile_image\": \"" + newLink + "\"}";
-                            return httpPostBody.getBytes();
-                        }
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String,String> params = new HashMap();
-                            params.put("Content-Type","application/json");
-                            params.put("Authorization","JWT " + saved_token);
-                            return params;
-                        }
-                    };
+                            }) {
+                                @Override
+                                public byte[] getBody() throws AuthFailureError {
+                                    String httpPostBody = "{\"profile_image\": \"" + newLink + "\"}";
+                                    return httpPostBody.getBytes();
+                                }
 
-                    Log.d("BubbleUp","Requesting Link Set");
-                    queue.add(loginRequest);
+                                @Override
+                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                    Map<String, String> params = new HashMap();
+                                    params.put("Content-Type", "application/json");
+                                    params.put("Authorization", "JWT " + saved_token);
+                                    return params;
+                                }
+                            };
+
+                            Log.d("BubbleUp", "Requesting Link Set");
+                            queue.add(loginRequest);
+                        }
+
+
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                try {
+                    alertDialog.show();
+                    Log.d("BubbleUp","Dialog Success");
+                } catch (Exception e) {
+                    // WindowManager$BadTokenException will be caught and the app would
+                    // not display the 'Force Close' message
+                    e.printStackTrace();
+                    Log.d("BubbleUp","Dialog Fail");
+                    Log.d("BubbleUp",e.toString());
+                    Log.d("BubbleUp",e.getLocalizedMessage());
                 }
             }
 
