@@ -321,8 +321,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
                     window.setStatusBarColor(Color.parseColor("#1472ff"));
                 }else{
-                    Toast.makeText(getApplicationContext(), backGroundColor, Toast.LENGTH_SHORT).show();
-
+                    //Toast.makeText(getApplicationContext(), backGroundColor, Toast.LENGTH_SHORT).show();
                     window.setStatusBarColor(Color.parseColor(backGroundColor));
                 }
             }
