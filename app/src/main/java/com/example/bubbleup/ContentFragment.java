@@ -93,6 +93,8 @@ public class ContentFragment extends Fragment {
 
                 final int myPost_id = currentBubble.myPost_id;
 
+                final BubbleMarker bubble = currentBubble;
+
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
 
@@ -128,6 +130,7 @@ public class ContentFragment extends Fragment {
                                         @Override
                                         public void onResponse(String response) {
                                             Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
+                                            bubble.userReaction = 1;
                                             container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
                                         }
                                     }, new Response.ErrorListener() {
@@ -164,6 +167,7 @@ public class ContentFragment extends Fragment {
                                         @Override
                                         public void onResponse(String response) {
                                             Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
+                                            bubble.userReaction = 0;
                                             container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like));
                                         }
                                     }, new Response.ErrorListener() {
