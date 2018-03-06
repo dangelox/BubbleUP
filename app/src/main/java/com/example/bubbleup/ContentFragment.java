@@ -32,6 +32,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,11 +78,27 @@ public class ContentFragment extends Fragment {
         // Required empty public constructor
     }
 
+    //Comparators
+    public class BubbleComparatorSize implements Comparator<BubbleMarker> {
+        public int compare(BubbleMarker left, BubbleMarker right) {
+            return ((Integer) right.myHeight).compareTo((Integer) left.myHeight);
+        }
+    }
+
+    public class BubbleComparatorAgeMins implements Comparator<BubbleMarker> {
+        public int compare(BubbleMarker left, BubbleMarker right) {
+            return ((Integer) right.myAgeMins).compareTo((Integer) left.myAgeMins);
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
         LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
+
+        //Sorting by size
+        Collections.sort(bubbleList, new BubbleComparatorSize());
 
         //Creating a new view for each bubble
         for (final BubbleMarker currentBubble : bubbleList) {
@@ -139,7 +157,7 @@ public class ContentFragment extends Fragment {
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
-                                            Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
                                             currentBubble.userReaction = 1;
                                             currentBubble.myLikes++;
                                             likeCounter.setText(Integer.toString(currentBubble.myLikes));
@@ -148,7 +166,7 @@ public class ContentFragment extends Fragment {
                                     }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getContext(), "Failed To like", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
                                 }
                             }){
                                 @Override
@@ -178,7 +196,7 @@ public class ContentFragment extends Fragment {
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
-                                            Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
+                                            //Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
                                             currentBubble.userReaction = 0;
                                             currentBubble.myLikes--;
                                             likeCounter.setText(Integer.toString(currentBubble.myLikes));
@@ -187,7 +205,7 @@ public class ContentFragment extends Fragment {
                                     }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getContext(), "Failed To unlike", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
                                 }
                             }){
                                 @Override

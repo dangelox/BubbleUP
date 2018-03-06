@@ -87,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     String url_posts ="https://bubbleup-api.herokuapp.com/posts";
     String url_links ="https://bubbleup-api.herokuapp.com/user/image/";
-
+    String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
 
     String token;
 
@@ -564,7 +564,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
                                     int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-                                    double size_calc = 180 * Math.pow(0.65,minDiff/1440.0) + 50;
+                                    double size_calc = (180 + likeCount*25) * Math.pow(0.65,minDiff/(1440.0 + (likeCount * 250))) + 50;
                                     int size = (int) size_calc;
 
                                     date = date_str +" "+ time_str;
@@ -576,7 +576,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
                                     //Creating the bubble marker objects.
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , likeCount, post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , likeCount, post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size , minDiff, getApplicationContext(), null);
 
                                     //Adding the bubble to the google map fragment.
                                     newBubble.addMarker(mMap);
@@ -589,23 +589,31 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                 Log.d("BubbleUp", "JSON Requesting ID Links");
 
-                                //Iterating through the user array
-                                //TODO: There is now a better way for requesting user IDs, should change this at some point
-                                for (final Integer id : user_id_list) {
+                                //Building request URL
+                                String url_links_ids = url_links_by_ids;
+                                boolean c = true;
+                                for (int id : user_id_list){
+                                    if(c) {
+                                        url_links_ids = url_links_ids.concat(Integer.toString(id));
+                                        c = false;
+                                    } else {
+                                        url_links_ids = url_links_ids.concat("," + Integer.toString(id));
+                                    }
+                                }
 
-                                    Log.d("BubbleUp", "JSON Request for ID #" + id);
-
-                                    //Creating a request for each user
-                                    StringRequest id_profile_link_request = new StringRequest(Request.Method.GET, url_links + id,
-                                            new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    //On successful response we store the user ID and assign them their corresponding data
-
-                                                    try {
-                                                        JSONObject json_response = new JSONObject(response);
-                                                        String link = json_response.getString("profile_image");
-                                                        String username = json_response.getString("name");
+                                StringRequest ids_profile_link_request = new StringRequest(Request.Method.GET, url_links_ids,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                try {
+                                                    //We get back an array with data for the requested IDs
+                                                    JSONArray json_response = new JSONArray(response);
+                                                    //Iterate through the array
+                                                    for (int i = 0; i < json_response.length(); i++){
+                                                        JSONObject myJson = (JSONObject) json_response.get(i);
+                                                        String link = myJson.getString("profile_image");
+                                                        String username = myJson.getString("name");
+                                                        Integer id = myJson.getInt("id");
 
                                                         //Storing the ID on a table with his corresponding username
                                                         profileNameStorage.put(id,username);
@@ -613,37 +621,27 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                                         //We proceed to use the internet link to try fetch the user's profile picture
                                                         fetchImageAsync imageFetch = new fetchImageAsync();
                                                         imageFetch.execute(Pair.create(id, link));
-
-                                                    } catch (JSONException e) {
-                                                        Log.d("BubbleUp", "JSON IDs get problem!");
-                                                        e.printStackTrace();
                                                     }
+                                                } catch (JSONException e) {
+                                                    Log.d("BubbleUp", "JSON IDs GET problem!");
+                                                    e.printStackTrace();
                                                 }
-                                            }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            Log.d("BubbleUp", " : ID get JSOn Response Error! " + error.toString());
-                                        }
-                                    }) {
-                                        @Override
-                                        public Map<String,String> getParams(){
-                                            Map<String, String> params = new HashMap();
-                                            params.put("id","\"" + id.toString() + "\"");
-                                            return params;
-                                        }
-                                        @Override
-                                        public Map<String, String> getHeaders() throws AuthFailureError {
-                                            Map<String, String> headers = new HashMap();
-                                            headers.put("Authorization", "JWT " + token);
-                                            headers.put("Content-Type","application/json");
-                                            return headers;
-                                        }
-                                    };
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("BubbleUp", "ID get JSOn Response Error! " + error.toString());
+                                    }
+                                }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> headers = new HashMap();
+                                        headers.put("Authorization", "JWT " + token);
+                                        return headers;
+                                    }
+                                };
 
-                                    queue.add(id_profile_link_request);
-                                }
-
-
+                                queue.add(ids_profile_link_request);
                             } catch (JSONException e) {
                                 Log.d("BubbleUp", "JSON object problem!");
                                 Toast.makeText(getApplicationContext(), "JSON Error", Toast.LENGTH_LONG).show();
