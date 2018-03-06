@@ -45,6 +45,8 @@ public class BubbleMarker implements Serializable{
     public int myUser_id;
     public int myPost_id;
 
+    public int myLikes;
+
     public String username = "";
 
     public MarkerOptions bubbleMarkerOption;
@@ -65,12 +67,14 @@ public class BubbleMarker implements Serializable{
 
     String myUrl;
 
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int post_id, String text, String poster, String tittle, int width, int height, Context myContext, Bitmap image){
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count,int post_id, String text, String poster, String tittle, int width, int height, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 
         myPost_id = post_id;
 
         userReaction = reaction;
+
+        myLikes = like_count;
 
         profile_image = image;
 

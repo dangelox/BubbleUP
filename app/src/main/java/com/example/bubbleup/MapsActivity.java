@@ -514,6 +514,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                             //If response is successful we proceed to create bubbles
                             int user_id;
                             int post_id;
+                            int likeCount;
                             String body;
                             boolean visible = false;
                             double lat;
@@ -537,6 +538,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     post_id = Integer.parseInt(myJson.get("id").toString());
                                     user_id = Integer.parseInt(myJson.get("user_id").toString());
                                     body = myJson.get("body").toString();
+                                    likeCount = Integer.parseInt(myJson.get("like").toString());
+
                                     String date_str = myJson.get("created_at").toString().substring(5,10);
                                     Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0,4));
                                     Integer month = Integer.parseInt(date_str.substring(0,2));
@@ -574,7 +577,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                     lng = Double.parseDouble(myJson.get("lng").toString());
 
                                     //Creating the bubble marker objects.
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
+                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , likeCount, post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size, getApplicationContext(), null);
 
                                     //Adding the bubble to the google map fragment.
                                     newBubble.addMarker(mMap);
