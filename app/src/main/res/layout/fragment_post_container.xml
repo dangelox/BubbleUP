@@ -21,7 +21,7 @@
         android:layout_row="0"
         android:background="@drawable/ic_avatar"
         android:backgroundTintMode="src_over"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         android:src="@drawable/crystal_bubble" />
 
     <LinearLayout

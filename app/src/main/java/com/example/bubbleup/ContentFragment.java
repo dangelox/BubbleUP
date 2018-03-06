@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -115,6 +116,10 @@ public class ContentFragment extends Fragment {
                 //Like / Dislike Buttons
                 ToggleButton like_button = (ToggleButton) container.findViewById(R.id.toggleButton_like);
 
+                //User Reaction Values (Bound to change)
+                //1 = Like
+                //2 = Dislike
+                //3 = ??
                 if(currentBubble.userReaction == 1){
                     like_button.toggle();
                     like_button.setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
@@ -122,6 +127,8 @@ public class ContentFragment extends Fragment {
 
                 like_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        //Button Animation
+                        buttonView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.reaction_button_animation));
                         if (isChecked) {
                             ToggleButton otherButton = (ToggleButton) container.findViewById(R.id.toggleButton_dislike);
                             if(otherButton.isChecked())

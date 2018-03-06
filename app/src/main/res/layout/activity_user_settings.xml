@@ -24,13 +24,14 @@
 
         <ImageButton
             android:id="@+id/imageButton2"
+            android:layout_margin="5dp"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_column="0"
             android:layout_row="0"
             android:background="@drawable/ic_avatar"
             android:backgroundTintMode="src_over"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/crystal_bubble" />
 
         <Button
@@ -39,6 +40,7 @@
             android:layout_height="25dp"
             android:layout_column="0"
             android:layout_gravity="bottom|right"
+            android:layout_margin="5dp"
             android:layout_row="0"
             android:alpha="0.6"
             android:background="#cccccc"
@@ -49,18 +51,14 @@
             android:layout_height="wrap_content"
             android:layout_column="1"
             android:layout_gravity="fill"
-            android:layout_marginLeft="0dp"
-            android:layout_marginStart="@dimen/text_margin"
             android:layout_row="0"
+            android:layout_marginLeft="5dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
                 android:layout_gravity="fill"
-                android:layout_row="1"
-                android:gravity="right"
                 android:orientation="horizontal">
 
                 <TextView
@@ -68,6 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
+                    android:textSize="18sp"
                     android:text="UserName"
                     android:textColor="@android:color/holo_blue_dark" />
 

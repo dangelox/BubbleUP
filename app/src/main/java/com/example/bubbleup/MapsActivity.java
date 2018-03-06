@@ -719,17 +719,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Handle Back Button Press.
     @Override
     public void onBackPressed() {
-        if (log_status) {
-            logout++;
-            if(logout >= 3) {
-                log_status = false;//Redundant?
-                Intent resultIntent = new Intent();
-                setResult(Activity.RESULT_OK, resultIntent);
-                finish();
-            }else
-                Toast.makeText(this, "Press back 2 times to logout", Toast.LENGTH_SHORT).show();
+        if(fragment_display){
+            content_button.performClick();
         } else {
-            super.onBackPressed();
+            if (log_status) {
+                logout++;
+                if (logout >= 3) {
+                    log_status = false;//Redundant?
+                    Intent resultIntent = new Intent();
+                    setResult(Activity.RESULT_OK, resultIntent);
+                    finish();
+                } else
+                    Toast.makeText(this, "Press back 2 times to logout", Toast.LENGTH_SHORT).show();
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 
