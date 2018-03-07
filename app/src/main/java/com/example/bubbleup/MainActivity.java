@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                                     user_name = (String) json_response.get("name");
 
                                     //TODO: Make sure that login also return id.
-                                    //myId = (Integer) json_response.get("id");
+                                    myId = (Integer) json_response.get("id");
 
                                     //Necessary?
                                     if(json_response.has("profile_image")){
@@ -206,11 +206,11 @@ public class MainActivity extends AppCompatActivity {
                                 editor.commit();
 
 
-
                                 Intent login_success = new Intent(MainActivity.this, MapsActivity.class);
                                 login_success.putExtra("myToken", saved_token);
                                 login_success.putExtra("log_status",true);
                                 login_success.putExtra("profile_link", profile_pic_link);
+                                login_success.putExtra("myId", myId);
                                 login_success.putExtra("myUsernName", user_name);
                                 MainActivity.this.startActivityForResult(login_success,log_off);//log_off meaning it expects a log_off result at some point
                             }

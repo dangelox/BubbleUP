@@ -259,9 +259,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     editor.putString("backGround_Color",backGroundColor);
                     editor.commit();
 
-
-
-
                     Window window = getWindow();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if(backGroundColor.equals("#f2f2f2")){//Dont use this color, icons are hard to see
@@ -294,11 +291,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         });
 
         profile_button = (ImageButton) findViewById(R.id.button_profile);
-
-        //Use this if we have a user profile image?
-        //Bitmap bitMap = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_avatar);
-        //Bitmap scaledBitMap = Bitmap.createScaledBitmap(bitMap, 90,90, true);
-        //profile_button.setImageBitmap(scaledBitMap);
 
         profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -550,7 +542,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-            double size_calc = (150 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 50;
+            double size_calc = (150 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 80;
             int size = (int) size_calc;
 
             date = date_str + " " + time_str;
@@ -590,15 +582,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            //If response is successful we proceed to create bubbles
-                            int user_id;
-                            int post_id;
-                            int likeCount;
-                            String body;
-                            boolean visible = false;
-                            double lat;
-                            double lng;
-                            String date;
                             Log.d("BubbleUp", "JSOn Post Get Response Successful");
                             Log.d("BubbleUp", response);
 
