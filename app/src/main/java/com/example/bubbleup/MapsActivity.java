@@ -492,17 +492,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onMapLongClick(LatLng latLng) {
                 if(log_status) {
-                    //TODO:Try doing a fragment instead of an activity.
                     DialogFragment dialog = new ComposerDialogFragment();
                     ((ComposerDialogFragment) dialog).setLatLng(latLng);
                     dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
-
-                    /*
-                    Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
-                    edit.putExtra("location", latLng);
-                    edit.putExtra("myToken", token);
-                    MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
-                    */
                 }else{
                     Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
                 }
@@ -556,7 +548,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-            double size_calc = (180 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 50;
+            double size_calc = (150 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 50;
             int size = (int) size_calc;
 
             date = date_str + " " + time_str;

@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
+        android:layout_marginLeft="5dp"
         android:text="Composing" />
 
     <EditText
@@ -16,8 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:hint="What is going on? . . ."
+        android:inputType="textMultiLine"
+        android:hint="What is going on?"
         android:text="" />
 
     <LinearLayout
