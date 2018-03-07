@@ -469,8 +469,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         //BubbleLoader
         bubbleLoader();
 
-        //TODO: Make a bubble creation activity.
-
         //Initiate bubble updater
         bubbleUpdater.run();//Run the bubble updater.
 
@@ -542,7 +540,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-            double size_calc = (150 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 80;
+            double size_calc = (130 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 80;
             int size = (int) size_calc;
 
             date = date_str + " " + time_str;

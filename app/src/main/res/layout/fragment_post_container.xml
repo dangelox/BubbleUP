@@ -35,7 +35,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="fill"
             android:orientation="horizontal">
@@ -54,7 +54,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:background="@android:drawable/ic_menu_delete"
-                android:layout_weight="1"/>
+                android:layout_weight="0"/>
 
         </LinearLayout>
 

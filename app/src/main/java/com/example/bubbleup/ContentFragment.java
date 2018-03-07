@@ -86,7 +86,7 @@ public class ContentFragment extends Fragment {
         // Required empty public constructor
     }
 
-    //Comparators
+    //Comparators for sorting
     public class BubbleComparatorSize implements Comparator<BubbleMarker> {
         public int compare(BubbleMarker left, BubbleMarker right) {
             return ((Integer) right.myHeight).compareTo((Integer) left.myHeight);

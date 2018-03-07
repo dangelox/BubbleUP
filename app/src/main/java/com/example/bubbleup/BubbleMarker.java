@@ -19,6 +19,9 @@ import android.os.AsyncTask;
 import android.os.PatternMatcher;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.util.Patterns;
 
@@ -133,7 +136,10 @@ public class BubbleMarker implements Serializable{
         Bitmap type = BitmapFactory.decodeResource(myContext.getResources(), icon);
         type = Bitmap.createScaledBitmap(type, width / 3, height / 3, true);
         //Extra Overlays
-        overlay = overlayAdd(type, overlay, 0.0f, 0.0f);
+
+        //emoji?
+
+        overlay = overlayAdd(type, overlay, "",0.0f, 0.0f);
 
         //adds the scaled bitmap to our marker icon
         bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(overlay));
@@ -214,7 +220,7 @@ public class BubbleMarker implements Serializable{
         return output;
     }
 
-    private Bitmap overlayAdd(Bitmap image, Bitmap bubbleOverlay, float x, float y) {
+    private Bitmap overlayAdd(Bitmap image, Bitmap bubbleOverlay, String emojiString, float x, float y) {
         Bitmap finalBubble = Bitmap.createBitmap(bubbleOverlay.getWidth(), bubbleOverlay.getHeight(), bubbleOverlay.getConfig());
         Canvas canvas = new Canvas(finalBubble);
         canvas.drawBitmap(bubbleOverlay, new Matrix(), null);
@@ -222,6 +228,18 @@ public class BubbleMarker implements Serializable{
         Matrix imageMat = new Matrix();
         imageMat.setTranslate(bubbleOverlay.getWidth()*x,bubbleOverlay.getHeight()*y);
         canvas.drawBitmap(image, imageMat, null);
+
+        //Emoji?
+        String someEmojis = "\uD83C\uDDE7\uD83C\uDDF4";
+        //Character.toChars(0x1F369);
+        if (false){
+            TextPaint paint = new TextPaint();
+            String emoji = new String(Character.toChars(someEmojis.codePointAt(0)));
+            paint.setTextSize( (int) (bubbleOverlay.getWidth()/3.5));
+            StaticLayout lsLayout = new StaticLayout(emoji, paint, (int) (bubbleOverlay.getWidth()/3), Layout.Alignment.ALIGN_CENTER, 1, 1, true);
+            lsLayout.draw(canvas);
+        }
+
         return finalBubble;
     }
 
@@ -237,14 +255,3 @@ public class BubbleMarker implements Serializable{
         return profile_image;
     }
 }
-
-/*
-//Draws a bubble, and return the ground overlay object.
-public GroundOverlay bubbleMake(LatLng location, float width, float height){
-    GroundOverlayOptions bubbleMake = new GroundOverlayOptions()
-            .image(BitmapDescriptorFactory.fromResource(R.drawable.crystal_bubble))
-            .position(location, width, height);//position(location, width, height)
-    return mMap.addGroundOverlay(bubbleMake);
-}
-
- */
