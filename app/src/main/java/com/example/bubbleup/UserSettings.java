@@ -189,12 +189,8 @@ public class UserSettings extends AppCompatActivity {
                     alertDialog.show();
                     Log.d("BubbleUp","Dialog Success");
                 } catch (Exception e) {
-                    // WindowManager$BadTokenException will be caught and the app would
-                    // not display the 'Force Close' message
                     e.printStackTrace();
                     Log.d("BubbleUp","Dialog Fail");
-                    Log.d("BubbleUp",e.toString());
-                    Log.d("BubbleUp",e.getLocalizedMessage());
                 }
             }
         });

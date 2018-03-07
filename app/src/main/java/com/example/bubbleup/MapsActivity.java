@@ -97,6 +97,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     Bitmap profile_picture;
     String myUserName;
+    Integer myId;
 
     //List where we will store all bubbles, may wanna use a different data structure in the future.
     //List<GroundOverlay> myBubbles;
@@ -179,6 +180,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             Log.d("BubbleUp","log_status = true");
             token = getIntent().getStringExtra("myToken");
             Log.d("BubbleUp","Token = " + token);
+            myId = getIntent().getIntExtra("myId",-1);
         }
 
         setContentView(R.layout.activity_maps);

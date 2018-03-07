@@ -1,6 +1,8 @@
 package com.example.bubbleup;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -11,6 +13,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +35,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +66,7 @@ public class ContentFragment extends Fragment {
     public static final String SAVEDLOCATION_PREF = "previous_location";
 
     String url_like ="https://bubbleup-api.herokuapp.com/likes/";
+    String url_posts ="https://bubbleup-api.herokuapp.com/posts/";
 
 
     // TODO: Rename and change types of parameters
@@ -67,8 +76,6 @@ public class ContentFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     View myView;
-
-
 
     LayoutInflater myInflater;
 
@@ -93,7 +100,7 @@ public class ContentFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
-        LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
+        final LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
@@ -128,6 +135,81 @@ public class ContentFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         ((MapsActivity) getActivity()).moveCamera(currentBubble.bubbleMarker.getPosition());
+                    }
+                });
+
+                container.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        Log.d("BubbleUp","Long Clicked Detected");
+                        if(currentBubble.myUser_id == ((MapsActivity) getActivity()).myId){
+                            Log.d("BubbleUp","Same ID");
+
+                            //Build an alert dialog to prompt deletion
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                            LinearLayout layout = new LinearLayout(getContext());
+                            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            layout.setOrientation(LinearLayout.VERTICAL);
+                            layout.setLayoutParams(parms);
+
+                            layout.setGravity(Gravity.CLIP_VERTICAL);
+                            layout.setPadding(2, 2, 2, 2);
+
+                            alertDialogBuilder.setView(layout);
+                            alertDialogBuilder.setTitle("Delete this post?");
+
+                            alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    StringRequest deletePostRequest = new StringRequest(Request.Method.DELETE, url_posts + currentBubble.myPost_id,
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
+                                                    ViewGroup vg = myList;
+                                                    vg.removeView(container);
+                                                    currentBubble.bubbleMarker.remove();
+                                                    ((MapsActivity) getActivity()).myBubbles.remove(currentBubble);
+                                                }
+                                            }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                                        }
+                                    }) {
+                                        @Override
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> params = new HashMap();
+                                            params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                            return params;
+                                        }
+                                    };
+
+                                    ((MapsActivity) getActivity()).queue.add(deletePostRequest);
+                                }
+                            });
+
+                            alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                }
+                            });
+
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+
+                            try {
+                                alertDialog.show();
+                                Log.d("BubbleUp","Dialog Success");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.d("BubbleUp","Dialog Fail");
+                            }
+                        } else {
+                            return false;
+                        }
+                        return false;
                     }
                 });
 
@@ -277,8 +359,6 @@ public class ContentFragment extends Fragment {
                     }
                 }
                 myList.addView(container);
-
-                
             }
         }
     }

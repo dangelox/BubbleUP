@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String saved_token = "";
     private String profile_pic_link;
+    private Integer myId;
 
 
     @Override
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("BubbleUp","Token Response:" + response);
                                 JSONObject json_response = new JSONObject(response.toString());
                                 profile_pic_link = (String) json_response.get("profile_image");
-                                id = (int) json_response.get("id");
+                                myId = (Integer) json_response.get("id");
                                 user_name = (String) json_response.get("name");
                                 email = (String) json_response.get("email");
 
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
                             token_success.putExtra("myToken", saved_token);
                             token_success.putExtra("log_status", true);
+                            token_success.putExtra("myId", myId);
                             token_success.putExtra("profile_link", profile_pic_link);
                             token_success.putExtra("myUsernName", user_name);
                             //startActivity(token_success);
@@ -182,6 +184,9 @@ public class MainActivity extends AppCompatActivity {
                                     saved_token = (String) json_response.get("token");
                                     user_name = (String) json_response.get("name");
 
+                                    //TODO: Make sure that login also return id.
+                                    //myId = (Integer) json_response.get("id");
+
                                     //Necessary?
                                     if(json_response.has("profile_image")){
                                         profile_pic_link = json_response.getString("profile_image");
@@ -199,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putString("saved_username", user_name);
                                 editor.putString("profile_link", profile_pic_link);
                                 editor.commit();
+
 
 
                                 Intent login_success = new Intent(MainActivity.this, MapsActivity.class);
