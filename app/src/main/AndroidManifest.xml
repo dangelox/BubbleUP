@@ -38,7 +38,9 @@
             android:name=".AddMarkerActivity"
             android:label="@string/title_activity_add_marker"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".UserSettings"></activity>
+        <activity
+            android:name=".UserSettings"
+            android:label="My Settings" />
     </application>
 
 </manifest>

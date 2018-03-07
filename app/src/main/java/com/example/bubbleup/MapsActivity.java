@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
@@ -120,6 +122,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //Content Fragment
     public ContentFragment myFragment = new ContentFragment();
     boolean fragment_display = false;
+
+    //Composer Fragment
+    public ComposerDialogFragment myFragmentComposer = new ComposerDialogFragment();
+    boolean fragment_composer_display = false;
 
     //Map Fragment, make local or global? Check Transitions guides.
     SupportMapFragment mapFragment;
@@ -486,15 +492,95 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onMapLongClick(LatLng latLng) {
                 if(log_status) {
+                    //TODO:Try doing a fragment instead of an activity.
+                    DialogFragment dialog = new ComposerDialogFragment();
+                    ((ComposerDialogFragment) dialog).setLatLng(latLng);
+                    dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+
+                    /*
                     Intent edit = new Intent(MapsActivity.this, AddMarkerActivity.class);
                     edit.putExtra("location", latLng);
                     edit.putExtra("myToken", token);
                     MapsActivity.this.startActivityForResult(edit, addMarkerIntent);
+                    */
                 }else{
                     Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    public void jsonToBubbleMarker(JSONObject myJson, boolean react){
+        int user_id;
+        int post_id;
+        int likeCount;
+        String body;
+        boolean visible = false;
+        double lat;
+        double lng;
+        String date;
+
+        try {
+            post_id = Integer.parseInt(myJson.get("id").toString());
+            user_id = Integer.parseInt(myJson.get("user_id").toString());
+            body = myJson.get("body").toString();
+            likeCount = Integer.parseInt(myJson.get("like").toString());
+
+            String date_str = myJson.get("created_at").toString().substring(5, 10);
+            Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0, 4));
+            Integer month = Integer.parseInt(date_str.substring(0, 2));
+            Integer day = Integer.parseInt(date_str.substring(3, 5));
+            String time_str = myJson.get("created_at").toString().substring(11, 16);
+            Integer hour = Integer.parseInt(time_str.substring(0, 2));
+            Integer minute = Integer.parseInt(time_str.substring(3, 5));
+
+            //User Like
+            int reaction;
+            //When Posting post doesnt return "i_like"
+            if(react)
+                reaction = myJson.getInt("i_like");
+            else
+                reaction = 0;
+
+            //We check if the user of the current post is already on our user array.
+            if (user_id_list != null && !user_id_list.contains(user_id)) {
+                user_id_list.add(user_id);
+                Log.d("BubbleUp", "Added User to List " + user_id);
+            }
+
+            //Calculating Post Times.
+
+            DateTime bubbleTime = new DateTime(year, month, day, hour, minute, DateTimeZone.UTC);
+            DateTime currentTime = new DateTime();//Local Date Time
+
+            int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
+            int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
+
+            double size_calc = (180 + likeCount * 25) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 50;
+            int size = (int) size_calc;
+
+            date = date_str + " " + time_str;
+
+            //Parsing bubble coordinates.
+
+            visible = Boolean.parseBoolean(myJson.get("visible").toString());
+            lat = Double.parseDouble(myJson.get("lat").toString());
+            lng = Double.parseDouble(myJson.get("lng").toString());
+
+            //Creating the bubble marker objects.
+            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, getApplicationContext(), null);
+
+            //Adding the bubble to the google map fragment.
+            newBubble.addMarker(mMap);
+
+            //Adding the bubble to the array so as to iteratively update their status.
+            myBubbles.add(newBubble);
+
+        }catch (JSONException e) {
+            Log.d("BubbleUp", "Failure While Converting JSON to Bubble");
+            Toast.makeText(getApplicationContext(), "JSON Error", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
     public void bubbleLoader(){
@@ -529,61 +615,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 myBubbles.clear();//empty the array first.
 
                                 //Iterating through the JSON object array.
-                                for (int i = 0; i < json_response.length(); i++) {
-                                    JSONObject myJson = (JSONObject) json_response.get(i);
-
-                                    //Getting variables from the JSON object
-
-                                    post_id = Integer.parseInt(myJson.get("id").toString());
-                                    user_id = Integer.parseInt(myJson.get("user_id").toString());
-                                    body = myJson.get("body").toString();
-                                    likeCount = Integer.parseInt(myJson.get("like").toString());
-
-                                    String date_str = myJson.get("created_at").toString().substring(5,10);
-                                    Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0,4));
-                                    Integer month = Integer.parseInt(date_str.substring(0,2));
-                                    Integer day = Integer.parseInt(date_str.substring(3,5));
-                                    String time_str = myJson.get("created_at").toString().substring(11,16);
-                                    Integer hour = Integer.parseInt(time_str.substring(0,2));
-                                    Integer minute = Integer.parseInt(time_str.substring(3,5));
-
-                                    //User Like
-                                    int reaction = myJson.getInt("i_like");
-
-                                    //We check if the user of the current post is already on our user array.
-                                    if(user_id_list != null && !user_id_list.contains(user_id)){
-                                        user_id_list.add(user_id);
-                                        Log.d("BubbleUp","Added User to List " + user_id);
-                                    }
-
-                                    //Calculating Post Times.
-
-                                    DateTime bubbleTime = new DateTime(year,month,day,hour,minute, DateTimeZone.UTC);
-                                    DateTime currentTime = new DateTime();//Local Date Time
-
-                                    int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
-                                    int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
-
-                                    double size_calc = (180 + likeCount*25) * Math.pow(0.65,minDiff/(1440.0 + (likeCount * 250))) + 50;
-                                    int size = (int) size_calc;
-
-                                    date = date_str +" "+ time_str;
-
-                                    //Parsing bubble coordinates.
-
-                                    visible = Boolean.parseBoolean(myJson.get("visible").toString());
-                                    lat = Double.parseDouble(myJson.get("lat").toString());
-                                    lng = Double.parseDouble(myJson.get("lng").toString());
-
-                                    //Creating the bubble marker objects.
-                                    BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction , likeCount, post_id,body + " #" + post_id, "#"+ user_id +" "+date,"", size, size , minDiff, getApplicationContext(), null);
-
-                                    //Adding the bubble to the google map fragment.
-                                    newBubble.addMarker(mMap);
-
-                                    //Adding the bubble to the array so as to iteratively update their status.
-                                    myBubbles.add(newBubble);
-                                }
+                                for (int i = 0; i < json_response.length(); i++)
+                                    jsonToBubbleMarker((JSONObject) json_response.get(i),true);
 
                                 //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
 
