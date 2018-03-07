@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -130,6 +131,90 @@ public class ContentFragment extends Fragment {
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
 
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
+
+                Button deleteButton = (Button) container.findViewById(R.id.deleteButton);
+
+                //check if the bubble is the current user's bubble and should show the deletion button
+                if(currentBubble.myUser_id == ((MapsActivity) getActivity()).myId) {
+
+                    deleteButton.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+
+                            Log.d("BubbleUp","Long Clicked Detected");
+                            if(currentBubble.myUser_id == ((MapsActivity) getActivity()).myId){
+                                Log.d("BubbleUp","Same ID");
+
+                                //Build an alert dialog to prompt deletion
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                                LinearLayout layout = new LinearLayout(getContext());
+                                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                layout.setOrientation(LinearLayout.VERTICAL);
+                                layout.setLayoutParams(parms);
+
+                                layout.setGravity(Gravity.CLIP_VERTICAL);
+                                layout.setPadding(2, 2, 2, 2);
+
+                                alertDialogBuilder.setView(layout);
+                                alertDialogBuilder.setTitle("Delete this post?");
+
+                                alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        StringRequest deletePostRequest = new StringRequest(Request.Method.DELETE, url_posts + currentBubble.myPost_id,
+                                                new Response.Listener<String>() {
+                                                    @Override
+                                                    public void onResponse(String response) {
+                                                        Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
+                                                        ViewGroup vg = myList;
+                                                        vg.removeView(container);
+                                                        currentBubble.bubbleMarker.remove();
+                                                        ((MapsActivity) getActivity()).myBubbles.remove(currentBubble);
+                                                    }
+                                                }, new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                                            }
+                                        }) {
+                                            @Override
+                                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                                Map<String, String> params = new HashMap();
+                                                params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                return params;
+                                            }
+                                        };
+
+                                        ((MapsActivity) getActivity()).queue.add(deletePostRequest);
+                                    }
+                                });
+
+                                alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.cancel();
+                                    }
+                                });
+
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                try {
+                                    alertDialog.show();
+                                    Log.d("BubbleUp","Dialog Success");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Log.d("BubbleUp","Dialog Fail");
+                                }
+                            } else {
+                                return;
+                            }
+                            return;
+                        }
+                    });
+                }
+                else{
+                    container.findViewById(R.id.deleteButton).setVisibility(View.GONE);
+                }
 
                 container.setOnClickListener(new View.OnClickListener() {
                     @Override
