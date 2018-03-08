@@ -216,12 +216,20 @@ public class ContentFragment extends Fragment {
                     container.findViewById(R.id.deleteButton).setVisibility(View.GONE);
                 }
 
-                container.setOnClickListener(new View.OnClickListener() {
+                Button findBubbleButton = (Button) container.findViewById(R.id.findBubbleButton);
+
+                findBubbleButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         ((MapsActivity) getActivity()).moveCamera(currentBubble.bubbleMarker.getPosition());
                     }
                 });
+
+                /*container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                    }
+                });*/
 
                 container.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
