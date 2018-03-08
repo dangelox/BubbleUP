@@ -3,6 +3,7 @@ package com.example.bubbleup;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,8 +117,21 @@ public class ContentFragment extends Fragment {
 
                 final View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
 
-                TextView text = (TextView) container.findViewById(R.id.textView);
+                TextView text = (TextView) container.findViewById(R.id.fragment_body_textView);
                 text.setText(currentBubble.msg);
+
+                text.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if( currentBubble.bubbleMarker.getTag() != null && Patterns.WEB_URL.matcher((String) currentBubble.bubbleMarker.getTag()).matches()){
+                            //Toast.makeText(this, "Checking for links.", Toast.LENGTH_SHORT).show();
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) currentBubble.bubbleMarker.getTag()));
+                            startActivity(browserIntent);
+                        } else {
+                            Toast.makeText(getContext(), "No URL on post.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
                 final TextView likeCounter = (TextView) container.findViewById(R.id.text_like_counter);
                 likeCounter.setText(Integer.toString(currentBubble.myLikes));
@@ -225,18 +240,20 @@ public class ContentFragment extends Fragment {
                     }
                 });
 
-                /*container.setOnClickListener(new View.OnClickListener() {
+                container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                     }
-                });*/
+                });
 
+                /*
                 container.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
                         return false;
                     }
                 });
+                */
 
                 //Like / Dislike Buttons
                 ToggleButton like_button = (ToggleButton) container.findViewById(R.id.toggleButton_like);
