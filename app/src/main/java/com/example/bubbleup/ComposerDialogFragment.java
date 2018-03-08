@@ -4,12 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +41,38 @@ public class ComposerDialogFragment extends DialogFragment {
 
     LatLng postLatLng;
 
+    int type = 0;
+
     public void setLatLng(LatLng latlng){
         postLatLng = latlng;
     }
+
+    View previousButton;
+
+    ImageView selectedTopic;
+
+    View.OnClickListener typeButtonLister = new View.OnClickListener() {
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.category_button_music:
+                    type = 1;
+                    break;
+                case R.id.category_button_photo:
+                    type = 2;
+                    break;
+                case R.id.category_button_video:
+                    type = 3;
+                    break;
+                default:
+                    type = 0;
+                    break;
+            }
+            previousButton = view;
+            selectedTopic.setBackground(((ImageButton) view).getDrawable());
+        }
+    };
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -52,76 +87,90 @@ public class ComposerDialogFragment extends DialogFragment {
 
         final Activity myActivity = getActivity();
 
+        selectedTopic = (ImageView) fragmentView.findViewById(R.id.category_selected);;
+
+        //Setting button listeners
+        ImageButton pickerButton0 = (ImageButton) fragmentView.findViewById(R.id.category_button_post);
+        pickerButton0.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton1 = (ImageButton) fragmentView.findViewById(R.id.category_button_music);
+        pickerButton1.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton2 = (ImageButton) fragmentView.findViewById(R.id.category_button_photo);
+        pickerButton2.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton3 = (ImageButton) fragmentView.findViewById(R.id.category_button_video);
+        pickerButton3.setOnClickListener(typeButtonLister);
+
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        ComposerDialogFragment.this.getDialog().cancel();
-                    }
-                })
-                .setPositiveButton("Post", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id) {
+                ComposerDialogFragment.this.getDialog().cancel();
+            }
+        });
 
-                        EditText composer = (EditText) fragmentView.findViewById(R.id.composer_edit);
+        builder.setPositiveButton("Post", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
 
-                        snippet = composer.getText().toString();
+                EditText composer = (EditText) fragmentView.findViewById(R.id.composer_edit);
 
-                        if(snippet.equals("")){
-                            Toast.makeText(getContext(), "Empty Post", Toast.LENGTH_SHORT).show();
-                        } else {
-                            //Toast.makeText(getContext(), snippet, Toast.LENGTH_SHORT).show();
+                snippet = composer.getText().toString();
 
-                            StringRequest bubblePostRequest = new StringRequest(Request.Method.POST, url_tasks,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            try {
-                                                Log.d("BubbleUp", "Post Taks Response:\n" + response.toString());
-                                                JSONObject json_response = new JSONObject(response.toString());
+                if(snippet.equals("")){
+                    Toast.makeText(getContext(), "Empty Post", Toast.LENGTH_SHORT).show();
+                } else {
+                    //Toast.makeText(getContext(), snippet, Toast.LENGTH_SHORT).show();
 
-                                                ((MapsActivity) myActivity).jsonToBubbleMarker(json_response, false);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }, new Response.ErrorListener() {
+                    StringRequest bubblePostRequest = new StringRequest(Request.Method.POST, url_tasks,
+                            new Response.Listener<String>() {
                                 @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.d("BubbleUp","Post Task Error: " + error.toString());
-                                    Log.d("BubbleUp","Post Task Error: " + error.getMessage());
-                                }
-                            }){
-                                @Override
-                                public Map<String, String> getParams() throws AuthFailureError {
-                                    HashMap<String, String> params = new HashMap<>();
-                                    params.put("body", "\"" + snippet + "\"");
-                                    params.put("visible", "1");
-                                    params.put("lat", Double.toString( postLatLng.latitude));
-                                    params.put("lng", Double.toString( postLatLng.longitude));
-                                    return params;
-                                }
-                                @Override
-                                public byte[] getBody() throws AuthFailureError {
-                                    String httpPostBody="{\"body\": \""+snippet+"\", " +
-                                            "\"visible\": 1," +
-                                            " \"lat\": " + Double.toString( postLatLng.latitude) + "," +
-                                            " \"lng\": " + Double.toString( postLatLng.longitude) + "}";
-                                    Log.d("BubbleUp", "HTTPPOST BODY:\n" + httpPostBody);
-                                    return httpPostBody.getBytes();
-                                }
-                                @Override
-                                public Map<String, String> getHeaders() throws AuthFailureError {
-                                    Map<String,String> params = new HashMap();
-                                    Log.d("BubbleUp",((MapsActivity) getActivity()).token);
-                                    params.put("Authorization","JWT " + ((MapsActivity) getActivity()).token);
-                                    params.put("Content-Type","application/json");
-                                    return params;
-                                }
-                            };
+                                public void onResponse(String response) {
+                                    try {
+                                        Log.d("BubbleUp", "Post Taks Response:\n" + response.toString());
+                                        JSONObject json_response = new JSONObject(response.toString());
 
-                            ((MapsActivity) getActivity()).queue.add(bubblePostRequest);
+                                        ((MapsActivity) myActivity).jsonToBubbleMarker(json_response, false);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("BubbleUp","Post Task Error: " + error.toString());
+                            Log.d("BubbleUp","Post Task Error: " + error.getMessage());
                         }
-                    }
-                });
+                    }){
+                        @Override
+                        public Map<String, String> getParams() throws AuthFailureError {
+                            HashMap<String, String> params = new HashMap<>();
+                            params.put("body", "\"" + snippet + "\"");
+                            params.put("visible", "1");
+                            params.put("lat", Double.toString( postLatLng.latitude));
+                            params.put("lng", Double.toString( postLatLng.longitude));
+                            return params;
+                        }
+                        @Override
+                        public byte[] getBody() throws AuthFailureError {
+                            String httpPostBody="{\"body\": \""+snippet+"\", " +
+                                    "\"visible\": 1," +
+                                    " \"lat\": " + Double.toString( postLatLng.latitude) + "," +
+                                    " \"lng\": " + Double.toString( postLatLng.longitude) + "," +
+                                    " \"content_type\": " + Integer.toString(type) + "}";
+                            Log.d("BubbleUp", "HTTPPOST BODY:\n" + httpPostBody);
+                            return httpPostBody.getBytes();
+                        }
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String,String> params = new HashMap();
+                            Log.d("BubbleUp",((MapsActivity) getActivity()).token);
+                            params.put("Authorization","JWT " + ((MapsActivity) getActivity()).token);
+                            params.put("Content-Type","application/json");
+                            return params;
+                        }
+                    };
+
+                    ((MapsActivity) getActivity()).queue.add(bubblePostRequest);
+                }
+            }
+        });
 
         return builder.create();
     }

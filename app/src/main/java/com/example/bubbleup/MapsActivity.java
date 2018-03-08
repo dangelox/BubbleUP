@@ -500,6 +500,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         int likeCount;
         String body;
         boolean visible = false;
+        int type;
         double lat;
         double lng;
         String date;
@@ -509,6 +510,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             user_id = Integer.parseInt(myJson.get("user_id").toString());
             body = myJson.get("body").toString();
             likeCount = Integer.parseInt(myJson.get("like").toString());
+            type = Integer.parseInt(myJson.get("content_type").toString());
 
             String date_str = myJson.get("created_at").toString().substring(5, 10);
             Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0, 4));
@@ -518,7 +520,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             Integer hour = Integer.parseInt(time_str.substring(0, 2));
             Integer minute = Integer.parseInt(time_str.substring(3, 5));
 
-            //User Like
+            //User reaction (like etc)
             int reaction;
             //When Posting post doesnt return "i_like"
             if(react)
@@ -552,7 +554,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             lng = Double.parseDouble(myJson.get("lng").toString());
 
             //Creating the bubble marker objects.
-            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, getApplicationContext(), null);
+            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, getApplicationContext(), null);
 
             //Adding the bubble to the google map fragment.
             newBubble.addMarker(mMap);
