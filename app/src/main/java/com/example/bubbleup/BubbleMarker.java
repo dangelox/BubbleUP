@@ -239,7 +239,7 @@ public class BubbleMarker implements Serializable{
         canvas.drawBitmap(bubbleOverlay, new Matrix(), null);
 
         Paint circlePaint = new Paint();
-        circlePaint.setColor(Color.WHITE);
+        circlePaint.setColor(Color.parseColor("#d3d3d3"));
         circlePaint.setAntiAlias(true);
         canvas.drawCircle(x + image.getWidth() / 2, y +image.getHeight() / 2, image.getWidth() / 2, circlePaint);
 

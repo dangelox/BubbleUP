@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginLeft="5dp"
-            android:text="CurretTopic" />
+            android:text="CurretTopic:" />
 
         <ImageView
             android:id="@+id/category_selected"
@@ -30,42 +30,7 @@
 
 
 
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/category_button_post"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_row="0"
-            android:src="@drawable/ic_post" />
-
-        <ImageButton
-            android:id="@+id/category_button_music"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_row="0"
-            android:src="@drawable/ic_music" />
-
-        <ImageButton
-            android:id="@+id/category_button_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_row="0"
-            android:src="@drawable/ic_photo" />
-
-        <ImageButton
-            android:id="@+id/category_button_video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_row="0"
-            android:src="@drawable/ic_video" />
-    </GridLayout>
 
 
 
@@ -84,19 +49,49 @@
         android:gravity="end"
         android:orientation="horizontal">
 
-        <!--
-        <Button
-            android:id="@+id/composer_post_button"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="post" />
+            android:fitsSystemWindows="true"
+            android:alignmentMode="alignBounds" >
 
-        <Button
-            android:id="@+id/composer_cancel_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel" />
-        -->
+            <ImageButton
+                android:id="@+id/category_button_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:src="@drawable/ic_post" />
+
+            <ImageButton
+                android:id="@+id/category_button_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+
+                android:src="@drawable/ic_music" />
+
+            <ImageButton
+                android:id="@+id/category_button_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="2"
+                android:layout_columnWeight="1"
+                android:src="@drawable/ic_photo" />
+
+            <ImageButton
+                android:id="@+id/category_button_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="3"
+                android:layout_columnWeight="1"
+                android:src="@drawable/ic_video" />
+        </GridLayout>
 
     </LinearLayout>
 
