@@ -11,114 +11,140 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <LinearLayout
+        android:id="@+id/post_card_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:columnCount="2">
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_column="0"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_row="0"
-            android:background="@drawable/ic_avatar"
-            android:backgroundTintMode="src_over"
-            android:scaleType="centerCrop"
-            android:src="@drawable/crystal_bubble" />
-
-        <LinearLayout
-            android:layout_width="0dp"
+        <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_column="1"
-            android:layout_gravity="fill"
-            android:layout_marginLeft="0dp"
-            android:layout_marginStart="@dimen/text_margin"
-            android:layout_row="0"
-            android:orientation="vertical">
+            android:columnCount="2">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_column="0"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_row="0"
+                android:background="@drawable/ic_avatar"
+                android:backgroundTintMode="src_over"
+                android:scaleType="centerCrop"
+                android:src="@drawable/crystal_bubble" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="1"
                 android:layout_gravity="fill"
-                android:orientation="horizontal">
+                android:layout_marginLeft="0dp"
+                android:layout_marginStart="@dimen/text_margin"
+                android:layout_row="0"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textViewUserName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text="UserName"
-                    android:textColor="@android:color/holo_blue_dark"
-                    android:layout_weight="1"/>
+                    android:layout_gravity="fill"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/deleteButton"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:background="@android:drawable/ic_menu_delete"
-                    android:layout_weight="0"/>
+                    <TextView
+                        android:id="@+id/textViewUserName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text="UserName"
+                        android:textColor="@android:color/holo_blue_dark"
+                        android:layout_weight="1"/>
 
-            </LinearLayout>
+                    <Button
+                        android:id="@+id/deleteButton"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:background="@android:drawable/ic_menu_delete"
+                        android:layout_weight="0"/>
 
-            <TextView
-                android:id="@+id/fragment_body_textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_gravity="fill"
-                android:gravity="right"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/findBubbleButton"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@android:drawable/ic_menu_mylocation" />
-
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/text_like_counter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_marginRight="5dp"
-                    android:text="0" />
+                    android:id="@+id/fragment_body_textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="" />
 
-                <ToggleButton
-                    android:id="@+id/toggleButton_like"
-                    android:layout_width="30dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="30dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/ic_action_like"
-                    android:text=""
-                    android:textOff=""
-                    android:textOn="" />
+                    android:layout_gravity="fill"
+                    android:gravity="right"
+                    android:orientation="horizontal">
 
-                <ToggleButton
-                    android:id="@+id/toggleButton_dislike"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/ic_action_dislike"
-                    android:text=""
-                    android:textOff=""
-                    android:textOn="" />
+                    <Button
+                        android:id="@+id/findBubbleButton"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@android:drawable/ic_menu_mylocation" />
+
+                    <TextView
+                        android:id="@+id/comment_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="5dp"
+                        android:text="0" />
+
+                    <ToggleButton
+                        android:id="@+id/comment_toggle_button"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:background="@drawable/ic_comment"
+                        android:text=""
+                        android:textOff=""
+                        android:textOn="" />
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/text_like_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="5dp"
+                        android:text="0" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_like"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/ic_action_like"
+                        android:text=""
+                        android:textOff=""
+                        android:textOn="" />
+
+                    <ToggleButton
+                        android:id="@+id/toggleButton_dislike"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/ic_action_dislike"
+                        android:text=""
+                        android:textOff=""
+                        android:textOn="" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </GridLayout>
 
-    </GridLayout>
+    </LinearLayout>
+
 </android.support.v7.widget.CardView>

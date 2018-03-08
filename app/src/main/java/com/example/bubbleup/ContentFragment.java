@@ -70,6 +70,7 @@ public class ContentFragment extends Fragment {
 
     String url_like ="https://bubbleup-api.herokuapp.com/likes/";
     String url_posts ="https://bubbleup-api.herokuapp.com/posts/";
+    String url_comments ="https://bubbleup-api.herokuapp.com/posts_comments/";
 
 
     // TODO: Rename and change types of parameters
@@ -163,9 +164,9 @@ public class ContentFragment extends Fragment {
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
                                 LinearLayout layout = new LinearLayout(getContext());
-                                LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                                 layout.setOrientation(LinearLayout.VERTICAL);
-                                layout.setLayoutParams(parms);
+                                layout.setLayoutParams(params);
 
                                 layout.setGravity(Gravity.CLIP_VERTICAL);
                                 layout.setPadding(2, 2, 2, 2);
@@ -243,6 +244,83 @@ public class ContentFragment extends Fragment {
                 container.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        //Expand post on new window?
+                    }
+                });
+
+                //Comment Related Section
+                final LinearLayout postCardVertical = (LinearLayout) container.findViewById(R.id.post_card_vertical);
+
+                final LinearLayout commentSection = (LinearLayout) myInflater.inflate(R.layout.post_comment_section, postCardVertical, false);
+
+                Button addCommentButton = (Button) commentSection.findViewById(R.id.add_comment_button);
+                addCommentButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
+
+                ToggleButton toggleComments = (ToggleButton) container.findViewById(R.id.comment_toggle_button);
+
+                toggleComments.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                        if (isChecked) {
+                            postCardVertical.addView(commentSection);
+
+                            StringRequest getComments = new StringRequest(Request.Method.GET, url_comments + currentBubble.myPost_id,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            try {
+                                                JSONArray commentsArr = new JSONArray(response);
+
+                                                if(commentsArr.length() == 0){
+                                                    Toast.makeText(getContext(), "No comments!", Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    Toast.makeText(getContext(), "Got comments!", Toast.LENGTH_SHORT).show();
+                                                }
+
+                                                for(int i = 0; i < commentsArr.length(); i++){
+                                                    JSONObject commentJSON = (JSONObject) commentsArr.get(i);
+
+                                                    LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSection, false);
+                                                    TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
+                                                    commentBody.setText(commentJSON.getString("comment"));
+
+                                                    TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
+                                                    String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
+                                                    if(username != null){
+                                                        commentUser.setText(username);
+                                                    } else {
+                                                        commentUser.setText( "User #" + commentJSON.getInt("user_id"));
+                                                    }
+
+                                                    commentSection.addView(comment);
+                                                }
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("BubbleUp", " : Bubble Comments Response Error! " + error.getMessage());
+                                }
+                            }) {
+                                @Override
+                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                    Map<String, String> params = new HashMap();
+                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    return params;
+                                }
+                            };
+
+                            ((MapsActivity) getActivity()).queue.add(getComments);
+                        } else {
+                            postCardVertical.removeView(commentSection);
+                        }
                     }
                 });
 
