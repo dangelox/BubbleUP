@@ -77,6 +77,9 @@ public class ComposerDialogFragment extends DialogFragment {
                 case R.id.category_button_shopping:
                     type = 7;
                     break;
+                case R.id.category_button_question:
+                    type = 8;
+                    break;
                 default:
                     type = 0;
                     break;
@@ -118,6 +121,8 @@ public class ComposerDialogFragment extends DialogFragment {
         pickerButton6.setOnClickListener(typeButtonLister);
         ImageButton pickerButton7 = (ImageButton) fragmentView.findViewById(R.id.category_button_shopping);
         pickerButton7.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton8 = (ImageButton) fragmentView.findViewById(R.id.category_button_question);
+        pickerButton8.setOnClickListener(typeButtonLister);
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
