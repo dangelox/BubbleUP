@@ -65,6 +65,18 @@ public class ComposerDialogFragment extends DialogFragment {
                 case R.id.category_button_video:
                     type = 3;
                     break;
+                case R.id.category_button_animals:
+                    type = 4;
+                    break;
+                case R.id.category_button_cloud:
+                    type = 5;
+                    break;
+                case R.id.category_button_economy:
+                    type = 6;
+                    break;
+                case R.id.category_button_shopping:
+                    type = 7;
+                    break;
                 default:
                     type = 0;
                     break;
@@ -98,6 +110,14 @@ public class ComposerDialogFragment extends DialogFragment {
         pickerButton2.setOnClickListener(typeButtonLister);
         ImageButton pickerButton3 = (ImageButton) fragmentView.findViewById(R.id.category_button_video);
         pickerButton3.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton4 = (ImageButton) fragmentView.findViewById(R.id.category_button_animals);
+        pickerButton4.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton5 = (ImageButton) fragmentView.findViewById(R.id.category_button_cloud);
+        pickerButton5.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton6 = (ImageButton) fragmentView.findViewById(R.id.category_button_economy);
+        pickerButton6.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton7 = (ImageButton) fragmentView.findViewById(R.id.category_button_shopping);
+        pickerButton7.setOnClickListener(typeButtonLister);
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
