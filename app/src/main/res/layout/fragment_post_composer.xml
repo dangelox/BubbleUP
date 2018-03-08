@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:layout_marginLeft="5dp"
-            android:text="CurretTopic:" />
+            android:text="Topic:" />
 
         <ImageView
             android:id="@+id/category_selected"
@@ -27,12 +27,6 @@
             android:background="@drawable/ic_post" />
 
     </LinearLayout>
-
-
-
-
-
-
 
     <EditText
         android:id="@+id/composer_edit"
