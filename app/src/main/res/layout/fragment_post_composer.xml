@@ -57,6 +57,14 @@
             android:layout_margin="5dp"
             android:layout_row="0"
             android:src="@drawable/ic_photo" />
+
+        <ImageButton
+            android:id="@+id/category_button_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_row="0"
+            android:src="@drawable/ic_video" />
     </GridLayout>
 
 
