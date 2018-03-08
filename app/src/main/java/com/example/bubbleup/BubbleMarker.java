@@ -68,13 +68,13 @@ public class BubbleMarker implements Serializable{
 
     int userReaction;
 
-    int type = 0;
+    int myType = 0;
 
     Uri myUri;
 
     String myUrl;
 
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count,int post_id, String text, String poster, String tittle, int width, int height, int age_minutes,Context myContext, Bitmap image){
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes,Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 
         myPost_id = post_id;
@@ -82,6 +82,8 @@ public class BubbleMarker implements Serializable{
         myAgeMins = age_minutes;
 
         userReaction = reaction;
+
+        myType = type;
 
         myLikes = like_count;
 
@@ -123,9 +125,12 @@ public class BubbleMarker implements Serializable{
         }
 
         int icon;
-        switch (type){
+        switch (myType){
             case 1:
                 icon = R.drawable.ic_music;
+                break;
+            case 2:
+                icon = R.drawable.ic_photo;
                 break;
             default:
                 icon = R.drawable.ic_post;
@@ -133,13 +138,18 @@ public class BubbleMarker implements Serializable{
         }
 
         //Extra overlay
-        Bitmap type = BitmapFactory.decodeResource(myContext.getResources(), icon);
-        type = Bitmap.createScaledBitmap(type, width / 3, height / 3, true);
-        //Extra Overlays
+        Bitmap typeBitmap = BitmapFactory.decodeResource(myContext.getResources(), icon);
+        typeBitmap = Bitmap.createScaledBitmap(typeBitmap, width / 3, height / 3, true);
 
-        //emoji?
+        /*
+        //Extra bubble overlay for the icon, doesn't add clarity, may remove.
+        Bitmap bubbleIconOverlay = BitmapFactory.decodeResource(myContext.getResources(), R.drawable.crystal_bubble);
+        bubbleIconOverlay = Bitmap.createScaledBitmap(bubbleIconOverlay, width / 3,height / 3, true);
 
-        overlay = overlayAdd(type, overlay, "",0.0f, 0.0f);
+        typeBitmap = overlay(typeBitmap, bubbleIconOverlay);
+        */
+
+        overlay = overlayAdd(typeBitmap, overlay, "",0.0f, 0.0f);
 
         //adds the scaled bitmap to our marker icon
         bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(overlay));
@@ -224,6 +234,12 @@ public class BubbleMarker implements Serializable{
         Bitmap finalBubble = Bitmap.createBitmap(bubbleOverlay.getWidth(), bubbleOverlay.getHeight(), bubbleOverlay.getConfig());
         Canvas canvas = new Canvas(finalBubble);
         canvas.drawBitmap(bubbleOverlay, new Matrix(), null);
+
+        Paint circlePaint = new Paint();
+        circlePaint.setColor(Color.WHITE);
+        circlePaint.setAntiAlias(true);
+        canvas.drawCircle(x + image.getWidth() / 2, y +image.getHeight() / 2, image.getWidth() / 2, circlePaint);
+
 
         Matrix imageMat = new Matrix();
         imageMat.setTranslate(bubbleOverlay.getWidth()*x,bubbleOverlay.getHeight()*y);

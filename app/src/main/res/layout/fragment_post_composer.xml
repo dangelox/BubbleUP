@@ -4,13 +4,62 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/composer_instructions"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="5dp"
-        android:text="Composing" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/composer_instructions"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginLeft="5dp"
+            android:text="CurretTopic" />
+
+        <ImageView
+            android:id="@+id/category_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_post" />
+
+    </LinearLayout>
+
+
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/category_button_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_row="0"
+            android:src="@drawable/ic_post" />
+
+        <ImageButton
+            android:id="@+id/category_button_music"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_row="0"
+            android:src="@drawable/ic_music" />
+
+        <ImageButton
+            android:id="@+id/category_button_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_row="0"
+            android:src="@drawable/ic_photo" />
+    </GridLayout>
+
+
 
     <EditText
         android:id="@+id/composer_edit"
