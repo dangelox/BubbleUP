@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterItem;
 
 import java.io.InputStream;
 import java.io.Serializable;
@@ -37,7 +38,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BubbleMarker implements Serializable{
+public class BubbleMarker implements Serializable, ClusterItem {
 
     public String msg;
     public String tittle;
@@ -76,10 +77,14 @@ public class BubbleMarker implements Serializable{
 
     String myUrl;
 
+    LatLng mPosition;
+
     public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 
         myPost_id = post_id;
+
+        mPosition = mCoor;
 
         myAgeMins = age_minutes;
         myAgeHours = age_hours;
@@ -291,5 +296,20 @@ public class BubbleMarker implements Serializable{
 
     public Bitmap getProfileImage(){
         return profile_image;
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return mPosition;
+    }
+
+    @Override
+    public String getTitle() {
+        return "Some Tittle";
+    }
+
+    @Override
+    public String getSnippet() {
+        return "Some message";
     }
 }

@@ -59,6 +59,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.clustering.ClusterManager;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -104,6 +105,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //List<GroundOverlay> myBubbles;
 
     List<BubbleMarker> myBubbles;
+
+
+    private ClusterManager<BubbleMarker> mClusterManager;
+
 
     Marker myMarker;
 
@@ -424,6 +429,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         mMap.setInfoWindowAdapter(this);
 
+        mClusterManager = new ClusterManager<BubbleMarker>(getApplicationContext(), mMap);
+
+        mMap.setOnCameraIdleListener(mClusterManager);
+
         profilePictureStorageLink = new HashMap<>();
 
         profileNameStorage = new HashMap<>();
@@ -563,6 +572,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
             //Adding the bubble to the array so as to iteratively update their status.
             myBubbles.add(newBubble);
+            mClusterManager.addItem(newBubble);
 
         }catch (JSONException e) {
             Log.d("BubbleUp", "Failure While Converting JSON to Bubble");
