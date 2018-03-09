@@ -65,6 +65,8 @@ public class BubbleMarker implements Serializable{
     public int myHeight;
 
     public int myAgeMins;
+    public int myAgeHours;
+    public int myAgeDays;
 
     int userReaction;
 
@@ -74,12 +76,14 @@ public class BubbleMarker implements Serializable{
 
     String myUrl;
 
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes,Context myContext, Bitmap image){
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
 
         myPost_id = post_id;
 
         myAgeMins = age_minutes;
+        myAgeHours = age_hours;
+        myAgeDays = age_days;
 
         userReaction = reaction;
 

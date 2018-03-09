@@ -26,6 +26,23 @@
             android:layout_margin="5dp"
             android:background="@drawable/ic_post" />
 
+        <!--//this is for the color bar to change the icon color-->
+       <!-- <TextView
+            android:id="@+id/composer_color_instructions"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginLeft="5dp"
+            android:text="Color:" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"/>-->
+
     </LinearLayout>
 
     <EditText

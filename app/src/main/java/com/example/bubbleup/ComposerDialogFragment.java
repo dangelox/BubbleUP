@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,7 +104,7 @@ public class ComposerDialogFragment extends DialogFragment {
 
         final Activity myActivity = getActivity();
 
-        selectedTopic = (ImageView) fragmentView.findViewById(R.id.category_selected);;
+        selectedTopic = (ImageView) fragmentView.findViewById(R.id.category_selected);
 
         //Setting button listeners
         ImageButton pickerButton0 = (ImageButton) fragmentView.findViewById(R.id.category_button_post);
@@ -123,6 +125,26 @@ public class ComposerDialogFragment extends DialogFragment {
         pickerButton7.setOnClickListener(typeButtonLister);
         ImageButton pickerButton8 = (ImageButton) fragmentView.findViewById(R.id.category_button_question);
         pickerButton8.setOnClickListener(typeButtonLister);
+
+        //this is for the color bar to change the icon color
+        /*SeekBar colorPicker = (SeekBar) fragmentView.findViewById(R.id.seekBar);
+        colorPicker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                //range of progress should be 0 t 24 bit
+                selectedTopic.setBackgroundColor(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });*/
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

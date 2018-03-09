@@ -63,6 +63,7 @@ import com.google.android.gms.maps.model.Marker;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
+import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -540,6 +541,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             DateTime currentTime = new DateTime();//Local Date Time
 
             int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
+            int hourDiff = Hours.hoursBetween(bubbleTime, currentTime).getHours();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
             double size_calc = (130 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 80;
@@ -554,7 +556,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             lng = Double.parseDouble(myJson.get("lng").toString());
 
             //Creating the bubble marker objects.
-            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, getApplicationContext(), null);
+            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
 
             //Adding the bubble to the google map fragment.
             newBubble.addMarker(mMap);
