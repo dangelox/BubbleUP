@@ -145,6 +145,20 @@ public class ContentFragment extends Fragment {
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
 
+                TextView ageOfPostText = (TextView) container.findViewById(R.id.textViewAgeOfPost);
+                if(currentBubble.myAgeMins == 0){
+                    ageOfPostText.setText("Just now");
+                }
+                else if(currentBubble.myAgeMins <= 59) {
+                    ageOfPostText.setText(String.valueOf(currentBubble.myAgeMins).concat("m"));
+                }
+                else if(currentBubble.myAgeHours <= 23){
+                    ageOfPostText.setText(String.valueOf(currentBubble.myAgeHours).concat("h"));
+                }
+                else{
+                    ageOfPostText.setText(String.valueOf(currentBubble.myAgeDays).concat("d"));
+                }
+
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
 
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
