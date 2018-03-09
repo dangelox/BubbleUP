@@ -55,6 +55,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getIntent().getExtras() != null){
+            if (!getIntent().getStringExtra("myToken").equals("")){
+                Log.d("BubbleUp","Jumping to Maps Activity");
+                Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
+                token_success.putExtras(getIntent().getExtras());
+                MainActivity.this.startActivityForResult(token_success,log_off);
+            }
+        }
+
+
         setContentView(R.layout.activity_main);
 
         queue = Volley.newRequestQueue(getApplicationContext());
@@ -66,79 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
         saved_token = settings.getString("saved_token", null);
-
-        if(saved_token != null && saved_token != "" && saved_token.length() != 0){
-            //There is a token, send it? and wait for response?
-            mTextView.setText(saved_token);
-            // String Request for new user registration.
-            StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_token,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            int id;
-                            String user_name = "";
-                            String email = "";
-                            try {
-                                Log.d("BubbleUp","Token Response:" + response);
-                                JSONObject json_response = new JSONObject(response.toString());
-                                profile_pic_link = (String) json_response.get("profile_image");
-                                myId = (Integer) json_response.get("id");
-                                user_name = (String) json_response.get("name");
-                                email = (String) json_response.get("email");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            mTextView.setText("Response: "+ response.toString());
-
-                            SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
-                            SharedPreferences.Editor editor = settings.edit();
-                            editor.putString("saved_username", user_name);
-                            editor.putString("profile_link", profile_pic_link);
-                            editor.commit();
-
-                            Intent token_success = new Intent(MainActivity.this, MapsActivity.class);
-                            token_success.putExtra("myToken", saved_token);
-                            token_success.putExtra("log_status", true);
-                            token_success.putExtra("myId", myId);
-                            token_success.putExtra("profile_link", profile_pic_link);
-                            token_success.putExtra("myUsernName", user_name);
-                            //startActivity(token_success);
-                            MainActivity.this.startActivityForResult(token_success,log_off);
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("BubbleUp","Response error:" + error.toString());
-                    Log.d("BubbleUp","Response error msg:" + error.getMessage());
-
-                    //com.android.volley.TimeoutError
-
-                    mTextView.setText("Token Authentication Failure! Deleting token.");
-                    saved_token = null;
-
-                    SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("saved_token", saved_token);
-                    editor.commit();
-                }
-            }){
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String,String> params = new HashMap();
-                    params.put("Authorization", "JWT " + saved_token);
-                    return params;
-                }
-            };
-
-            //In case the first attempt gets timed out
-            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-            queue.add(tokenRequest);
-        }
 
         bt_free_view = (Button) findViewById(R.id.button_freeview);
         bt_login =  (Button) findViewById(R.id.button_login);
@@ -306,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putString("saved_token", saved_token);
-                    editor.commit();
+                    editor.apply();
 
                     Toast.makeText(getApplicationContext(), "Logged off, token deleted", Toast.LENGTH_SHORT).show();
 
