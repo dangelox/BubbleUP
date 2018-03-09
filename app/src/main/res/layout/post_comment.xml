@@ -2,14 +2,15 @@
     android:id="@+id/comment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/comment_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_blue_dark"
-        android:text="Username" />
+        android:text="Username"
+        android:textColor="@android:color/holo_blue_dark" />
 
     <TextView
         android:id="@+id/comment_body"
