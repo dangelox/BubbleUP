@@ -24,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -249,15 +250,124 @@ public class ContentFragment extends Fragment {
                 });
 
                 //Comment Related Section
+                //We create an object for the vertical layout of the card
                 final LinearLayout postCardVertical = (LinearLayout) container.findViewById(R.id.post_card_vertical);
 
+                //We inflate the comment section
                 final LinearLayout commentSection = (LinearLayout) myInflater.inflate(R.layout.post_comment_section, postCardVertical, false);
 
+                //We make an object for the list of comments
+                final LinearLayout commentSectionList = (LinearLayout) commentSection.findViewById(R.id.comment_section_list);
+
+                //Comment button creates a new dialog pop up
                 Button addCommentButton = (Button) commentSection.findViewById(R.id.add_comment_button);
                 addCommentButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        //Text Edit field
+                        final EditText commentEdit = new EditText(getContext());
+                        commentEdit.setHint("Write a comment...");
 
+                        //Setting the dialog box
+                        AlertDialog.Builder alertCommentDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                        LinearLayout commentDialogLayout = new LinearLayout(getContext());
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        commentDialogLayout.setOrientation(LinearLayout.VERTICAL);
+                        commentDialogLayout.setLayoutParams(params);
+
+                        commentDialogLayout.setGravity(Gravity.CLIP_VERTICAL);
+                        commentDialogLayout.setPadding(2, 2, 2, 2);
+
+                        commentDialogLayout.addView(commentEdit);
+
+                        alertCommentDialogBuilder.setView(commentDialogLayout);
+                        alertCommentDialogBuilder.setTitle("Comment:");
+
+                        //Posting the dialog box contents
+                        alertCommentDialogBuilder.setPositiveButton("Post Comment", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(commentEdit.getText().equals("")){
+                                    //Comment is empty, don't post
+                                    Toast.makeText(getContext(), "Empty Comment", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    //Making post request
+                                    StringRequest getComments = new StringRequest(Request.Method.POST, url_comments + currentBubble.myPost_id,
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    try {
+                                                        JSONObject commentJSON = new JSONObject(response);
+
+                                                        LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
+                                                        TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
+                                                        commentBody.setText(commentJSON.getString("comment"));
+
+                                                        TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
+                                                        String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
+                                                        if(username != null){
+                                                            commentUser.setText(username);
+                                                        } else {
+                                                            commentUser.setText( "User #" + commentJSON.getInt("user_id"));
+                                                        }
+                                                        commentSectionList.addView(comment);
+
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("BubbleUp", " : Bubble Comments Response Error! " + error.getMessage());
+                                        }
+                                    }) {
+                                        @Override
+                                        public Map<String, String> getParams() throws AuthFailureError {
+                                            HashMap<String, String> params = new HashMap<>();
+                                            params.put("comment", "\"" + commentEdit.getText() + "\"");
+                                            params.put("lat", "0.0");
+                                            params.put("lng", "0.0");
+                                            return params;
+                                        }
+                                        @Override
+                                        public byte[] getBody() throws AuthFailureError {
+                                            String httpPostBody="{\"comment\": \"" + commentEdit.getText() + "\"" + "," +
+                                                    "\"lat\": " + "0.0" + "," +
+                                                    "\"lng\": " + "0.0" + "}";
+                                            // usually you'd have a field with some values you'd want to escape, you need to do it yourself if overriding getBody. here's how you do it
+                                            return httpPostBody.getBytes();
+                                        }
+                                        @Override
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> params = new HashMap();
+                                            params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                            params.put("Content-Type","application/json");
+                                            return params;
+                                        }
+                                    };
+
+                                    ((MapsActivity) getActivity()).queue.add(getComments);
+                                }
+                            }
+                        });
+
+                        alertCommentDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+                            }
+                        });
+
+                        AlertDialog alertCommentDialog = alertCommentDialogBuilder.create();
+
+                        try {
+                            alertCommentDialog.show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.d("BubbleUp","Dialog Comment Fail");
+                        }
                     }
                 });
 
@@ -274,30 +384,33 @@ public class ContentFragment extends Fragment {
                                         @Override
                                         public void onResponse(String response) {
                                             try {
+
+                                                commentSectionList.removeAllViews();
+
                                                 JSONArray commentsArr = new JSONArray(response);
 
                                                 if(commentsArr.length() == 0){
-                                                    Toast.makeText(getContext(), "No comments!", Toast.LENGTH_SHORT).show();
+                                                    TextView emptyPostMessage = new TextView(getContext());
+                                                    emptyPostMessage.setText("No comments.");
+                                                    commentSectionList.addView(emptyPostMessage);
                                                 } else {
-                                                    Toast.makeText(getContext(), "Got comments!", Toast.LENGTH_SHORT).show();
-                                                }
+                                                    for (int i = 0; i < commentsArr.length(); i++) {
+                                                        JSONObject commentJSON = (JSONObject) commentsArr.get(i);
 
-                                                for(int i = 0; i < commentsArr.length(); i++){
-                                                    JSONObject commentJSON = (JSONObject) commentsArr.get(i);
+                                                        LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
+                                                        TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
+                                                        commentBody.setText(commentJSON.getString("comment"));
 
-                                                    LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSection, false);
-                                                    TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
-                                                    commentBody.setText(commentJSON.getString("comment"));
+                                                        TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
+                                                        String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
+                                                        if (username != null) {
+                                                            commentUser.setText(username);
+                                                        } else {
+                                                            commentUser.setText("User #" + commentJSON.getInt("user_id"));
+                                                        }
 
-                                                    TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
-                                                    String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
-                                                    if(username != null){
-                                                        commentUser.setText(username);
-                                                    } else {
-                                                        commentUser.setText( "User #" + commentJSON.getInt("user_id"));
+                                                        commentSectionList.addView(comment);
                                                     }
-
-                                                    commentSection.addView(comment);
                                                 }
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
