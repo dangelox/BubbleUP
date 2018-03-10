@@ -1,5 +1,6 @@
 package com.example.bubbleup;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     Button bt_free_view;
     Button bt_login;
     Button bt_register;
-    TextView mTextView;
+    //TextView mTextView;
 
     RequestQueue queue;
 
@@ -65,12 +66,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.login_register_screen);
 
         queue = Volley.newRequestQueue(getApplicationContext());
 
-        mTextView = (TextView) findViewById(R.id.text_greet);
+        //mTextView = (TextView) findViewById(R.id.text_greet);
 
         // Instantiate the RequestQueue.
         queue = Volley.newRequestQueue(getApplicationContext());
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(String response) {
                                 // Display the first 500 characters of the response string.
-                                mTextView.setText("Response: "+ response);
+                                //mTextView.setText("Response: "+ response);
                                 Log.d("BubbleUp","Login Success: " + response);
 
                                 String user_name = "";
@@ -155,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        mTextView.setText("Could not login!");
+                        //mTextView.setText("Could not login!");
+                        Toast.makeText(getApplicationContext(), "Login Error!", Toast.LENGTH_SHORT).show();
                     }
                 }){
                     @Override
@@ -193,12 +194,12 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(String response) {
                                 // Display the first 500 characters of the response string.
-                                mTextView.setText("Response: "+ response.toString());
+                                //mTextView.setText("Response: "+ response.toString());
                             }
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        mTextView.setText("Could not register!");
+                        //mTextView.setText("Could not register!");
                     }
                 }){
                     @Override
@@ -248,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(), "Logged off, token deleted", Toast.LENGTH_SHORT).show();
 
-                    mTextView.setText("Good Bye!");
+                    //mTextView.setText("Good Bye!");
                 }
                 break;
             }

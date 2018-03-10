@@ -544,7 +544,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int hourDiff = Hours.hoursBetween(bubbleTime, currentTime).getHours();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-            double size_calc = (130 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 250))) + 80;
+            double size_calc = (120 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 200))) + 70;
             int size = (int) size_calc;
 
             date = date_str + " " + time_str;

@@ -104,7 +104,7 @@ public class SplashScreen extends AppCompatActivity {
             };
 
             //In case the first attempt gets timed out
-            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
+            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(2500,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
