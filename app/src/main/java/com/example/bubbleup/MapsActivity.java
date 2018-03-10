@@ -140,12 +140,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton theme_button;
     ImageButton profile_button;
     ImageButton reload_button;
+    ToggleButton post_button;
+
+    boolean pressed;
 
 
     //Colors
     String backGroundColor;
     String buttonColor;
     String buttonTextColor;
+    String postButtonColor;
 
     double saved_lat;
     double saved_lng;
@@ -172,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         saved_zoom = saved_settings.getInt("saved_zoom",0);
         curTheme = saved_settings.getInt("myTheme", R.raw.standard_mode);
         backGroundColor = saved_settings.getString("backGround_Color",null);
-
+        postButtonColor = saved_settings.getString("postButton_Color", null);
         log_status = getIntent().getBooleanExtra("log_status",false);
         myUserName = getIntent().getStringExtra("myUserName");
         profile_pic_link = getIntent().getStringExtra("profile_link");
@@ -197,6 +201,37 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         mHandler = new Handler();//Create handler
 
         //Buttons
+        post_button = (ToggleButton) findViewById(R.id.postButton); pressed = true;
+        post_button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                //if post button is toggled on
+                if(pressed){;
+                post_button.setBackgroundResource(R.mipmap.ic_post_button_cancel);
+                    Toast.makeText(getApplicationContext(), "Click anywhere to post.", Toast.LENGTH_SHORT).show();
+                    //set listener to call addMarkerActivity when a click is registerd on the map
+                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(final LatLng latLng) {
+                            if(log_status) {
+                                DialogFragment dialog = new ComposerDialogFragment();
+                                ((ComposerDialogFragment) dialog).setLatLng(latLng);
+                                dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }//if button is toggle off
+                else {
+                    post_button.setBackgroundResource(R.mipmap.ic_post_button);
+                    Toast.makeText(getApplicationContext(), "Post canceled.", Toast.LENGTH_SHORT).show();
+                    //set listener to do nothing until post button clicked again
+                    mMap.setOnMapClickListener(null);
+                }
+
+                pressed ^= true;
+            }
+        });
         content_button = (ImageButton) findViewById(R.id.content_show);
 
         content_button.setOnClickListener(new View.OnClickListener() {
@@ -253,11 +288,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(backGroundColor != null && buttonColor != null) {
                     findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
                     findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
-                    saved_settings.edit().putString("backGround_Color", backGroundColor).apply();
+                    //findViewById(R.id.postButton).setBackgroundColor();
+                    saved_settings.edit().putString("backGround_Color", backGroundColor).apply();//putString("postButton_Color", postButtonColor).apply();
 
                     SharedPreferences settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putString("backGround_Color",backGroundColor);
+                   //editor.putString("postButton_Color", postButtonColor);
                     editor.commit();
 
                     Window window = getWindow();
@@ -314,6 +351,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         //Set dashboard background color
         if(backGroundColor != null) {
             findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
+            //findViewById(R.id.postButton).setBackgroundColor(Color.parseColor(postButtonColor));
             saved_settings.edit().putString("backGround_Color",backGroundColor).apply();
             findViewById(R.id.zone).setBackgroundColor(Color.parseColor(backGroundColor));
 
@@ -473,17 +511,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         //Initiate bubble updater
         bubbleUpdater.run();//Run the bubble updater.
 
-        //set listener to call addMarkerActivity when a click is registerd on the map
+        /*//set listener to call addMarkerActivity when a click is registerd on the map
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng latLng) {
-            }
-        });
-
-
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
                 if(log_status) {
                     DialogFragment dialog = new ComposerDialogFragment();
                     ((ComposerDialogFragment) dialog).setLatLng(latLng);
@@ -491,6 +522,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }else{
                     Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });*/
+
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                //moved this code into setOnMapClickListener
+                /*if(log_status) {
+                    DialogFragment dialog = new ComposerDialogFragment();
+                    ((ComposerDialogFragment) dialog).setLatLng(latLng);
+                    dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+                }else{
+                    Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
+                }*/
             }
         });
     }
