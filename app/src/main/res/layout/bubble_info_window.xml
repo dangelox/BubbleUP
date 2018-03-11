@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:background="@drawable/common_google_signin_btn_icon_dark_normal_background">
 
     <TextView
@@ -9,8 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="250dp"
-        android:layout_column="0"
-        android:layout_row="0"
         android:text="UserName"
         android:textAlignment="center"
         android:textColor="@android:color/holo_blue_dark"
@@ -21,18 +20,7 @@
         android:maxWidth="250dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_column="0"
-        android:layout_row="1"
-
         android:text="@string/app_name" />
 
-    <TextView
-        android:id="@+id/bubble_info_like_counter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_column="2"
-        android:layout_row="2"
-        android:text="#" />
-
-</GridLayout>
+</LinearLayout>
 

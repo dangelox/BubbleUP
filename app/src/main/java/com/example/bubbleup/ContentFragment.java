@@ -26,12 +26,14 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.VideoView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -39,6 +41,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +52,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.example.bubbleup.MapsActivity.SAVEDLOCATION_PREF;
 
@@ -103,6 +108,19 @@ public class ContentFragment extends Fragment {
         }
     }
 
+    public static String getYoutubeVideoIdFromUrl(String inUrl) {
+        if (inUrl.toLowerCase().contains("youtu.be")) {
+            return inUrl.substring(inUrl.lastIndexOf("/") + 1);
+        }
+        String pattern = "(?<=watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(inUrl);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
         final LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
@@ -119,9 +137,37 @@ public class ContentFragment extends Fragment {
 
                 final View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
 
+                final LinearLayout body = (LinearLayout) container.findViewById(R.id.fragment_body_linear);
+
+                final TextView myCommentCounter = (TextView) container.findViewById(R.id.comment_counter);
+                myCommentCounter.setText(Integer.toString(currentBubble.myCommentCount));
+
+                if(!currentBubble.myUrl.equals("")){
+                    Log.d("BubbleUp_URL","Loading from: " + currentBubble.myUrl);
+                    ImageView thumbnail = new ImageView(getContext());
+                    thumbnail.setPadding(8,8,8,8);
+                    body.addView(thumbnail);
+
+                    if(getYoutubeVideoIdFromUrl(currentBubble.myUrl) != null){
+                        String url = "https://img.youtube.com/vi/" + getYoutubeVideoIdFromUrl(currentBubble.myUrl) + "/0.jpg";
+                        Picasso.get().load(url).into(thumbnail);
+                    } else {
+                        Picasso.get().load(currentBubble.myUrl).into(thumbnail);
+                    }
+                    thumbnail.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) currentBubble.bubbleMarker.getTag()));
+                            startActivity(browserIntent);
+                        }
+                    });
+                }
+
                 TextView text = (TextView) container.findViewById(R.id.fragment_body_textView);
                 text.setText(currentBubble.msg);
 
+                /*
+                //Not necessary?
                 text.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -134,6 +180,7 @@ public class ContentFragment extends Fragment {
                         }
                     }
                 });
+                */
 
                 final TextView likeCounter = (TextView) container.findViewById(R.id.text_like_counter);
                 likeCounter.setText(Integer.toString(currentBubble.myLikes));

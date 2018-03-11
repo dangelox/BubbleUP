@@ -2,6 +2,7 @@ package com.example.bubbleup;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,7 +18,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -32,12 +35,15 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +65,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
+import com.squareup.picasso.Picasso;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -70,6 +77,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +86,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.StrictMath.abs;
 
@@ -165,10 +176,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     SharedPreferences saved_settings;
 
+    final String next_update = "https://people.eecs.ku.edu/~d481s306/0001app.apk";
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        new updateCheck().execute();
 
         saved_settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
         saved_lat = Double.longBitsToDouble(saved_settings.getLong("saved_lat",0));
@@ -457,6 +472,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
 
@@ -545,6 +561,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         int user_id;
         int post_id;
         int likeCount;
+        int commentCount;
         String body;
         boolean visible = false;
         int type;
@@ -557,6 +574,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             user_id = Integer.parseInt(myJson.get("user_id").toString());
             body = myJson.get("body").toString();
             likeCount = Integer.parseInt(myJson.get("like").toString());
+            commentCount = Integer.parseInt(myJson.get("comment_count").toString());
             type = Integer.parseInt(myJson.get("content_type").toString());
 
             String date_str = myJson.get("created_at").toString().substring(5, 10);
@@ -602,7 +620,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             lng = Double.parseDouble(myJson.get("lng").toString());
 
             //Creating the bubble marker objects.
-            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
+            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
 
             //Adding the bubble to the google map fragment.
             newBubble.addMarker(mMap);
@@ -823,7 +841,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @Override
     public View getInfoWindow(Marker marker) {
-        View windowView = View.inflate(getApplicationContext(),R.layout.bubble_info_window,null);
+        LinearLayout windowView = (LinearLayout) View.inflate(getApplicationContext(),R.layout.bubble_info_window,null);
 
         TextView postHeader = (TextView) windowView.findViewById(R.id.bubble_info_textViewUserName);
 
@@ -832,6 +850,27 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         TextView postContent = (TextView) windowView.findViewById(R.id.bubble_info_textView);
 
         postContent.setText(marker.getSnippet());
+
+        String[] splitText = marker.getSnippet().split("\\s+");
+        String myUrl = "";
+        for(int i = 0; i < splitText.length; i++){
+            if(Patterns.WEB_URL.matcher(splitText[i]).matches()){
+                Log.d("BubbleUp_URL",splitText[i]);
+                myUrl = splitText[i];
+            }
+        }
+
+        if(!myUrl.equals("")){
+            ImageView thumbnail = new ImageView(getApplicationContext());
+            thumbnail.setPadding(8,8,8,8);
+            if(getYoutubeVideoIdFromUrl(myUrl) != null){
+                String url = "https://img.youtube.com/vi/" + getYoutubeVideoIdFromUrl(myUrl) + "/0.jpg";
+                Picasso.get().load(url).into(thumbnail);
+            } else {
+                Picasso.get().load(myUrl).into(thumbnail);
+            }
+            windowView.addView(thumbnail);
+        }
 
         return windowView;
     }
@@ -870,6 +909,36 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         }
     }
 
+    private class updateCheck extends AsyncTask<Void, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                HttpURLConnection.setFollowRedirects(false);
+                HttpURLConnection con = (HttpURLConnection) new URL(next_update).openConnection();
+                con.setRequestMethod("HEAD");
+                if( (con.getResponseCode() == HttpURLConnection.HTTP_OK) ) {
+                    Log.d("BubbleUp_update", "Out of date!");
+                    return true;
+                }
+                else {
+                    Log.d("BubbleUp_update", "Up to date!");
+                    return false;
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                Log.d("BubbleUp_update", "NetWork Error");
+                return false;
+            }
+        }
+        @Override
+        protected void onPostExecute(Boolean isOutOfDate) {
+            if(isOutOfDate){
+                outOfDate();
+            }
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState){
         if(fragment_display) {
@@ -878,5 +947,56 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         super.onSaveInstanceState(outState);
 
+    }
+
+    void outOfDate(){
+        android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(MapsActivity.this);
+        LinearLayout layout = new LinearLayout(MapsActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(params);
+        layout.setPadding(2, 2, 2, 2);
+
+        alertDialogBuilder.setView(layout);
+        alertDialogBuilder.setTitle("New Version Available");
+        alertDialogBuilder.setMessage("Download?");
+
+        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        alertDialogBuilder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(next_update));
+                startActivity(browserIntent);
+            }
+        });
+
+        android.app.AlertDialog alertDialog = alertDialogBuilder.create();
+
+        try {
+            alertDialog.show();
+            Log.d("BubbleUp_update","Dialog Success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("BubbleUp_update","Dialog Fail");
+        }
+    }
+
+    public static String getYoutubeVideoIdFromUrl(String inUrl) {
+        if (inUrl.toLowerCase().contains("youtu.be")) {
+            return inUrl.substring(inUrl.lastIndexOf("/") + 1);
+        }
+        String pattern = "(?<=watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(inUrl);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
     }
 }
