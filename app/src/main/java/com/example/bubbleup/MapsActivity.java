@@ -103,6 +103,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     String url_links ="https://bubbleup-api.herokuapp.com/user/image/";
     String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
 
+    //Version Checker Link
+    final String next_update = "https://people.eecs.ku.edu/~d481s306/0002app.apk";
+
     String token;
 
     private GoogleMap mMap;
@@ -175,8 +178,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     HashMap<Integer, String> profileNameStorage;
 
     SharedPreferences saved_settings;
-
-    final String next_update = "https://people.eecs.ku.edu/~d481s306/0001app.apk";
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
