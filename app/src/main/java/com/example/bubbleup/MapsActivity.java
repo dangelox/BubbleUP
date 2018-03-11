@@ -232,6 +232,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 DialogFragment dialog = new ComposerDialogFragment();
                                 ((ComposerDialogFragment) dialog).setLatLng(latLng);
                                 dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+
+                                post_button.setBackgroundResource(R.mipmap.ic_post_button);
+                                //set listener to do nothing until post button clicked again
+                                mMap.setOnMapClickListener(null);
+                                pressed ^= true;
+
                             }else{
                                 Toast.makeText(getApplicationContext(), "Log in to post.", Toast.LENGTH_SHORT).show();
                             }

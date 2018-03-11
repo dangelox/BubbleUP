@@ -53,6 +53,8 @@ public class ComposerDialogFragment extends DialogFragment {
 
     ImageView selectedTopic;
 
+    boolean didIPost;
+
     View.OnClickListener typeButtonLister = new View.OnClickListener() {
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
@@ -93,6 +95,7 @@ public class ComposerDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        didIPost = false;
         // Use the Builder class for convenient dialog construction
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -163,6 +166,7 @@ public class ComposerDialogFragment extends DialogFragment {
                 if(snippet.equals("")){
                     Toast.makeText(getContext(), "Empty Post", Toast.LENGTH_SHORT).show();
                 } else {
+                    didIPost = true;
                     //Toast.makeText(getContext(), snippet, Toast.LENGTH_SHORT).show();
 
                     StringRequest bubblePostRequest = new StringRequest(Request.Method.POST, url_tasks,
