@@ -2,6 +2,7 @@ package com.example.bubbleup;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.location.Location;
@@ -22,6 +24,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -35,7 +38,9 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
+import android.view.DragEvent;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -59,6 +64,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -254,6 +260,31 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 pressed ^= true;
             }
         });
+        //will change button's position on screen
+        post_button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Toast.makeText(getApplicationContext(), "Click on screen for new button location.", Toast.LENGTH_SHORT).show();
+
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(final LatLng latLng) {
+                        Projection projection = mMap.getProjection();
+
+                        Point screenPosition = projection.toScreenLocation(latLng);
+
+                        post_button.setX(screenPosition.x);
+
+                        post_button.setY(screenPosition.y);
+
+                        mMap.setOnMapClickListener(null);
+                    }
+                });
+
+                return true;
+            }
+        });
+
         content_button = (ImageButton) findViewById(R.id.content_show);
 
         content_button.setOnClickListener(new View.OnClickListener() {
