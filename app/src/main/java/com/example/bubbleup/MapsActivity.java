@@ -239,7 +239,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 ((ComposerDialogFragment) dialog).setLatLng(latLng);
                                 dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
 
-                                post_button.setBackgroundResource(R.mipmap.ic_post_button);
+                                post_button.setBackgroundResource(R.drawable.add_post_button);
                                 //set listener to do nothing until post button clicked again
                                 mMap.setOnMapClickListener(null);
                                 pressed ^= true;
@@ -251,7 +251,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     });
                 }//if button is toggle off
                 else {
-                    post_button.setBackgroundResource(R.mipmap.ic_post_button);
+                    post_button.setBackgroundResource(R.drawable.add_post_button);
                     Toast.makeText(getApplicationContext(), "Post canceled.", Toast.LENGTH_SHORT).show();
                     //set listener to do nothing until post button clicked again
                     mMap.setOnMapClickListener(null);
