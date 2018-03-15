@@ -5,12 +5,26 @@
     android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/comment_username"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Username"
-        android:textColor="@android:color/holo_blue_dark" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/comment_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Username"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <Button
+            android:id="@+id/delete_comment_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@android:drawable/ic_menu_delete"
+            android:layout_weight="0" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/comment_body"

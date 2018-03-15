@@ -359,9 +359,9 @@ public class ContentFragment extends Fragment {
                                                 @Override
                                                 public void onResponse(String response) {
                                                     try {
-                                                        JSONObject commentJSON = new JSONObject(response);
+                                                        final JSONObject commentJSON = new JSONObject(response);
 
-                                                        LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
+                                                        final LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
                                                         TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
                                                         commentBody.setText(commentJSON.getString("comment"));
 
@@ -372,6 +372,43 @@ public class ContentFragment extends Fragment {
                                                         } else {
                                                             commentUser.setText( "User #" + commentJSON.getInt("user_id"));
                                                         }
+
+                                                        Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
+                                                        deleteCommentButton.setOnClickListener(new View.OnClickListener() {
+                                                            public void onClick(View v) {
+                                                                Toast.makeText(getContext(), "Delete comment button needs implemented", Toast.LENGTH_SHORT).show();
+
+                                                                try {
+                                                                    StringRequest deleteCommentRequest = new StringRequest(Request.Method.DELETE, url_comments + commentJSON.getInt("id"),
+                                                                            new Response.Listener<String>() {
+                                                                                @Override
+                                                                                public void onResponse(String response) {
+                                                                                    Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
+                                                                                    ViewGroup vg = commentSectionList;
+                                                                                    vg.removeView(comment);
+                                                                                }
+                                                                            }, new Response.ErrorListener() {
+                                                                        @Override
+                                                                        public void onErrorResponse(VolleyError error) {
+                                                                            Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                                                                        }
+                                                                    }) {
+                                                                        @Override
+                                                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                                                            Map<String, String> params = new HashMap();
+                                                                            params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                                            return params;
+                                                                        }
+                                                                    };
+
+                                                                    ((MapsActivity) getActivity()).queue.add(deleteCommentRequest);
+                                                                } catch (JSONException e) {
+                                                                    e.printStackTrace();
+                                                                }
+                                                                return;
+                                                            }
+                                                        });
+
                                                         commentSectionList.addView(comment);
 
                                                     } catch (JSONException e) {
@@ -432,7 +469,7 @@ public class ContentFragment extends Fragment {
                     }
                 });
 
-                ToggleButton toggleComments = (ToggleButton) container.findViewById(R.id.comment_toggle_button);
+                final ToggleButton toggleComments = (ToggleButton) container.findViewById(R.id.comment_toggle_button);
 
                 toggleComments.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -448,7 +485,7 @@ public class ContentFragment extends Fragment {
 
                                                 commentSectionList.removeAllViews();
 
-                                                JSONArray commentsArr = new JSONArray(response);
+                                                final JSONArray commentsArr = new JSONArray(response);
 
                                                 if(commentsArr.length() == 0){
                                                     TextView emptyPostMessage = new TextView(getContext());
@@ -456,9 +493,9 @@ public class ContentFragment extends Fragment {
                                                     commentSectionList.addView(emptyPostMessage);
                                                 } else {
                                                     for (int i = 0; i < commentsArr.length(); i++) {
-                                                        JSONObject commentJSON = (JSONObject) commentsArr.get(i);
+                                                        final JSONObject commentJSON = (JSONObject) commentsArr.get(i);
 
-                                                        LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
+                                                        final LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
                                                         TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
                                                         commentBody.setText(commentJSON.getString("comment"));
 
@@ -470,6 +507,45 @@ public class ContentFragment extends Fragment {
                                                             commentUser.setText("User #" + commentJSON.getInt("user_id"));
                                                         }
 
+                                                        //check if post is current user's comment, if so keep the delete button
+                                                        if(commentJSON.getInt("user_id") == ((MapsActivity) getActivity()).myId){
+                                                            Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
+                                                            deleteCommentButton.setOnClickListener(new View.OnClickListener() {
+                                                                public void onClick(View v) {
+                                                                    try {
+                                                                        StringRequest deleteCommentRequest = new StringRequest(Request.Method.DELETE, url_comments + commentJSON.getInt("id"),
+                                                                                new Response.Listener<String>() {
+                                                                                    @Override
+                                                                                    public void onResponse(String response) {
+                                                                                        Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
+                                                                                        ViewGroup vg = commentSectionList;
+                                                                                        vg.removeView(comment);
+                                                                                    }
+                                                                                }, new Response.ErrorListener() {
+                                                                            @Override
+                                                                            public void onErrorResponse(VolleyError error) {
+                                                                                Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                                                                            }
+                                                                        }) {
+                                                                            @Override
+                                                                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                                                                Map<String, String> params = new HashMap();
+                                                                                params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                                                return params;
+                                                                            }
+                                                                        };
+
+                                                                        ((MapsActivity) getActivity()).queue.add(deleteCommentRequest);
+                                                                    } catch (JSONException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                    return;
+                                                                }
+                                                            });
+                                                        }//get rid of delete button
+                                                        else{
+                                                            comment.findViewById(R.id.delete_comment_button).setVisibility(View.GONE);
+                                                        }
                                                         commentSectionList.addView(comment);
                                                     }
                                                 }
@@ -495,6 +571,17 @@ public class ContentFragment extends Fragment {
                         } else {
                             postCardVertical.removeView(commentSection);
                         }
+                    }
+                });
+
+                Button hideCommentsButton = (Button) commentSection.findViewById(R.id.hide_comment_button);
+                hideCommentsButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        postCardVertical.removeView(commentSection);
+
+                        toggleComments.setChecked(false);
+
                     }
                 });
 

@@ -26,6 +26,23 @@
             android:textSize="10sp"
             android:text="Comment +" />
 
+        <!--<Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />-->
+
+        <Button
+            android:id="@+id/hide_comment_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_weight="0"
+            android:background="@drawable/ic_close_comments_widow" />
+
+        <!--<Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="5" />-->
+
     </LinearLayout>
 
 
