@@ -264,7 +264,7 @@ public class ContentFragment extends Fragment {
                                                         Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
                                                         ViewGroup vg = myList;
                                                         vg.removeView(container);
-                                                        
+
                                                         if(getActivity() instanceof UserSettings){
                                                             ((UserSettings) getActivity()).myBubbles.remove(currentBubble);
                                                         } else if (getActivity() instanceof MapsActivity){
