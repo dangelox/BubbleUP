@@ -13,6 +13,7 @@ import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -155,7 +156,12 @@ public class UserSettings extends AppCompatActivity{
                                 //We get back an array with data for the requested IDs
                                 JSONObject myJson = new JSONObject(response);
                                 String bio = myJson.getString("user_bio");
-                                display_bio.setText(bio);
+                                if(bio!=""){
+                                    display_bio.setText(bio);
+                                }else{
+                                    display_bio.setText("<Empty Bio>");
+                                }
+
                             } catch (JSONException e) {
                                 Log.d("BubbleUp", "JSON IDs GET problem!");
                                 e.printStackTrace();
@@ -302,12 +308,16 @@ public class UserSettings extends AppCompatActivity{
 
 
         edit_profile.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 if(edit_settings_clicked){
+                    edit_profile.setBackgroundResource(R.drawable.ic_cancel_post);
                     edit_settings_clicked = false;
-                    Toast.makeText(getApplicationContext(), "Click on what you wish to edit", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Click on what you wish to edit", Toast.LENGTH_SHORT).show();
+
                     //change username listener
+                    display_username.setBackgroundResource(R.drawable.edit_background);
                     display_username.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v){
@@ -400,12 +410,19 @@ public class UserSettings extends AppCompatActivity{
                                 Log.d("BubbleUp","Dialog Fail");
                             }
                             edit_settings_clicked = true;
+                            edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                            profpic.setForeground(null);
+                            display_username.setBackground(null);
+                            display_bio.setBackground(null);
+                            profpic.setBackground(null);
                             display_username.setOnClickListener(null);
                             profpic.setOnClickListener(null);
+                            display_bio.setOnClickListener(null);
                         }
                     });
 
                     //change bio listener
+                    display_bio.setBackgroundResource(R.drawable.edit_background);
                     display_bio.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -506,12 +523,21 @@ public class UserSettings extends AppCompatActivity{
                                 Log.d("BubbleUp","Dialog Fail");
                             }
                             edit_settings_clicked = true;
+                            edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                            profpic.setForeground(null);
+                            display_username.setBackground(null);
+                            display_bio.setBackground(null);
+                            profpic.setBackground(null);
                             display_username.setOnClickListener(null);
                             profpic.setOnClickListener(null);
+                            display_bio.setOnClickListener(null);
                         }
                     });
 
                     //change profile picture listener
+                    profpic.setForeground(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_action_edit_profpic));
+                    profpic.setForegroundGravity(Gravity.CENTER);
+                    profpic.setBackgroundResource(R.drawable.edit_background);
                     profpic.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v){
@@ -609,17 +635,29 @@ public class UserSettings extends AppCompatActivity{
                                 Log.d("BubbleUp",e.getLocalizedMessage());
                             }
                             edit_settings_clicked = true;
+                            edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                            profpic.setForeground(null);
+                            display_username.setBackground(null);
+                            display_bio.setBackground(null);
+                            profpic.setBackground(null);
                             display_username.setOnClickListener(null);
                             profpic.setOnClickListener(null);
+                            display_bio.setOnClickListener(null);
                         }
                     });
 
                 }
                 else{
                     edit_settings_clicked = true;
-                    Toast.makeText(getApplicationContext(), "Edit canceled", Toast.LENGTH_SHORT).show();
+                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                    //Toast.makeText(getApplicationContext(), "Edit canceled", Toast.LENGTH_SHORT).show();
+                    profpic.setForeground(null);
+                    display_username.setBackground(null);
+                    display_bio.setBackground(null);
+                    profpic.setBackground(null);
                     display_username.setOnClickListener(null);
                     profpic.setOnClickListener(null);
+                    display_bio.setOnClickListener(null);
                 }
             }
         });
