@@ -62,6 +62,8 @@ public class UserSettings extends AppCompatActivity{
 
     TextView display_username;
 
+    TextView display_bio;
+
     ImageButton profpic;
 
     String background_color;
@@ -71,6 +73,7 @@ public class UserSettings extends AppCompatActivity{
     String newLink;
 
     String url_set_name = "https://bubbleup-api.herokuapp.com/user/name";
+    String url_set_bio = "https://bubbleup-api.herokuapp.com/user/user_bio";
     String url_set_profile_pic = "https://bubbleup-api.herokuapp.com/user/image";
 
     String saved_token;
@@ -78,6 +81,8 @@ public class UserSettings extends AppCompatActivity{
 
     String newUserName;
     String profileUserName;
+    String profileBio;
+    String newUserBio;
 
     String profilePicture_link;
 
@@ -121,11 +126,16 @@ public class UserSettings extends AppCompatActivity{
 
         display_username = (TextView) findViewById((R.id.textView));
 
+        display_bio = (TextView) findViewById(R.id.textViewBio);
+
         profpic = (ImageButton) findViewById(R.id.imageButton2);
 
         settings = getSharedPreferences(TOKEN_PREF, 0);
 
         saved_token = settings.getString("saved_token", null);
+
+        //Create a request queue
+        queue = Volley.newRequestQueue(getApplicationContext());
 
         if(myId == userId){
             //Show edit buttons, add user options?
@@ -133,14 +143,46 @@ public class UserSettings extends AppCompatActivity{
             profilePicture_link = settings.getString("profile_link", "");
             profileUserName = settings.getString("saved_username", "Could not find");
 
+            StringRequest user_bio_link_request = new StringRequest(Request.Method.GET, url_set_bio,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                //We get back an array with data for the requested IDs
+                                JSONObject myJson = new JSONObject(response);
+                                String bio = myJson.getString("user_bio");
+                                display_bio.setText(bio);
+                            } catch (JSONException e) {
+                                Log.d("BubbleUp", "JSON IDs GET problem!");
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("BubbleUp", "ID get JSOn Response Error! " + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap();
+                    headers.put("Authorization", "JWT " + saved_token);
+                    return headers;
+                }
+            };
+
+            queue.add(user_bio_link_request);
+
         } else {
             //request for id posts and info
 
             profileUserName = "place_holder";
             profilePicture_link = "place_holder";
+            //profileBio = "place_holder";
         }
 
         display_username.setText(profileUserName);
+        display_bio.setText(profileBio);
 
 
         //The sharedPreferences settings was taking a different key string than the one in MapsActivity that stored the backGround_color
@@ -151,9 +193,6 @@ public class UserSettings extends AppCompatActivity{
         //Downloading profile picture
         fetcher = new fetchProfImageAsync();
         fetcher.execute(profilePicture_link);
-
-        //Create a request queue
-        queue = Volley.newRequestQueue(getApplicationContext());
 
         //Array for storing user ID that have been returned from the query
         user_id_list = new ArrayList();
@@ -227,7 +266,7 @@ public class UserSettings extends AppCompatActivity{
                                 @Override
                                 public Map<String, String> getHeaders() throws AuthFailureError {
                                     Map<String, String> headers = new HashMap();
-                                    headers.put("Authorization", "JWT " + token);
+                                    headers.put("Authorization", "JWT " + saved_token);
                                     return headers;
                                 }
                             };
@@ -248,7 +287,7 @@ public class UserSettings extends AppCompatActivity{
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap();
-                params.put("Authorization", "JWT " + token);
+                params.put("Authorization", "JWT " + saved_token);
                 return params;
             }
         };
@@ -343,6 +382,112 @@ public class UserSettings extends AppCompatActivity{
                                         queue.add(loginRequest);
                                     } else {
                                         Toast.makeText(getApplicationContext(), "Empty Name", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+
+                            try {
+                                alertDialog.show();
+                                Log.d("BubbleUp","Dialog Success");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Log.d("BubbleUp","Dialog Fail");
+                            }
+                            edit_settings_clicked = true;
+                            display_username.setOnClickListener(null);
+                            profpic.setOnClickListener(null);
+                        }
+                    });
+
+                    //change bio listener
+                    display_bio.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UserSettings.this);
+
+                            LinearLayout layout = new LinearLayout(UserSettings.this);
+                            LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            layout.setOrientation(LinearLayout.VERTICAL);
+                            layout.setLayoutParams(parms);
+
+                            layout.setGravity(Gravity.CLIP_VERTICAL);
+                            layout.setPadding(2, 2, 2, 2);
+
+                            textEdit = new EditText(UserSettings.this);
+
+                            layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                            alertDialogBuilder.setView(layout);
+                            alertDialogBuilder.setTitle("Input your new bio!");
+
+                            // alertDialogBuilder.setMessage(message);
+                            alertDialogBuilder.setCancelable(false);
+
+                            // Setting Negative "Cancel" Button
+                            alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                            // Setting Positive "OK" Button
+                            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    newUserBio = textEdit.getText().toString();
+
+                                    //Toast.makeText(getApplicationContext(), newUserBio, Toast.LENGTH_SHORT).show();
+
+                                    if(!newUserBio.equals("")) {
+
+                                        StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_bio,
+                                                new Response.Listener<String>() {
+                                                    @Override
+                                                    public void onResponse(String response) {
+                                                        Toast.makeText(getApplicationContext(), "Changed Bio to: " + newUserBio, Toast.LENGTH_SHORT).show();
+
+                                                        //TODO: add saved_bio to settings
+                                                        //settings.edit().putString("saved_bio", newUserBio).commit();
+
+                                                        display_bio.setText(newUserBio);
+
+                                                        Log.d("BubbleUp", "Success Username Change: " + response);
+                                                    }
+                                                }, new Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+                                                Log.d("BubbleUp", "Unsuccessful change");
+                                                Toast.makeText(getApplicationContext(), "Unsuccessful Bio Change", Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        }) {
+                                            @Override
+                                            public Map<String, String> getParams() throws AuthFailureError {
+                                                HashMap<String, String> params = new HashMap<>();
+                                                params.put("user_bio", "\"" + newUserBio + "\"");
+                                                return params;
+                                            }
+
+                                            @Override
+                                            public byte[] getBody() throws AuthFailureError {
+                                                String httpPostBody = "{\"user_bio\": \"" + newUserBio + "\"}";
+                                                return httpPostBody.getBytes();
+                                            }
+
+                                            @Override
+                                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                                Map<String, String> params = new HashMap();
+                                                params.put("Content-Type", "application/json");
+                                                params.put("Authorization", "JWT " + saved_token);
+                                                return params;
+                                            }
+                                        };
+
+                                        queue.add(loginRequest);
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Empty Bio", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
