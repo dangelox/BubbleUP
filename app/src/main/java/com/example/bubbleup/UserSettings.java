@@ -145,7 +145,7 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
         saved_token = settings.getString("saved_token", null);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.linear_view, myFragment);
+        fragmentTransaction.add(R.id.ConsBackground, myFragment);
         fragmentTransaction.commitNow();
 
         //Create a request queue
