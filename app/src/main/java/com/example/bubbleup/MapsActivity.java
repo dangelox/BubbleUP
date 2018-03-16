@@ -387,6 +387,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onClick(View view) {
                 Intent profile_intent = new Intent(MapsActivity.this, UserSettings.class);
+                profile_intent.putExtra("myId", myId);
+                profile_intent.putExtra("userId", myId);
                 startActivity(profile_intent);
             }
         });

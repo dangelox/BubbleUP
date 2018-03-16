@@ -77,8 +77,9 @@ public class UserSettings extends AppCompatActivity{
     EditText textEdit;
 
     String newUserName;
+    String profileUserName;
 
-    String saved_profile_link;
+    String profilePicture_link;
 
     SharedPreferences settings;
 
@@ -94,7 +95,8 @@ public class UserSettings extends AppCompatActivity{
 
     String token;
 
-    Integer myId;
+    int myId;
+    int userId;
 
     List<BubbleMarker> myBubbles;
 
@@ -110,6 +112,9 @@ public class UserSettings extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
 
+        myId = getIntent().getIntExtra("myId",-1);
+        userId = getIntent().getIntExtra("userId",-1);
+
         set_username = (Button) findViewById(R.id.button_set_username);
         //username_text = (TextView) findViewById(R.id.edit_username);
 
@@ -121,22 +126,35 @@ public class UserSettings extends AppCompatActivity{
 
         settings = getSharedPreferences(TOKEN_PREF, 0);
 
-        display_username.setText(settings.getString("saved_username", "Could not find"));
         saved_token = settings.getString("saved_token", null);
-        saved_profile_link = settings.getString("profile_link", "");
 
-        //The sharedPreferences settigs was taking a different key string than the one in MapsActivity that stored the backGround_color
+        if(myId == userId){
+            //Show edit buttons, add user options?
+
+            profilePicture_link = settings.getString("profile_link", "");
+            profileUserName = settings.getString("saved_username", "Could not find");
+
+        } else {
+            //request for id posts and info
+
+            profileUserName = "place_holder";
+            profilePicture_link = "place_holder";
+        }
+
+        display_username.setText(profileUserName);
+
+
+        //The sharedPreferences settings was taking a different key string than the one in MapsActivity that stored the backGround_color
         settings2 = getSharedPreferences("previous_location", 0);
         background_color = settings2.getString("backGround_Color", "#CC564A");
-
         findViewById(R.id.ConsBackground).setBackgroundColor(Color.parseColor(background_color));
 
+        //Downloading profile picture
         fetcher = new fetchProfImageAsync();
-        fetcher.execute(saved_profile_link);
+        fetcher.execute(profilePicture_link);
 
         //Create a request queue
         queue = Volley.newRequestQueue(getApplicationContext());
-
 
         //Array for storing user ID that have been returned from the query
         user_id_list = new ArrayList();
@@ -236,9 +254,6 @@ public class UserSettings extends AppCompatActivity{
             }
         };
         queue.add(tokenRequest);
-
-
-
 
 
         set_username.setOnClickListener(new View.OnClickListener() {

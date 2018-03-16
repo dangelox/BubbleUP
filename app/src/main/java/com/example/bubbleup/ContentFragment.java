@@ -209,6 +209,15 @@ public class ContentFragment extends Fragment {
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
 
                 ImageButton userImage = (ImageButton) container.findViewById(R.id.imageButton);
+                userImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent profile_intent = new Intent(getActivity(), UserSettings.class);
+                        profile_intent.putExtra("myId", ((MapsActivity) getActivity()).myId);
+                        profile_intent.putExtra("userId", currentBubble.myUser_id);
+                        startActivity(profile_intent);
+                    }
+                });
 
                 Button deleteButton = (Button) container.findViewById(R.id.deleteButton);
 
