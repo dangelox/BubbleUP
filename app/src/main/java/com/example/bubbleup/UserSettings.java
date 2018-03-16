@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserSettings extends AppCompatActivity{
+public class UserSettings extends MapsActivity implements ContentFragment.OnFragmentInteractionListener{
 
     Button edit_profile;
     //TextView username_text;
@@ -113,7 +113,12 @@ public class UserSettings extends AppCompatActivity{
 
     boolean edit_settings_clicked = true;
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    //Fragment Manager global?
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    //Content Fragment
+    public ContentFragment myFragment = new ContentFragment();
+
+    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +142,10 @@ public class UserSettings extends AppCompatActivity{
         settings = getSharedPreferences(TOKEN_PREF, 0);
 
         saved_token = settings.getString("saved_token", null);
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.linear_view, myFragment);
+        fragmentTransaction.commitNow();
 
         //Create a request queue
         queue = Volley.newRequestQueue(getApplicationContext());
@@ -179,6 +188,7 @@ public class UserSettings extends AppCompatActivity{
 
         } else {
             //request for id posts and info
+            myId = userId;
 
             profileUserName = "place_holder";
             profilePicture_link = "place_holder";
@@ -222,6 +232,8 @@ public class UserSettings extends AppCompatActivity{
                             //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
 
                             Log.d("BubbleUp", "JSON Requesting ID Links");
+
+                            myFragment.sendToFragment(myBubbles, null);
 
                             //Building request URL
                             String url_links_ids = url_links_by_ids;

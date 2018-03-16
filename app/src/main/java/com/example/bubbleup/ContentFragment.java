@@ -83,6 +83,8 @@ public class ContentFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    String fragmentToken;
+
     private OnFragmentInteractionListener mListener;
 
     View myView;
@@ -132,7 +134,7 @@ public class ContentFragment extends Fragment {
 
         //Creating a new view for each bubble
         for (final BubbleMarker currentBubble : bubbleList) {
-            if(bounds.contains(currentBubble.bubbleMarker.getPosition())){
+            if(bounds == null || bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
 
                 final View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
@@ -222,7 +224,13 @@ public class ContentFragment extends Fragment {
                 Button deleteButton = (Button) container.findViewById(R.id.deleteButton);
 
                 //check if the bubble is the current user's bubble and should show the deletion button
-                if(currentBubble.myUser_id == ((MapsActivity) getActivity()).myId) {
+                int currentUserId = -1;
+                if(getActivity() instanceof UserSettings){
+                    currentUserId = ((UserSettings) getActivity()).myId;
+                } else if (getActivity() instanceof MapsActivity){
+                    currentUserId = ((MapsActivity) getActivity()).myId;
+                }
+                if(currentBubble.myUser_id == currentUserId) {
 
                     deleteButton.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View v) {
@@ -267,7 +275,7 @@ public class ContentFragment extends Fragment {
                                             @Override
                                             public Map<String, String> getHeaders() throws AuthFailureError {
                                                 Map<String, String> params = new HashMap();
-                                                params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                params.put("Authorization", "JWT " + fragmentToken);
                                                 return params;
                                             }
                                         };
@@ -408,7 +416,7 @@ public class ContentFragment extends Fragment {
                                                                         @Override
                                                                         public Map<String, String> getHeaders() throws AuthFailureError {
                                                                             Map<String, String> params = new HashMap();
-                                                                            params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                                            params.put("Authorization", "JWT " + fragmentToken);
                                                                             return params;
                                                                         }
                                                                     };
@@ -451,7 +459,7 @@ public class ContentFragment extends Fragment {
                                         @Override
                                         public Map<String, String> getHeaders() throws AuthFailureError {
                                             Map<String, String> params = new HashMap();
-                                            params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                            params.put("Authorization", "JWT " + fragmentToken);
                                             params.put("Content-Type","application/json");
                                             return params;
                                         }
@@ -519,7 +527,13 @@ public class ContentFragment extends Fragment {
                                                         }
 
                                                         //check if post is current user's comment, if so keep the delete button
-                                                        if(commentJSON.getInt("user_id") == ((MapsActivity) getActivity()).myId){
+                                                        int currentUserId = -1;
+                                                        if(getActivity() instanceof UserSettings){
+                                                            currentUserId = ((UserSettings) getActivity()).myId;
+                                                        } else if (getActivity() instanceof MapsActivity){
+                                                            currentUserId = ((MapsActivity) getActivity()).myId;
+                                                        }
+                                                        if(commentJSON.getInt("user_id") == currentUserId){
                                                             Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
                                                             deleteCommentButton.setOnClickListener(new View.OnClickListener() {
                                                                 public void onClick(View v) {
@@ -541,7 +555,7 @@ public class ContentFragment extends Fragment {
                                                                             @Override
                                                                             public Map<String, String> getHeaders() throws AuthFailureError {
                                                                                 Map<String, String> params = new HashMap();
-                                                                                params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                                                params.put("Authorization", "JWT " + fragmentToken);
                                                                                 return params;
                                                                             }
                                                                         };
@@ -573,7 +587,7 @@ public class ContentFragment extends Fragment {
                                 @Override
                                 public Map<String, String> getHeaders() throws AuthFailureError {
                                     Map<String, String> params = new HashMap();
-                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    params.put("Authorization", "JWT " + fragmentToken);
                                     return params;
                                 }
                             };
@@ -658,7 +672,7 @@ public class ContentFragment extends Fragment {
                                 public Map<String, String> getHeaders() throws AuthFailureError {
                                     Map<String,String> params = new HashMap();
                                     params.put("Content-Type","application/json");
-                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    params.put("Authorization", "JWT " + fragmentToken);
                                     return params;
                                 }
                             };
@@ -697,7 +711,7 @@ public class ContentFragment extends Fragment {
                                 public Map<String, String> getHeaders() throws AuthFailureError {
                                     Map<String,String> params = new HashMap();
                                     params.put("Content-Type","application/json");
-                                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                    params.put("Authorization", "JWT " + fragmentToken);
                                     return params;
                                 }
                             };
@@ -779,6 +793,12 @@ public class ContentFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+
+        if(getActivity() instanceof UserSettings){
+            fragmentToken = ((UserSettings) getActivity()).saved_token;
+        } else if (getActivity() instanceof MapsActivity) {
+            fragmentToken = ((MapsActivity) getActivity()).token;
         }
         saved_settings = ((MapsActivity) getActivity()).getSharedPreferences(SAVEDLOCATION_PREF, 0);
     }
