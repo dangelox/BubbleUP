@@ -320,7 +320,6 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
 
 
         edit_profile.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 if(edit_settings_clicked){
@@ -423,7 +422,9 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
                             }
                             edit_settings_clicked = true;
                             edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
-                            profpic.setForeground(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                profpic.setForeground(null);
+                            }
                             display_username.setBackground(null);
                             display_bio.setBackground(null);
                             profpic.setBackground(null);
@@ -536,7 +537,9 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
                             }
                             edit_settings_clicked = true;
                             edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
-                            profpic.setForeground(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                profpic.setForeground(null);
+                            }
                             display_username.setBackground(null);
                             display_bio.setBackground(null);
                             profpic.setBackground(null);
@@ -547,8 +550,10 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
                     });
 
                     //change profile picture listener
-                    profpic.setForeground(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_action_edit_profpic));
-                    profpic.setForegroundGravity(Gravity.CENTER);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        profpic.setForeground(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.ic_action_edit_profpic));
+                        profpic.setForegroundGravity(Gravity.CENTER);
+                    }
                     profpic.setBackgroundResource(R.drawable.edit_background);
                     profpic.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -648,7 +653,9 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
                             }
                             edit_settings_clicked = true;
                             edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
-                            profpic.setForeground(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                profpic.setForeground(null);
+                            }
                             display_username.setBackground(null);
                             display_bio.setBackground(null);
                             profpic.setBackground(null);
@@ -663,7 +670,9 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
                     edit_settings_clicked = true;
                     edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
                     //Toast.makeText(getApplicationContext(), "Edit canceled", Toast.LENGTH_SHORT).show();
-                    profpic.setForeground(null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        profpic.setForeground(null);
+                    }
                     display_username.setBackground(null);
                     display_bio.setBackground(null);
                     profpic.setBackground(null);
