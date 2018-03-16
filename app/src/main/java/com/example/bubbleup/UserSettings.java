@@ -92,7 +92,7 @@ public class UserSettings extends AppCompatActivity{
 
     fetchProfImageAsync fetcher;
 
-    String url_posts = "https://bubbleup-api.herokuapp.com/posts/";
+    String url_posts = "https://bubbleup-api.herokuapp.com/posts/user/";
     String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
 
     HashMap<Integer, String> profileNameStorage;
@@ -118,6 +118,10 @@ public class UserSettings extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
+
+        myBubbles = new ArrayList<>();
+        profileNameStorage = new HashMap<>();
+        profilePictureStorageBitmap = new HashMap<>();
 
         edit_profile = (Button) findViewById(R.id.button_set_username);
         myId = getIntent().getIntExtra("myId",-1);
