@@ -102,6 +102,10 @@ public class SplashScreen extends AppCompatActivity {
                     SharedPreferences.Editor editor = settings.edit();
                     editor.putString("saved_token", saved_token);
                     editor.commit();
+
+                    Intent toke_failure = new Intent(SplashScreen.this, MainActivity.class);
+                    startActivity(toke_failure);
+                    finish();
                 }
             }){
                 @Override
@@ -113,7 +117,7 @@ public class SplashScreen extends AppCompatActivity {
             };
 
             //In case the first attempt gets timed out
-            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(2500,
+            tokenRequest.setRetryPolicy(new DefaultRetryPolicy(3000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 

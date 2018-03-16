@@ -36,6 +36,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_weight="0"
+            android:gravity="right"
             android:background="@drawable/ic_close_comments_widow" />
 
         <!--<Space

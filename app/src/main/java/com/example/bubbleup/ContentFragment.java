@@ -354,7 +354,7 @@ public class ContentFragment extends Fragment {
                                     Toast.makeText(getContext(), "Empty Comment", Toast.LENGTH_SHORT).show();
                                 } else {
                                     //Making post request
-                                    StringRequest getComments = new StringRequest(Request.Method.POST, url_comments + currentBubble.myPost_id,
+                                    StringRequest postComment = new StringRequest(Request.Method.POST, url_comments + currentBubble.myPost_id,
                                             new Response.Listener<String>() {
                                                 @Override
                                                 public void onResponse(String response) {
@@ -364,6 +364,9 @@ public class ContentFragment extends Fragment {
                                                         final LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
                                                         TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
                                                         commentBody.setText(commentJSON.getString("comment"));
+
+                                                        currentBubble.myCommentCount++;
+                                                        myCommentCounter.setText(Integer.toString(currentBubble.myCommentCount));
 
                                                         TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
                                                         String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
@@ -376,8 +379,6 @@ public class ContentFragment extends Fragment {
                                                         Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
                                                         deleteCommentButton.setOnClickListener(new View.OnClickListener() {
                                                             public void onClick(View v) {
-                                                                Toast.makeText(getContext(), "Delete comment button needs implemented", Toast.LENGTH_SHORT).show();
-
                                                                 try {
                                                                     StringRequest deleteCommentRequest = new StringRequest(Request.Method.DELETE, url_comments + commentJSON.getInt("id"),
                                                                             new Response.Listener<String>() {
@@ -386,6 +387,8 @@ public class ContentFragment extends Fragment {
                                                                                     Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
                                                                                     ViewGroup vg = commentSectionList;
                                                                                     vg.removeView(comment);
+                                                                                    currentBubble.myCommentCount--;
+                                                                                    myCommentCounter.setText(Integer.toString(currentBubble.myCommentCount));
                                                                                 }
                                                                             }, new Response.ErrorListener() {
                                                                         @Override
@@ -405,7 +408,6 @@ public class ContentFragment extends Fragment {
                                                                 } catch (JSONException e) {
                                                                     e.printStackTrace();
                                                                 }
-                                                                return;
                                                             }
                                                         });
 
@@ -446,7 +448,7 @@ public class ContentFragment extends Fragment {
                                         }
                                     };
 
-                                    ((MapsActivity) getActivity()).queue.add(getComments);
+                                    ((MapsActivity) getActivity()).queue.add(postComment);
                                 }
                             }
                         });
