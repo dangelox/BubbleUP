@@ -82,6 +82,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -737,6 +738,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                                         //We proceed to use the internet link to try fetch the user's profile picture
                                                         fetchImageAsync imageFetch = new fetchImageAsync();
                                                         imageFetch.execute(Pair.create(id, link));
+
+                                                        //Bitmap image = Picasso.get().load(link).get();
+                                                        //profilePictureStorageBitmap.put(id,image);
+
                                                     }
                                                 } catch (JSONException e) {
                                                     Log.d("BubbleUp", "JSON IDs GET problem!");

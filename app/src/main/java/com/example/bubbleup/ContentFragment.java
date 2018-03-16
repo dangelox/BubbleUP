@@ -91,6 +91,8 @@ public class ContentFragment extends Fragment {
 
     LayoutInflater myInflater;
 
+    int currentUserId;
+
     SharedPreferences saved_settings;
 
     public ContentFragment() {
@@ -224,7 +226,6 @@ public class ContentFragment extends Fragment {
                 Button deleteButton = (Button) container.findViewById(R.id.deleteButton);
 
                 //check if the bubble is the current user's bubble and should show the deletion button
-                int currentUserId = -1;
                 if(getActivity() instanceof UserSettings){
                     currentUserId = ((UserSettings) getActivity()).myId;
                 } else if (getActivity() instanceof MapsActivity){
@@ -236,7 +237,7 @@ public class ContentFragment extends Fragment {
                         public void onClick(View v) {
 
                             Log.d("BubbleUp","Long Clicked Detected");
-                            if(currentBubble.myUser_id == ((MapsActivity) getActivity()).myId){
+                            if(currentBubble.myUser_id == currentUserId){
                                 Log.d("BubbleUp","Same ID");
 
                                 //Build an alert dialog to prompt deletion
@@ -263,8 +264,14 @@ public class ContentFragment extends Fragment {
                                                         Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
                                                         ViewGroup vg = myList;
                                                         vg.removeView(container);
-                                                        currentBubble.bubbleMarker.remove();
-                                                        ((MapsActivity) getActivity()).myBubbles.remove(currentBubble);
+                                                        
+                                                        if(getActivity() instanceof UserSettings){
+                                                            ((UserSettings) getActivity()).myBubbles.remove(currentBubble);
+                                                        } else if (getActivity() instanceof MapsActivity){
+                                                            ((MapsActivity) getActivity()).myBubbles.remove(currentBubble);
+                                                            currentBubble.bubbleMarker.remove();
+                                                        }
+
                                                     }
                                                 }, new Response.ErrorListener() {
                                             @Override
@@ -527,7 +534,6 @@ public class ContentFragment extends Fragment {
                                                         }
 
                                                         //check if post is current user's comment, if so keep the delete button
-                                                        int currentUserId = -1;
                                                         if(getActivity() instanceof UserSettings){
                                                             currentUserId = ((UserSettings) getActivity()).myId;
                                                         } else if (getActivity() instanceof MapsActivity){
