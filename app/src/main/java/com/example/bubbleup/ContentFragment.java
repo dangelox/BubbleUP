@@ -108,7 +108,7 @@ public class ContentFragment extends Fragment {
 
     public class BubbleComparatorAgeMins implements Comparator<BubbleMarker> {
         public int compare(BubbleMarker left, BubbleMarker right) {
-            return ((Integer) right.myAgeMins).compareTo((Integer) left.myAgeMins);
+            return ((Integer) left.myAgeMins).compareTo((Integer) right.myAgeMins);
         }
     }
 
@@ -132,7 +132,11 @@ public class ContentFragment extends Fragment {
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
         //Sorting by size
-        Collections.sort(bubbleList, new BubbleComparatorSize());
+        if(bounds == null){
+            Collections.sort(bubbleList, new BubbleComparatorAgeMins());
+        }else{
+            Collections.sort(bubbleList, new BubbleComparatorSize());
+        }
 
         //Creating a new view for each bubble
         for (final BubbleMarker currentBubble : bubbleList) {
