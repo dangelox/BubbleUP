@@ -7,8 +7,11 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     Button bt_free_view;
     Button bt_login;
     Button bt_register;
+    CheckBox remember_me;
     //TextView mTextView;
 
     RequestQueue queue;
@@ -81,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         bt_free_view = (Button) findViewById(R.id.button_freeview);
         bt_login =  (Button) findViewById(R.id.button_login);
         bt_register = (Button) findViewById(R.id.button_register);
+        remember_me = (CheckBox) findViewById(R.id.checkBox);
+
+        if(settings.getBoolean("display_username", false)){
+            remember_me.setChecked(true);
+            ((TextView) findViewById(R.id.text_username)).setText(settings.getString("email", ""));
+        }
 
         //Setting behaviour for screen buttons
         bt_free_view.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
                                 SharedPreferences.Editor editor = settings.edit();
                                 editor.putString("saved_token", saved_token);
                                 editor.putString("saved_username", user_name);
+                                editor.putString("email", ((TextView) findViewById(R.id.text_username)).getText().toString());
+                                editor.putBoolean("display_username", remember_me.isChecked());
                                 editor.putString("profile_link", profile_pic_link);
                                 editor.commit();
 
@@ -230,6 +242,12 @@ public class MainActivity extends AppCompatActivity {
         if(psw.length() == 0){
             Log.d("BubbleUp","No password.");
             Toast.makeText(getApplicationContext(), "No Password", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        //TODO:fix reguar expression
+        if(!usr.matches("[a-zA-Z0-9._-]+@[a-zA-Z]+\\.+[a-z]+")){
+            Log.d("BubbleUp","No password.");
+            Toast.makeText(getApplicationContext(), "Invalid Email", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
