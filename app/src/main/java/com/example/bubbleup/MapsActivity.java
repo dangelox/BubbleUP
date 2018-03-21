@@ -46,6 +46,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -146,6 +147,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     public ContentFragment myFragment = new ContentFragment();
     boolean fragment_display = false;
 
+    boolean profile_display = false;
+
     //Composer Fragment
     public ComposerDialogFragment myFragmentComposer = new ComposerDialogFragment();
     boolean fragment_composer_display = false;
@@ -180,6 +183,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     private String profile_pic_link = "";
     ArrayList<Integer> user_id_list;
+    HashMap<Integer, BubbleMarker> bubbleMarkerHashMap;
     HashMap<Integer, Bitmap> profilePictureStorageBitmap;
     HashMap<Integer, String> profilePictureStorageLink;
     HashMap<Integer, String> profileNameStorage;
@@ -203,6 +207,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         log_status = getIntent().getBooleanExtra("log_status",false);
         myUserName = getIntent().getStringExtra("myUserName");
         profile_pic_link = getIntent().getStringExtra("profile_link");
+
+        bubbleMarkerHashMap = new HashMap<>();
 
         if(log_status) {
             Log.d("BubbleUp","log_status = true");
@@ -292,16 +298,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onClick(View v) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 if(fragment_display){
-                    fragmentTransaction.remove(myFragment);
-                    fragmentTransaction.commit();
-                    fragment_display = false;
-                    Log.d("BubbleUp","Hiding content.");
+                    if(profile_display){
+                        profile_button.performClick();
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,false);
+                    } else {
+                        fragmentTransaction.remove(myFragment);
+                        fragmentTransaction.commit();
+                        fragment_display = false;
+                        Log.d("BubbleUp","Hiding content.");
+                    }
                 }else{
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
                     fragmentTransaction.commitNow();
-                    myFragment.sendToFragment(myBubbles, currentBound);
+                    myFragment.sendToFragment(myBubbles, currentBound,false);
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
                 }
@@ -387,10 +398,36 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
                 Intent profile_intent = new Intent(MapsActivity.this, UserSettings.class);
                 profile_intent.putExtra("myId", myId);
                 profile_intent.putExtra("userId", myId);
                 startActivity(profile_intent);
+                */
+                if(fragment_display){
+                    if(profile_display){
+                        profile_display = false;
+                        myFragment.showProfile(myId,myId, profile_display);
+
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true);
+
+                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+
+                        //myFragment.getView().setLayoutParams(param);
+                        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+
+                    } else {
+                        profile_display = true;
+                        myFragment.showProfile(myId,myId, profile_display);
+
+                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 2);
+
+                        //myFragment.getView().setLayoutParams(param);
+                        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+                    }
+                } else {
+                    Toast.makeText(MapsActivity.this, "Nothing to show!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -598,7 +635,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         });
     }
 
-    public void jsonToBubbleMarker(JSONObject myJson, boolean react){
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void jsonToBubbleMarker(JSONObject myJson, List<BubbleMarker> bubbleList, boolean react){
         int user_id;
         int post_id;
         int likeCount;
@@ -661,13 +699,20 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             lng = Double.parseDouble(myJson.get("lng").toString());
 
             //Creating the bubble marker objects.
-            BubbleMarker newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
-
+            BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
-            newBubble.addMarker(mMap);
+            if(bubbleMarkerHashMap.get(post_id) == null){
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
+                newBubble.addMarker(mMap);
+                bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
+                myBubbles.add(newBubble);
+            } else {
+                newBubble = bubbleMarkerHashMap.get(post_id);
+            }
 
-            //Adding the bubble to the array so as to iteratively update their status.
-            myBubbles.add(newBubble);
+            if(myBubbles != bubbleList){
+                bubbleList.add(newBubble);
+            }
 
         }catch (JSONException e) {
             Log.d("BubbleUp", "Failure While Converting JSON to Bubble");
@@ -700,7 +745,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                 //Iterating through the JSON object array.
                                 for (int i = 0; i < json_response.length(); i++)
-                                    jsonToBubbleMarker((JSONObject) json_response.get(i),true);
+                                    jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
 
                                 //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
 
@@ -868,6 +913,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         editor.putLong("saved_lng",Double.doubleToRawLongBits(mMap.getCameraPosition().target.longitude));
         editor.putInt("saved_zoom",(int) mMap.getCameraPosition().zoom);
         editor.putInt("myTheme", curTheme);
+
+        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
 
         editor.commit();
 

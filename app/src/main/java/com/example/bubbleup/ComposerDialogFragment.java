@@ -177,7 +177,7 @@ public class ComposerDialogFragment extends DialogFragment {
                                         Log.d("BubbleUp", "Post Taks Response:\n" + response.toString());
                                         JSONObject json_response = new JSONObject(response.toString());
 
-                                        ((MapsActivity) myActivity).jsonToBubbleMarker(json_response, false);
+                                        ((MapsActivity) myActivity).jsonToBubbleMarker(json_response, ((MapsActivity) myActivity).myBubbles,false);
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }

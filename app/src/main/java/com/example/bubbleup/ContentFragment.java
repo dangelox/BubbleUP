@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
@@ -47,6 +48,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -76,7 +78,12 @@ public class ContentFragment extends Fragment {
 
     String url_like ="https://bubbleup-api.herokuapp.com/likes/";
     String url_posts ="https://bubbleup-api.herokuapp.com/posts/";
+    String url_users_posts ="https://bubbleup-api.herokuapp.com/posts/user/";
     String url_comments ="https://bubbleup-api.herokuapp.com/posts_comments/";
+    String url_bio = "https://bubbleup-api.herokuapp.com/user/user_bio";
+    String url_set_name = "https://bubbleup-api.herokuapp.com/user/name";
+    String url_set_bio = "https://bubbleup-api.herokuapp.com/user/user_bio";
+    String url_set_profile_pic = "https://bubbleup-api.herokuapp.com/user/image";
 
 
     // TODO: Rename and change types of parameters
@@ -88,12 +95,21 @@ public class ContentFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     View myView;
+    ViewGroup myViewGroupContainer;
+
+    //Profile Viewers
+    View profileView;
+    LinearLayout profileContainer;
 
     LayoutInflater myInflater;
 
     int currentUserId;
 
     SharedPreferences saved_settings;
+
+    //Edit Variables
+    boolean edit_settings_clicked = true;
+    EditText textEdit;
 
     public ContentFragment() {
         // Required empty public constructor
@@ -126,10 +142,14 @@ public class ContentFragment extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds){
+    public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds, boolean erase){
         final LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
+
+        if(erase && myList.getChildCount() > 0){
+            myList.removeAllViews();
+        }
 
         //Sorting by size
         if(bounds == null){
@@ -220,10 +240,14 @@ public class ContentFragment extends Fragment {
                 userImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        /*
                         Intent profile_intent = new Intent(getActivity(), UserSettings.class);
                         profile_intent.putExtra("myId", ((MapsActivity) getActivity()).myId);
                         profile_intent.putExtra("userId", currentBubble.myUser_id);
                         startActivity(profile_intent);
+                        */
+
+                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true);
                     }
                 });
 
@@ -776,6 +800,501 @@ public class ContentFragment extends Fragment {
                 }
                 myList.addView(container);
             }
+        }
+    }
+
+    public void showProfile(int myUserId, int queryUserId, boolean display){
+        if(display){ //If true we display
+            profileView = myInflater.inflate(R.layout.activity_user_settings, myViewGroupContainer, false);
+
+            profileContainer = (LinearLayout) myView.findViewById(R.id.linear_view);
+
+            if(profileContainer.getChildCount() > 0){
+                profileContainer.removeAllViews();
+            }
+
+            profileContainer.addView(profileView, 0);
+
+            ///////////////////////////
+            //Code From User Settings//
+            ///////////////////////////
+            final Button edit_profile = (Button) profileContainer.findViewById(R.id.button_set_username);
+            int myId = myUserId;
+            int userId = queryUserId;
+
+            final TextView display_username = (TextView) profileContainer.findViewById((R.id.textView));
+
+            final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
+
+            final ImageButton profpic = (ImageButton) profileContainer.findViewById(R.id.imageButton2);
+
+            if(myId == userId){
+                //Getting user BIO
+                //TODO: Tell dilesh to make a more general get method
+                StringRequest user_bio_link_request = new StringRequest(Request.Method.GET, url_bio,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    //We get back an array with data for the requested IDs
+                                    JSONObject myJson = new JSONObject(response);
+                                    String bio = myJson.getString("user_bio");
+                                    if(bio!=""){
+                                        display_bio.setText(bio);
+                                    }else{
+                                        display_bio.setText("<Empty Bio>");
+                                    }
+
+                                } catch (JSONException e) {
+                                    Log.d("BubbleUp", "JSON IDs GET problem!");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("BubbleUp", "ID get JSOn Response Error! " + error.toString());
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap();
+                        headers.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                        return headers;
+                    }
+                };
+
+                ((MapsActivity) getActivity()).queue.add(user_bio_link_request);
+
+                ///////////////////
+                //Profile Editing//
+                ///////////////////
+
+                edit_profile.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                    @Override
+                    public void onClick(View v) {
+                        if(edit_settings_clicked){
+                            edit_profile.setBackgroundResource(R.drawable.ic_cancel_post);
+                            edit_settings_clicked = false;
+                            //Toast.makeText(getApplicationContext(), "Click on what you wish to edit", Toast.LENGTH_SHORT).show();
+
+                            //change username listener
+                            display_username.setBackgroundResource(R.drawable.edit_background);
+                            display_username.setOnClickListener(new View.OnClickListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                @Override
+                                public void onClick(View v){
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                                    LinearLayout layout = new LinearLayout(getActivity());
+                                    LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                    layout.setOrientation(LinearLayout.VERTICAL);
+                                    layout.setLayoutParams(parms);
+
+                                    layout.setGravity(Gravity.CLIP_VERTICAL);
+                                    layout.setPadding(2, 2, 2, 2);
+
+                                    textEdit = new EditText(getActivity());
+
+                                    layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                                    alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setTitle("Input your new username!");
+
+                                    // alertDialogBuilder.setMessage(message);
+                                    alertDialogBuilder.setCancelable(false);
+
+                                    // Setting Negative "Cancel" Button
+                                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                                    // Setting Positive "OK" Button
+                                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            final String newUserName = textEdit.getText().toString();
+
+                                            //Toast.makeText(getApplicationContext(), newUserName, Toast.LENGTH_SHORT).show();
+
+                                            if(!newUserName.equals("")) {
+
+                                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_name,
+                                                        new Response.Listener<String>() {
+                                                            @Override
+                                                            public void onResponse(String response) {
+                                                                Toast.makeText(getActivity(), "Changed Name to: " + newUserName, Toast.LENGTH_SHORT).show();
+
+                                                                //settings.edit().putString("saved_username", newUserName).commit();
+
+                                                                display_username.setText(newUserName);
+
+                                                                Log.d("BubbleUp", "Success Username Change: " + response);
+                                                            }
+                                                        }, new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError error) {
+                                                        Log.d("BubbleUp", "Unsuccessful change");
+                                                        Toast.makeText(getActivity(), "Unsuccessful Name Change", Toast.LENGTH_SHORT).show();
+
+                                                    }
+                                                }) {
+                                                    @Override
+                                                    public byte[] getBody() throws AuthFailureError {
+                                                        String httpPostBody = "{\"name\": \"" + newUserName + "\"}";
+                                                        return httpPostBody.getBytes();
+                                                    }
+
+                                                    @Override
+                                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                                        Map<String, String> params = new HashMap();
+                                                        params.put("Content-Type", "application/json");
+                                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                        return params;
+                                                    }
+                                                };
+
+                                                ((MapsActivity) getActivity()).queue.add(loginRequest);
+                                            } else {
+                                                Toast.makeText(getActivity(), "Empty Name", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                    try {
+                                        alertDialog.show();
+                                        Log.d("BubbleUp","Dialog Success");
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Log.d("BubbleUp","Dialog Fail");
+                                    }
+                                    edit_settings_clicked = true;
+                                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        profpic.setForeground(null);
+                                    }
+                                    display_username.setBackground(null);
+                                    display_bio.setBackground(null);
+                                    profpic.setBackground(null);
+                                    display_username.setOnClickListener(null);
+                                    profpic.setOnClickListener(null);
+                                    display_bio.setOnClickListener(null);
+                                }
+                            });
+
+                            //change bio listener
+                            display_bio.setBackgroundResource(R.drawable.edit_background);
+                            display_bio.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                                    LinearLayout layout = new LinearLayout(getActivity());
+                                    LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                    layout.setOrientation(LinearLayout.VERTICAL);
+                                    layout.setLayoutParams(parms);
+
+                                    layout.setGravity(Gravity.CLIP_VERTICAL);
+                                    layout.setPadding(2, 2, 2, 2);
+
+                                    textEdit = new EditText(getActivity());
+
+                                    layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                                    alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setTitle("Input your new bio!");
+
+                                    // alertDialogBuilder.setMessage(message);
+                                    alertDialogBuilder.setCancelable(false);
+
+                                    // Setting Negative "Cancel" Button
+                                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                                    // Setting Positive "OK" Button
+                                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            final String newUserBio = textEdit.getText().toString();
+
+                                            //Toast.makeText(getApplicationContext(), newUserBio, Toast.LENGTH_SHORT).show();
+
+                                            if(!newUserBio.equals("")) {
+
+                                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_bio,
+                                                        new Response.Listener<String>() {
+                                                            @Override
+                                                            public void onResponse(String response) {
+                                                                Toast.makeText(getActivity(), "Changed Bio to: " + newUserBio, Toast.LENGTH_SHORT).show();
+
+                                                                //TODO: add saved_bio to settings
+                                                                //settings.edit().putString("saved_bio", newUserBio).commit();
+
+                                                                display_bio.setText(newUserBio);
+
+                                                                Log.d("BubbleUp", "Success Username Change: " + response);
+                                                            }
+                                                        }, new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError error) {
+                                                        Log.d("BubbleUp", "Unsuccessful change");
+                                                        Toast.makeText(getActivity(), "Unsuccessful Bio Change", Toast.LENGTH_SHORT).show();
+
+                                                    }
+                                                }) {
+                                                    @Override
+                                                    public Map<String, String> getParams() throws AuthFailureError {
+                                                        HashMap<String, String> params = new HashMap<>();
+                                                        params.put("user_bio", "\"" + newUserBio + "\"");
+                                                        return params;
+                                                    }
+
+                                                    @Override
+                                                    public byte[] getBody() throws AuthFailureError {
+                                                        String httpPostBody = "{\"user_bio\": \"" + newUserBio + "\"}";
+                                                        return httpPostBody.getBytes();
+                                                    }
+
+                                                    @Override
+                                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                                        Map<String, String> params = new HashMap();
+                                                        params.put("Content-Type", "application/json");
+                                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                        return params;
+                                                    }
+                                                };
+
+                                                ((MapsActivity) getActivity()).queue.add(loginRequest);
+                                            } else {
+                                                Toast.makeText(getActivity(), "Empty Bio", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                    try {
+                                        alertDialog.show();
+                                        Log.d("BubbleUp","Dialog Success");
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        Log.d("BubbleUp","Dialog Fail");
+                                    }
+                                    edit_settings_clicked = true;
+                                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        profpic.setForeground(null);
+                                    }
+                                    display_username.setBackground(null);
+                                    display_bio.setBackground(null);
+                                    profpic.setBackground(null);
+                                    display_username.setOnClickListener(null);
+                                    profpic.setOnClickListener(null);
+                                    display_bio.setOnClickListener(null);
+                                }
+                            });
+
+                            //change profile picture listener
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                profpic.setForeground(ContextCompat.getDrawable(getActivity(), R.mipmap.ic_action_edit_profpic));
+                                profpic.setForegroundGravity(Gravity.CENTER);
+                            }
+                            profpic.setBackgroundResource(R.drawable.edit_background);
+                            profpic.setOnClickListener(new View.OnClickListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                @Override
+                                public void onClick(View v){
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+
+                                    LinearLayout layout = new LinearLayout(getActivity());
+                                    LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                    layout.setOrientation(LinearLayout.VERTICAL);
+                                    layout.setLayoutParams(parms);
+
+                                    layout.setGravity(Gravity.CLIP_VERTICAL);
+                                    layout.setPadding(2, 2, 2, 2);
+
+                                    textEdit = new EditText(getActivity());
+
+                                    layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                                    alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setTitle("Input your new profile pic link!");
+
+                                    // alertDialogBuilder.setMessage(message);
+                                    alertDialogBuilder.setCancelable(false);
+
+                                    // Setting Negative "Cancel" Button
+                                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                                    // Setting Positive "OK" Button
+                                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+
+                                            final String newLink = textEdit.getText().toString();
+
+                                            if (newLink == null || newLink.equals("")) {
+                                                Toast.makeText(getActivity(), "Empty Link!", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_profile_pic,
+                                                        new Response.Listener<String>() {
+                                                            @Override
+                                                            public void onResponse(String response) {
+
+                                                                //settings.edit().putString("profile_link", newLink).commit();
+
+                                                                //UserSettings.fetchProfImageAsync fetcher_reload = new UserSettings.fetchProfImageAsync();
+                                                                //fetcher_reload.execute(newLink);
+
+                                                                //Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
+                                                                Log.d("BubbleUp", "Got profile link");
+                                                            }
+                                                        }, new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError error) {
+                                                        Log.d("BubbleUp", error.toString());
+                                                        Toast.makeText(getActivity(), "Communication Error!", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }) {
+                                                    @Override
+                                                    public byte[] getBody() throws AuthFailureError {
+                                                        String httpPostBody = "{\"profile_image\": \"" + newLink + "\"}";
+                                                        return httpPostBody.getBytes();
+                                                    }
+
+                                                    @Override
+                                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                                        Map<String, String> params = new HashMap();
+                                                        params.put("Content-Type", "application/json");
+                                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                                        return params;
+                                                    }
+                                                };
+
+                                                Log.d("BubbleUp", "Requesting Link Set");
+                                                ((MapsActivity) getActivity()).queue.add(loginRequest);
+                                            }
+
+
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                    try {
+                                        alertDialog.show();
+                                        Log.d("BubbleUp","Dialog Success");
+                                    } catch (Exception e) {
+                                        // WindowManager$BadTokenException will be caught and the app would
+                                        // not display the 'Force Close' message
+                                        e.printStackTrace();
+                                        Log.d("BubbleUp","Dialog Fail");
+                                        Log.d("BubbleUp",e.toString());
+                                        Log.d("BubbleUp",e.getLocalizedMessage());
+                                    }
+                                    edit_settings_clicked = true;
+                                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        profpic.setForeground(null);
+                                    }
+                                    display_username.setBackground(null);
+                                    display_bio.setBackground(null);
+                                    profpic.setBackground(null);
+                                    display_username.setOnClickListener(null);
+                                    profpic.setOnClickListener(null);
+                                    display_bio.setOnClickListener(null);
+                                }
+                            });
+
+                        }
+                        else{
+                            edit_settings_clicked = true;
+                            edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
+                            //Toast.makeText(getApplicationContext(), "Edit canceled", Toast.LENGTH_SHORT).show();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                profpic.setForeground(null);
+                            }
+                            display_username.setBackground(null);
+                            display_bio.setBackground(null);
+                            profpic.setBackground(null);
+                            display_username.setOnClickListener(null);
+                            profpic.setOnClickListener(null);
+                            display_bio.setOnClickListener(null);
+                        }
+                    }
+                });
+            } else {
+                //request for id posts and info
+                myId = queryUserId;
+            }
+
+            final int reqId = myId;
+
+            if( ((MapsActivity) getActivity()).profileNameStorage.get(reqId) != null){
+                display_username.setText(((MapsActivity) getActivity()).profileNameStorage.get(myId));
+            }
+
+            if( ((MapsActivity) getActivity()).profilePictureStorageBitmap.get(reqId) != null ){
+                profpic.setImageBitmap(((MapsActivity) getActivity()).profilePictureStorageBitmap.get(myId));
+            }
+
+
+
+            StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_users_posts + reqId,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("BubbleUp", "JSOn Post Get Response Successful for id = " + reqId);
+                            Log.d("BubbleUp", response);
+
+                            try {
+                                //We convert the response into an JSONArray object so as to iterate through the posts.
+                                JSONArray json_response = new JSONArray(response.toString());
+
+                                List<BubbleMarker> myBubbles = new ArrayList<>();
+                                //myBubbles.clear();//empty the array first.
+
+                                //Iterating through the JSON object array.
+                                for (int i = 0; i < json_response.length(); i++)
+                                    ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
+
+                                sendToFragment(myBubbles, null, false);
+
+                            } catch (JSONException e) {
+                                Log.d("BubbleUp", "JSON object problem!");
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap();
+                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                    return params;
+                }
+            };
+            ((MapsActivity) getActivity()).queue.add(tokenRequest);
+
+        } else { //If false we eliminate the view
+            profileContainer.removeView(profileView);
         }
     }
 

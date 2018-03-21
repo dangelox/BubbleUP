@@ -239,7 +239,7 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
 
                             Log.d("BubbleUp", "JSON Requesting ID Links");
 
-                            myFragment.sendToFragment(myBubbles, null);
+                            myFragment.sendToFragment(myBubbles, null, false);
 
                             //Building request URL
                             String url_links_ids = url_links_by_ids;
@@ -314,10 +314,6 @@ public class UserSettings extends MapsActivity implements ContentFragment.OnFrag
             }
         };
         queue.add(tokenRequest);
-
-
-
-
 
         edit_profile.setOnClickListener(new View.OnClickListener() {
             @Override
