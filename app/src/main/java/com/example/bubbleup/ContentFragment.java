@@ -231,6 +231,12 @@ public class ContentFragment extends Fragment {
 
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
+                userNameText.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true);
+                    }
+                });
 
                 TextView ageOfPostText = (TextView) container.findViewById(R.id.textViewAgeOfPost);
                 if(currentBubble.myAgeMins == 0){
@@ -862,6 +868,11 @@ public class ContentFragment extends Fragment {
             int myId = myUserId;
             int userId = queryUserId;
 
+            //checking to see if the profile is that of the current user's, if not then we hide the edit button
+            if(currentUserId != userId){
+                edit_profile.setVisibility(View.GONE);
+            }
+
             final TextView display_username = (TextView) profileContainer.findViewById((R.id.textView));
 
             final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
@@ -1408,6 +1419,29 @@ public class ContentFragment extends Fragment {
         // Inflate the layout for this fragment
         myInflater = inflater;
         myView = inflater.inflate(R.layout.bubble_data, container, false);
+
+        final Button scrollUpButton = (Button) myView.findViewById(R.id.scrollUp);
+        scrollUpButton.setVisibility(View.GONE);
+
+        final ScrollView scrollStuff = (ScrollView) myView.findViewById(R.id.scrollView2);
+        //TODO:get rid of this error, not sure if it should be annotated or surrounded by if statement
+        scrollStuff.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if(i1 != 0){
+                    scrollUpButton.setVisibility(View.VISIBLE);
+                }else {
+                    scrollUpButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        scrollUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollStuff.smoothScrollTo(0,0);
+            }
+        });
 
         return myView;
     }
