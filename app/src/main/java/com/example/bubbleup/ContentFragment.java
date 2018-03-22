@@ -219,6 +219,12 @@ public class ContentFragment extends Fragment {
 
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
+                userNameText.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true);
+                    }
+                });
 
                 TextView ageOfPostText = (TextView) container.findViewById(R.id.textViewAgeOfPost);
                 if(currentBubble.myAgeMins == 0){

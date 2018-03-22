@@ -18,7 +18,7 @@
             android:layout_margin="20dp"
             android:gravity="center"
             android:shadowRadius="50"
-            android:text="BubbleUP!"
+            android:text="BubbleUP"
             android:textColor="#ffffff"
             android:textSize="40sp" />
 
