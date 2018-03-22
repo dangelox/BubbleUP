@@ -1350,6 +1350,29 @@ public class ContentFragment extends Fragment {
         myInflater = inflater;
         myView = inflater.inflate(R.layout.bubble_data, container, false);
 
+        final Button scrollUpButton = (Button) myView.findViewById(R.id.scrollUp);
+        scrollUpButton.setVisibility(View.GONE);
+
+        final ScrollView scrollStuff = (ScrollView) myView.findViewById(R.id.scrollView2);
+        //TODO:get rid of this error, not sure if it should be annotated or surrounded by if statement
+        scrollStuff.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View view, int i, int i1, int i2, int i3) {
+                if(i1 != 0){
+                    scrollUpButton.setVisibility(View.VISIBLE);
+                }else {
+                    scrollUpButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        scrollUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollStuff.smoothScrollTo(0,0);
+            }
+        });
+
         return myView;
     }
 
