@@ -1,13 +1,17 @@
 package com.example.bubbleup;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -48,6 +52,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -107,6 +113,8 @@ public class ContentFragment extends Fragment {
 
     SharedPreferences saved_settings;
 
+    ArrayList<View> emptyUserData;
+
     //Edit Variables
     boolean edit_settings_clicked = true;
     EditText textEdit;
@@ -145,6 +153,8 @@ public class ContentFragment extends Fragment {
     public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds, boolean erase){
         final LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
+        emptyUserData = new ArrayList<>();
+
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
         if(erase && myList.getChildCount() > 0){
@@ -164,6 +174,8 @@ public class ContentFragment extends Fragment {
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
 
                 final View container = myInflater.inflate(R.layout.fragment_post_container, myList, false);
+
+
 
                 final LinearLayout body = (LinearLayout) container.findViewById(R.id.fragment_body_linear);
 
@@ -799,6 +811,34 @@ public class ContentFragment extends Fragment {
                     }
                 }
                 myList.addView(container);
+                container.setTag(currentBubble.myUser_id);
+                if(currentBubble.profile_image == null || currentBubble.username == null){
+                    emptyUserData.add(container);
+                }
+            }
+        }
+    }
+
+    public void updateUserCard(){
+        Log.d("BubbleUP","Attempting to update containers, size = " + emptyUserData.size());
+        if(emptyUserData != null){
+            for(View userCard : new ArrayList<View>(emptyUserData)){
+                MapsActivity mA = (MapsActivity) getActivity();
+                Bitmap profileImage = mA.profilePictureStorageBitmap.get( (Integer) userCard.getTag() );
+                String profileUserName = mA.profileNameStorage.get( (Integer) userCard.getTag() );
+                Log.d("BubbleUP","Attempting to update container with tag: " + userCard.getTag());
+
+                if(profileImage != null && profileUserName != null){
+                    emptyUserData.remove(userCard);
+                }
+                if(profileImage != null){
+                    ((ImageButton) userCard.findViewById(R.id.imageButton)).setBackgroundResource(0);
+                    ((ImageButton) userCard.findViewById(R.id.imageButton)).setColorFilter(0);
+                    ((ImageButton) userCard.findViewById(R.id.imageButton)).setImageBitmap(profileImage);
+                }
+                if(profileUserName != null){
+                    ((TextView) userCard.findViewById(R.id.textViewUserName)).setText(profileUserName);
+                }
             }
         }
     }
@@ -1156,8 +1196,38 @@ public class ContentFragment extends Fragment {
 
                                                                 //settings.edit().putString("profile_link", newLink).commit();
 
-                                                                //UserSettings.fetchProfImageAsync fetcher_reload = new UserSettings.fetchProfImageAsync();
-                                                                //fetcher_reload.execute(newLink);
+                                                                class fetchProfImageAsync extends AsyncTask<String, Void, Bitmap> {
+                                                                    @Override
+                                                                    protected Bitmap doInBackground(String... params) {
+                                                                        String url = params[0];
+
+                                                                        Bitmap profile_image;
+                                                                        try {
+                                                                            Log.d("BubbleUp", "Trying profile picture fetch. From: " + url);
+                                                                            profile_image = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+                                                                            Log.d("BubbleUp", "Success profile picture fetch. From: " + url);
+                                                                        } catch (Exception e) {
+                                                                            Log.d("BubbleUp", "Profile picture fetch failed. " + e.toString());
+                                                                            profile_image = null;
+                                                                        }
+
+                                                                        return profile_image;
+                                                                    }
+
+                                                                    @Override
+                                                                    protected void onPostExecute(Bitmap usr_image) {
+                                                                        if(usr_image != null) {
+                                                                            //If an image has been fetched successfully then we store it on a table using the user ID as the key.
+                                                                            profpic.setImageBitmap(usr_image);
+                                                                            profpic.setBackgroundResource(0);
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                fetchProfImageAsync fetcher_reload = new fetchProfImageAsync();
+                                                                fetcher_reload.execute(newLink);
+
+
 
                                                                 //Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
                                                                 Log.d("BubbleUp", "Got profile link");

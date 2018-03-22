@@ -539,10 +539,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             try {
                 if(!myBubbles.isEmpty()){
                     updateBubbles(myBubbles);//Changes bubbles coordinates
+                    if(fragment_display){
+                        myFragment.updateUserCard();
+                    }
                 }
             } finally {
                 // this code always executes even if try is successful.
-                mHandler.postDelayed(bubbleUpdater, 50);//setting update delay to 10 milliseconds.
+                mHandler.postDelayed(bubbleUpdater, 75);//setting update delay to 100 milliseconds.
             }
         }
     };
@@ -742,6 +745,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 JSONArray json_response = new JSONArray(response.toString());
 
                                 myBubbles.clear();//empty the array first.
+                                bubbleMarkerHashMap.clear();
 
                                 //Iterating through the JSON object array.
                                 for (int i = 0; i < json_response.length(); i++)
