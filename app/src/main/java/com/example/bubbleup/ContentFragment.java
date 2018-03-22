@@ -828,6 +828,11 @@ public class ContentFragment extends Fragment {
             int myId = myUserId;
             int userId = queryUserId;
 
+            //checking to see if the profile is that of the current user's, if not then we hide the edit button
+            if(currentUserId != userId){
+                edit_profile.setVisibility(View.GONE);
+            }
+
             final TextView display_username = (TextView) profileContainer.findViewById((R.id.textView));
 
             final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
