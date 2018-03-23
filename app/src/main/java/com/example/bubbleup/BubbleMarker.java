@@ -80,6 +80,7 @@ public class BubbleMarker implements Serializable{
 
     public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count,int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
+        bubbleMarkerOption.anchor(0.5f, 0.5f);
 
         myPost_id = post_id;
 
