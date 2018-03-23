@@ -300,7 +300,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(fragment_display){
                     if(profile_display){
                         profile_button.performClick();
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,false);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true);
                     } else {
                         fragmentTransaction.remove(myFragment);
                         fragmentTransaction.commit();
@@ -426,7 +426,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
                     }
                 } else {
-                    Toast.makeText(MapsActivity.this, "Nothing to show!", Toast.LENGTH_SHORT).show();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                    fragmentTransaction.add(R.id.zone, myFragment);
+
+                    fragmentTransaction.commitNow();
+                    myFragment.showProfile(myId, myId, true);
+                    fragment_display = true;
+                    profile_display = true;
                 }
             }
         });

@@ -157,7 +157,7 @@ public class ContentFragment extends Fragment {
 
         myList.setBackgroundColor(Color.parseColor(saved_settings.getString("backGround_Color","#f2f2f2")));
 
-        if(erase && myList.getChildCount() > 0){
+        if(erase){
             myList.removeAllViews();
         }
 
@@ -169,6 +169,7 @@ public class ContentFragment extends Fragment {
         }
 
         //Creating a new view for each bubble
+        int countBubble = 0;
         for (final BubbleMarker currentBubble : bubbleList) {
             if(bounds == null || bounds.contains(currentBubble.bubbleMarker.getPosition())){
                 Log.d("BubbleUp_Fragment",currentBubble.msg);
@@ -821,12 +822,13 @@ public class ContentFragment extends Fragment {
                 if(currentBubble.profile_image == null || currentBubble.username == null){
                     emptyUserData.add(container);
                 }
+                countBubble++;
             }
         }
+        Toast.makeText(getActivity(), "Bubbles " + countBubble, Toast.LENGTH_SHORT).show();
     }
 
     public void updateUserCard(){
-        Log.d("BubbleUP","Attempting to update containers, size = " + emptyUserData.size());
         if(emptyUserData != null){
             for(View userCard : new ArrayList<View>(emptyUserData)){
                 MapsActivity mA = (MapsActivity) getActivity();
@@ -850,7 +852,7 @@ public class ContentFragment extends Fragment {
     }
 
     public void showProfile(int myUserId, int queryUserId, boolean display){
-        if(display){ //If true we display
+        if(display){ //If true we display, if false we eliminate the view
             profileView = myInflater.inflate(R.layout.activity_user_settings, myViewGroupContainer, false);
 
             profileContainer = (LinearLayout) myView.findViewById(R.id.linear_view);
