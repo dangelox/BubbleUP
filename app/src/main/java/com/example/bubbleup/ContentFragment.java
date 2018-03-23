@@ -825,7 +825,7 @@ public class ContentFragment extends Fragment {
                 countBubble++;
             }
         }
-        Toast.makeText(getActivity(), "Bubbles " + countBubble, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(), "Bubbles " + countBubble, Toast.LENGTH_SHORT).show();
     }
 
     public void updateUserCard(){
