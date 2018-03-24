@@ -1426,12 +1426,22 @@ public class ContentFragment extends Fragment {
         scrollUpButton.setVisibility(View.GONE);
 
         final ScrollView scrollStuff = (ScrollView) myView.findViewById(R.id.scrollView2);
+
+        final Runnable hideScrollButton = new Runnable(){
+
+            @Override
+            public void run(){
+                scrollUpButton.setVisibility(View.GONE);
+            }
+
+        };
         //TODO:get rid of this error, not sure if it should be annotated or surrounded by if statement
         scrollStuff.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
                 if(i1 != 0){
                     scrollUpButton.setVisibility(View.VISIBLE);
+                    view.postDelayed(hideScrollButton, 2000);
                 }else {
                     scrollUpButton.setVisibility(View.GONE);
                 }
