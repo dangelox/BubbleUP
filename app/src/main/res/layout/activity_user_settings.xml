@@ -70,7 +70,7 @@
                 android:id="@+id/textViewBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="This is a sample Bio to see how this space fills with text. Here is a second sentence to see if the box enlarges." />
+                android:text="@string/initial_bio" />
 
         </LinearLayout>
 

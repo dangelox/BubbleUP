@@ -2,6 +2,7 @@
     <string name="app_name">BubbleUP</string>
     <string name="title_activity_maps">BubbleMap</string>
     <string name="title_activity_add_marker">AddMarkerActivity</string>
+    <string name="initial_bio">No_Bio_Yet!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">
