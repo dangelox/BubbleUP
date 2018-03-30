@@ -220,6 +220,9 @@ public class BubbleMarker implements Serializable{
             case 8:
                 icon = R.drawable.ic_question;
                 break;
+            case 9:
+                icon = R.drawable.ic_beach_umbrella;
+                break;
             default:
                 icon = R.drawable.ic_post;
                 break;

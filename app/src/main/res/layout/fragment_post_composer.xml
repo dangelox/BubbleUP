@@ -160,6 +160,16 @@
                     android:layout_weight="1"
                     android:src="@drawable/ic_question" />
 
+                <ImageButton
+                    android:id="@+id/category_button_umbrella"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="3"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_beach_umbrella" />
+
             </LinearLayout>
         </HorizontalScrollView>
 

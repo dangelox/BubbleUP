@@ -84,6 +84,8 @@ public class ComposerDialogFragment extends DialogFragment {
                 case R.id.category_button_question:
                     type = 8;
                     break;
+                case R.id.category_button_umbrella:
+                    type = 9;
                 default:
                     type = 0;
                     break;
@@ -128,6 +130,8 @@ public class ComposerDialogFragment extends DialogFragment {
         pickerButton7.setOnClickListener(typeButtonLister);
         ImageButton pickerButton8 = (ImageButton) fragmentView.findViewById(R.id.category_button_question);
         pickerButton8.setOnClickListener(typeButtonLister);
+        ImageButton pickerButton9 = (ImageButton) fragmentView.findViewById(R.id.category_button_umbrella);
+        pickerButton9.setOnClickListener(typeButtonLister);
 
         //this is for the color bar to change the icon color
         /*SeekBar colorPicker = (SeekBar) fragmentView.findViewById(R.id.seekBar);
