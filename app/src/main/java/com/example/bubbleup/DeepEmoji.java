@@ -1,6 +1,29 @@
 package com.example.bubbleup;
 
 public class DeepEmoji {
+    public static final int bit_32 = 32;
+
+    public static final int ANALYZED_MASK = 0xE0000000;
+    public static final int ANALYZED_SHIFT = bit_32 - 3;
+
+    public static final int CONTENT_TYPE_MASK = 0x1F000000;
+    public static final int CONTENT_TYPE_SHIFT = ANALYZED_SHIFT - 5;
+
+    public static final int EMOJI_NUM_MASK = 0xE00000;
+    public static final int EMOJI_NUM_SHIFT = CONTENT_TYPE_SHIFT - 3;
+
+    public static final int EMOJI_1_MASK = 0x1F8000;
+    public static final int EMOJI_1_SHIFT = EMOJI_NUM_SHIFT - 6;
+
+    public static final int EMOJI_2_MASK = 0x7E00;
+    public static final int EMOJI_2_SHIFT = EMOJI_1_SHIFT - 6;
+
+    public static final int EMOJI_3_MASK = 0x1F8;
+    public static final int EMOJI_3_SHIFT = EMOJI_2_SHIFT - 6;
+
+    public static final int SENTIMENT_MASK = 0x7;
+    public static final int SENTIMENT_SHIFT = EMOJI_3_SHIFT - 3;
+
     public static String [] emojiArray =  {
         "\uD83D\uDE02",
                 "\uD83D\uDE12",

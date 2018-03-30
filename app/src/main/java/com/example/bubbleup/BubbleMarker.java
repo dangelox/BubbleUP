@@ -52,30 +52,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BubbleMarker implements Serializable{
-
-    private final int bit_32 = 32;
-
-    final int ANALYZED_MASK = 0xE0000000;
-    private final int ANALYZED_SHIFT = bit_32 - 3;
-
-    final int CONTENT_TYPE_MASK = 0x1F000000;
-    private final int CONTENT_TYPE_SHIFT = ANALYZED_SHIFT - 5;
-
-    final int EMOJI_NUM_MASK = 0xE00000;
-    private final int EMOJI_NUM_SHIFT = CONTENT_TYPE_SHIFT - 3;
-
-    final int EMOJI_1_MASK = 0x1F8000;
-    private final int EMOJI_1_SHIFT = EMOJI_NUM_SHIFT - 6;
-
-    final int EMOJI_2_MASK = 0x7E00;
-    private final int EMOJI_2_SHIFT = EMOJI_1_SHIFT - 6;
-
-    final int EMOJI_3_MASK = 0x1F8;
-    private final int EMOJI_3_SHIFT = EMOJI_2_SHIFT - 6;
-
-    final int SENTIMENT_MASK = 0x7;
-    private final int SENTIMENT_SHIFT = EMOJI_3_SHIFT - 3;
-
     public String msg;
     public String tittle;
 
@@ -146,13 +122,14 @@ public class BubbleMarker implements Serializable{
         /////////////
         //BIT MAGIC//
         /////////////
-        myType = (type & CONTENT_TYPE_MASK) >> CONTENT_TYPE_SHIFT;
-        emoji_num = (type & EMOJI_NUM_MASK) >> EMOJI_NUM_SHIFT;
+        myType = (type & DeepEmoji.CONTENT_TYPE_MASK) >> DeepEmoji.CONTENT_TYPE_SHIFT;
+        emoji_num = (type & DeepEmoji.EMOJI_NUM_MASK) >> DeepEmoji.EMOJI_NUM_SHIFT;
         Log.d("BubbleMarker", "Number of emojis = " + emoji_num);
-        emojis[0] = (type & EMOJI_1_MASK) >> EMOJI_1_SHIFT;
-        emojis[1] = (type & EMOJI_2_MASK) >> EMOJI_2_SHIFT;
-        emojis[2] = (type & EMOJI_3_MASK) >> EMOJI_3_SHIFT;
-        sentiment = type & SENTIMENT_MASK;
+        emojis[0] = (type & DeepEmoji.EMOJI_1_MASK) >> DeepEmoji.EMOJI_1_SHIFT;
+        emojis[1] = (type & DeepEmoji.EMOJI_2_MASK) >> DeepEmoji.EMOJI_2_SHIFT;
+        emojis[2] = (type & DeepEmoji.EMOJI_3_MASK) >> DeepEmoji.EMOJI_3_SHIFT;
+        sentiment = type & DeepEmoji.SENTIMENT_MASK;
+        analyzed = (type & DeepEmoji.ANALYZED_MASK) >> DeepEmoji.ANALYZED_SHIFT == 1;
         Log.d("BubbleMarker", "Sentiment = " + sentiment + ", emoji[0] = " + emojis[0] + ", emoji[1] = " + emojis[1] + ", emoji[2] = " + emojis[2]);
 
         myLikes = like_count;
@@ -340,7 +317,11 @@ public class BubbleMarker implements Serializable{
         Paint sentimentCircle = new Paint();
         switch (sentiment){
             case (0):
-                sentimentCircle.setColor(Color.parseColor("#f40000"));
+                if(analyzed){
+                    sentimentCircle.setColor(Color.parseColor("#f40000"));
+                } else {
+                    sentimentCircle.setColor(Color.parseColor("#6b6b6b"));
+                }
                 break;
             case (1):
                 sentimentCircle.setColor(Color.parseColor("#f45900"));
