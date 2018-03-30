@@ -1,6 +1,7 @@
 package com.example.bubbleup;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.DialogInterface;
@@ -653,6 +654,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         });
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void jsonToBubbleMarker(JSONObject myJson, List<BubbleMarker> bubbleList, boolean react){
         int user_id;
@@ -705,7 +707,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int hourDiff = Hours.hoursBetween(bubbleTime, currentTime).getHours();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
 
-            double size_calc = (120 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 200))) + 70;
+            double size_calc = (120 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 200))) + 90;
             int size = (int) size_calc;
 
             date = date_str + " " + time_str;
@@ -750,6 +752,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             //If the user is logged in then we make a request for getting all users posts
             StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_posts,
                     new Response.Listener<String>() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                         @Override
                         public void onResponse(String response) {
                             Log.d("BubbleUp", "JSOn Post Get Response Successful");
