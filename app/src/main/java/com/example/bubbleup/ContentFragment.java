@@ -37,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -820,13 +821,6 @@ public class ContentFragment extends Fragment {
                     }
                 }
 
-                if(bubbleList.indexOf(currentBubble) == (bubbleList.size() - 1)){
-                    LinearLayout.LayoutParams lastPostParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    int density = (int) this.getResources().getDisplayMetrics().density;
-                    lastPostParams.setMargins(8*density,5*density, 8*density, 50*density);
-                    container.setLayoutParams(lastPostParams);
-                }
-
                 myList.addView(container);
                 container.setTag(currentBubble.myUser_id);
                 if(currentBubble.profile_image == null || currentBubble.username == null){
@@ -835,6 +829,11 @@ public class ContentFragment extends Fragment {
                 countBubble++;
             }
         }
+
+        int density = (int) this.getResources().getDisplayMetrics().density;
+        Space endOfList = new Space(getActivity());
+        endOfList.setMinimumHeight(50*density);
+        myList.addView(endOfList);
         //Toast.makeText(getActivity(), "Bubbles " + countBubble, Toast.LENGTH_SHORT).show();
     }
 
