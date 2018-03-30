@@ -18,6 +18,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
+import android.text.Layout;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Patterns;
@@ -817,6 +819,14 @@ public class ContentFragment extends Fragment {
                             break;
                     }
                 }
+
+                if(bubbleList.indexOf(currentBubble) == (bubbleList.size() - 1)){
+                    LinearLayout.LayoutParams lastPostParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    int density = (int) this.getResources().getDisplayMetrics().density;
+                    lastPostParams.setMargins(8*density,5*density, 8*density, 50*density);
+                    container.setLayoutParams(lastPostParams);
+                }
+
                 myList.addView(container);
                 container.setTag(currentBubble.myUser_id);
                 if(currentBubble.profile_image == null || currentBubble.username == null){
@@ -1427,21 +1437,12 @@ public class ContentFragment extends Fragment {
 
         final ScrollView scrollStuff = (ScrollView) myView.findViewById(R.id.scrollView2);
 
-        final Runnable hideScrollButton = new Runnable(){
-
-            @Override
-            public void run(){
-                scrollUpButton.setVisibility(View.GONE);
-            }
-
-        };
         //TODO:get rid of this error, not sure if it should be annotated or surrounded by if statement
         scrollStuff.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View view, int i, int i1, int i2, int i3) {
                 if(i1 != 0){
                     scrollUpButton.setVisibility(View.VISIBLE);
-                    view.postDelayed(hideScrollButton, 2000);
                 }else {
                     scrollUpButton.setVisibility(View.GONE);
                 }
