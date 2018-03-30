@@ -60,6 +60,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -254,8 +255,13 @@ public class ContentFragment extends Fragment {
                 else if(currentBubble.myAgeHours <= 23){
                     ageOfPostText.setText(String.valueOf(currentBubble.myAgeHours).concat("h"));
                 }
-                else{
+                else if(currentBubble.myAgeDays <= 30){
                     ageOfPostText.setText(String.valueOf(currentBubble.myAgeDays).concat("d"));
+                }
+                else{
+                    Date myDate = new Date();
+                    myDate.setTime(currentBubble.myAgeDays);
+                    ageOfPostText.setText((CharSequence) myDate.toString());
                 }
 
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
@@ -264,12 +270,6 @@ public class ContentFragment extends Fragment {
                 userImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*
-                        Intent profile_intent = new Intent(getActivity(), UserSettings.class);
-                        profile_intent.putExtra("myId", ((MapsActivity) getActivity()).myId);
-                        profile_intent.putExtra("userId", currentBubble.myUser_id);
-                        startActivity(profile_intent);
-                        */
 
                         ((MapsActivity) getActivity()).profile_display = true;
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
@@ -279,9 +279,7 @@ public class ContentFragment extends Fragment {
                 Button deleteButton = (Button) container.findViewById(R.id.deleteButton);
 
                 //check if the bubble is the current user's bubble and should show the deletion button
-                if(getActivity() instanceof UserSettings){
-                    currentUserId = ((UserSettings) getActivity()).myId;
-                } else if (getActivity() instanceof MapsActivity){
+                if (getActivity() instanceof MapsActivity){
                     currentUserId = ((MapsActivity) getActivity()).myId;
                 }
                 if(currentBubble.myUser_id == currentUserId) {
@@ -318,9 +316,7 @@ public class ContentFragment extends Fragment {
                                                         ViewGroup vg = myList;
                                                         vg.removeView(container);
 
-                                                        if(getActivity() instanceof UserSettings){
-                                                            ((UserSettings) getActivity()).myBubbles.remove(currentBubble);
-                                                        } else if (getActivity() instanceof MapsActivity){
+                                                        if (getActivity() instanceof MapsActivity){
                                                             ((MapsActivity) getActivity()).myBubbles.remove(currentBubble);
                                                             currentBubble.bubbleMarker.remove();
                                                         }
@@ -587,9 +583,7 @@ public class ContentFragment extends Fragment {
                                                         }
 
                                                         //check if post is current user's comment, if so keep the delete button
-                                                        if(getActivity() instanceof UserSettings){
-                                                            currentUserId = ((UserSettings) getActivity()).myId;
-                                                        } else if (getActivity() instanceof MapsActivity){
+                                                        if (getActivity() instanceof MapsActivity){
                                                             currentUserId = ((MapsActivity) getActivity()).myId;
                                                         }
                                                         if(commentJSON.getInt("user_id") == currentUserId){
@@ -1257,9 +1251,6 @@ public class ContentFragment extends Fragment {
                                                                 fetchProfImageAsync fetcher_reload = new fetchProfImageAsync();
                                                                 fetcher_reload.execute(newLink);
 
-
-
-                                                                //Toast.makeText(UserSettings.this, "Successful! Link Set!", Toast.LENGTH_SHORT).show();
                                                                 Log.d("BubbleUp", "Got profile link");
                                                             }
                                                         }, new Response.ErrorListener() {
@@ -1499,9 +1490,7 @@ public class ContentFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        if(getActivity() instanceof UserSettings){
-            fragmentToken = ((UserSettings) getActivity()).saved_token;
-        } else if (getActivity() instanceof MapsActivity) {
+        if (getActivity() instanceof MapsActivity) {
             fragmentToken = ((MapsActivity) getActivity()).token;
         }
         saved_settings = ((MapsActivity) getActivity()).getSharedPreferences(SAVEDLOCATION_PREF, 0);

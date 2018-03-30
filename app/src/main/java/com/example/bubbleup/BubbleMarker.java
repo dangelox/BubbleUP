@@ -80,6 +80,9 @@ public class BubbleMarker implements Serializable{
     public int myAgeMins;
     public int myAgeHours;
     public int myAgeDays;
+    public int myDayOfMonth;
+    public int myMonthOfYear;
+    public int myYearOfPost;
 
     int userReaction;
 
@@ -98,7 +101,7 @@ public class BubbleMarker implements Serializable{
     String [] emojiArray;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, Context myContext, Bitmap image){
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
         bubbleMarkerOption.anchor(0.5f, 0.5f);
 
@@ -111,6 +114,9 @@ public class BubbleMarker implements Serializable{
         myAgeMins = age_minutes;
         myAgeHours = age_hours;
         myAgeDays = age_days;
+        myDayOfMonth = day_of_month;
+        myMonthOfYear = month_of_year;
+        myYearOfPost = year_of_post;
 
         userReaction = reaction;
 

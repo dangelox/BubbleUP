@@ -407,12 +407,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                Intent profile_intent = new Intent(MapsActivity.this, UserSettings.class);
-                profile_intent.putExtra("myId", myId);
-                profile_intent.putExtra("userId", myId);
-                startActivity(profile_intent);
-                */
                 if(fragment_display){
                     if(profile_display){
                         profile_display = false;
@@ -706,6 +700,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
             int hourDiff = Hours.hoursBetween(bubbleTime, currentTime).getHours();
             int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
+            int monthOfYear = bubbleTime.getMonthOfYear();
+            int dayOfMonth = bubbleTime.getDayOfMonth();
+            int yearOfPost = bubbleTime.getYear();
 
             double size_calc = (120 + likeCount * 20) * Math.pow(0.65, minDiff / (1440.0 + (likeCount * 200))) + 90;
             int size = (int) size_calc;
@@ -722,7 +719,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
             if(bubbleMarkerHashMap.get(post_id) == null){
-                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, getApplicationContext(), null);
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null);
                 newBubble.addMarker(mMap);
                 bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
                 myBubbles.add(newBubble);

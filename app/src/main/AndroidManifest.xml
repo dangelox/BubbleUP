@@ -37,9 +37,6 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".UserSettings"
-            android:label="My Settings" />
-        <activity
             android:name=".MainActivity"
             android:label="BubbleUp" />
     </application>
