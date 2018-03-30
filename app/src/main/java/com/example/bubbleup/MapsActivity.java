@@ -416,7 +416,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(fragment_display){
                     if(profile_display){
                         profile_display = false;
-                        myFragment.showProfile(myId,myId, profile_display);//Deletes the profile view
+                        myFragment.showProfile(myId,myId, profile_display, true);
 
                         myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true);
 
@@ -427,7 +427,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                     } else {
                         profile_display = true;
-                        myFragment.showProfile(myId,myId, profile_display);
+                        myFragment.showProfile(myId,myId, profile_display, true);
 
                         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 2);
 
@@ -440,7 +440,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     fragmentTransaction.commitNow();
-                    myFragment.showProfile(myId, myId, true);
+                    myFragment.showProfile(myId, myId, true, true);
                     fragment_display = true;
                     profile_display = true;
                 }
@@ -735,7 +735,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
 
         }catch (JSONException e) {
-            Log.d("BubbleUp", "Failure While Converting JSON to Bubble");
+            Log.d("BubbleUp", "Failure While Converting JSON to Bubble :" + e.getMessage());
             Toast.makeText(getApplicationContext(), "JSON Error", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }

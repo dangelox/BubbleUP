@@ -88,6 +88,7 @@ public class ContentFragment extends Fragment {
     String url_like ="https://bubbleup-api.herokuapp.com/likes/";
     String url_posts ="https://bubbleup-api.herokuapp.com/posts/";
     String url_users_posts ="https://bubbleup-api.herokuapp.com/posts/user/";
+    String url_users_likes ="https://bubbleup-api.herokuapp.com/posts/ilike/";
     String url_comments ="https://bubbleup-api.herokuapp.com/posts_comments/";
     String url_bio = "https://bubbleup-api.herokuapp.com/user/user_bio";
     String url_set_name = "https://bubbleup-api.herokuapp.com/user/name";
@@ -238,7 +239,7 @@ public class ContentFragment extends Fragment {
                 userNameText.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true);
+                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
 
@@ -269,7 +270,7 @@ public class ContentFragment extends Fragment {
                         startActivity(profile_intent);
                         */
 
-                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true);
+                        showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
 
@@ -860,7 +861,8 @@ public class ContentFragment extends Fragment {
         }
     }
 
-    public void showProfile(int myUserId, int queryUserId, boolean display){
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void showProfile(final int myUserId, final int queryUserId, final boolean display, final boolean showUserPosts){
         if(display){ //If true we display, if false we eliminate the view
             profileView = myInflater.inflate(R.layout.activity_user_settings, myViewGroupContainer, false);
 
@@ -889,6 +891,10 @@ public class ContentFragment extends Fragment {
             final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
 
             final ImageButton profpic = (ImageButton) profileContainer.findViewById(R.id.imageButton2);
+
+            final Button showUserPostsButton = (Button) profileContainer.findViewById(R.id.toggleButtonUserPosts);
+
+            final Button showUserLikesButton = (Button) profileContainer.findViewById(R.id.toggleButtonUserLikes);
 
             if(myId == userId){
                 //Getting user BIO
@@ -1343,47 +1349,122 @@ public class ContentFragment extends Fragment {
                 profpic.setImageBitmap(((MapsActivity) getActivity()).profilePictureStorageBitmap.get(myId));
             }
 
+            if(showUserPosts){
+                StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_users_posts + reqId,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("BubbleUp", "JSOn Post Get Response Successful for id = " + reqId);
+                                Log.d("BubbleUp", response);
 
+                                try {
+                                    //We convert the response into an JSONArray object so as to iterate through the posts.
+                                    JSONArray json_response = new JSONArray(response.toString());
 
-            StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_users_posts + reqId,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d("BubbleUp", "JSOn Post Get Response Successful for id = " + reqId);
-                            Log.d("BubbleUp", response);
+                                    List<BubbleMarker> myBubbles = new ArrayList<>();
+                                    //myBubbles.clear();//empty the array first.
 
-                            try {
-                                //We convert the response into an JSONArray object so as to iterate through the posts.
-                                JSONArray json_response = new JSONArray(response.toString());
+                                    //Iterating through the JSON object array.
+                                    for (int i = 0; i < json_response.length(); i++)
+                                        ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
 
-                                List<BubbleMarker> myBubbles = new ArrayList<>();
-                                //myBubbles.clear();//empty the array first.
+                                    sendToFragment(myBubbles, null, false);
 
-                                //Iterating through the JSON object array.
-                                for (int i = 0; i < json_response.length(); i++)
-                                    ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
-
-                                sendToFragment(myBubbles, null, false);
-
-                            } catch (JSONException e) {
-                                Log.d("BubbleUp", "JSON object problem!");
-                                e.printStackTrace();
+                                } catch (JSONException e) {
+                                    Log.d("BubbleUp", "JSON object problem!");
+                                    e.printStackTrace();
+                                }
                             }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap();
-                    params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
-                    return params;
-                }
-            };
-            ((MapsActivity) getActivity()).queue.add(tokenRequest);
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap();
+                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                        return params;
+                    }
+                };
+                ((MapsActivity) getActivity()).queue.add(tokenRequest);
+
+                //Buttons to show Likes or Posts
+                showUserPostsButton.setOnClickListener(null);
+                showUserPostsButton.setBackground(getResources().getDrawable(R.drawable.common_google_signin_btn_icon_light_normal_background));
+
+                showUserLikesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showProfile(myUserId, queryUserId, display, false);
+                    }
+                });
+            }
+            else{
+                StringRequest tokenRequest = new StringRequest(Request.Method.GET, url_users_likes + reqId,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("BubbleUp", "JSOn Post Get Response Successful for id = " + reqId);
+                                Log.d("BubbleUp", response);
+
+                                try {
+                                    //We convert the response into an JSONArray object so as to iterate through the posts.
+                                    JSONArray json_response = new JSONArray(response.toString());
+
+                                    List<BubbleMarker> myBubbles = new ArrayList<>();
+                                    //myBubbles.clear();//empty the array first.
+
+                                    //Iterating through the JSON object array.
+                                    for (int i = 0; i < json_response.length(); i++)
+                                        ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
+
+                                    sendToFragment(myBubbles, null, false);
+
+                                } catch (JSONException e) {
+                                    Log.d("BubbleUp", "JSON object problem!");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                    }
+                }) {
+                    @Override
+                    public Map<String,String> getParams(){
+                        Map<String, String> params = new HashMap();
+                        params.put("id","\"" + reqId + "\"");
+                        return params;
+                    }
+                    @Override
+                    public byte[] getBody() throws AuthFailureError {
+                        String httpPostBody="{\"id\": \"" + reqId + "\"}";
+                        // usually you'd have a field with some values you'd want to escape, you need to do it yourself if overriding getBody. here's how you do it
+                        return httpPostBody.getBytes();
+                    }
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap();
+                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                        return params;
+                    }
+                };
+                ((MapsActivity) getActivity()).queue.add(tokenRequest);
+
+                //Buttons to show Likes or Posts
+                showUserPostsButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        showProfile(myUserId, queryUserId, display, true);
+                    }
+                });
+
+                showUserLikesButton.setOnClickListener(null);
+                showUserLikesButton.setBackground(getResources().getDrawable(R.drawable.common_google_signin_btn_icon_light_normal_background));
+            }
 
         } else { //If false we eliminate the view
             profileContainer.removeView(profileView);
