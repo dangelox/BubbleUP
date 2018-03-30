@@ -352,22 +352,48 @@ public class BubbleMarker implements Serializable{
         //String someEmojis = "\u0001\uf602";//smiley
         //Character.toChars(0x1F369);
         if (emoji_num > 0){
+            double theta = -6*Math.PI/4;
+            double increase = 1;
             double place = 0.8;
             Log.d("BubbleMarker","Attempting to draw 1");
+            canvas.translate(canvas.getWidth()/2,canvas.getHeight()/3.2f);
+            canvas.save();
             for(int i = 0; i < emoji_num; i++){
+                Canvas copy = canvas;
                 Log.d("BubbleMarker","Attempting to draw 2");
                 TextPaint paint = new TextPaint();
 
+                switch (emoji_num){
+                    case (2):
+                        if(i == 0){
+                            theta -= increase/2;
+                        }
+                        break;
+                    case (3):
+                        if(i == 0){
+                            theta -= increase;
+                        }
+                        break;
+                }
+
                 //paint.setTypeface();
 
-                String emoji = DeepEmoji.emojiArray[emojis[i]];
+                String emoji = DeepEmoji.emojiArray[emojis[i%3]];
 
                 Log.d("BubbleMarker","Drawing emoji, " + emoji);
-                paint.setTextSize( (int) (bubbleOverlay.getWidth()/4.5));//U+1F602
-                StaticLayout lsLayout = new StaticLayout(EmojiCompat.get().process(emoji), paint, (int) (bubbleOverlay.getWidth()*place), Layout.Alignment.ALIGN_CENTER, 1, 1, true);
+                paint.setTextSize( (int) (bubbleOverlay.getWidth()/3.5));
+
+
+                canvas.restore();
+                canvas.save();
+                canvas.translate((float) (canvas.getWidth()/3.2 * Math.cos(theta)), (float) (canvas.getWidth()/3.2 * Math.sin(theta)));
+
+                StaticLayout lsLayout = new StaticLayout(EmojiCompat.get().process(emoji), paint, 0, Layout.Alignment.ALIGN_CENTER, 1, 1, true);
                 lsLayout.draw(canvas);
                 //canvas.drawText(emoji,100,100,paint);
                 place = place + 0.4;
+
+                theta += increase;
             }
             /*
             TextPaint paint = new TextPaint();

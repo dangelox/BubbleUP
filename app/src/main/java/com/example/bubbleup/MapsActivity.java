@@ -416,7 +416,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(fragment_display){
                     if(profile_display){
                         profile_display = false;
-                        myFragment.showProfile(myId,myId, profile_display);
+                        myFragment.showProfile(myId,myId, profile_display);//Deletes the profile view
 
                         myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true);
 
