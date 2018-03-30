@@ -239,6 +239,7 @@ public class ContentFragment extends Fragment {
                 userNameText.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        ((MapsActivity) getActivity()).profile_display = true;
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
@@ -270,6 +271,7 @@ public class ContentFragment extends Fragment {
                         startActivity(profile_intent);
                         */
 
+                        ((MapsActivity) getActivity()).profile_display = true;
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
