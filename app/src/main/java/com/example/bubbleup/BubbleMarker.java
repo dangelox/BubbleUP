@@ -345,7 +345,7 @@ public class BubbleMarker implements Serializable{
                 sentimentCircle.setColor(Color.parseColor("#6b6b6b"));
                 break;
         }
-        canvas.drawCircle(x + image.getWidth() / 6, y +image.getHeight() / 6, image.getWidth() / 6, sentimentCircle);
+        canvas.drawCircle(x + image.getWidth() / 5.5f, y +image.getHeight() / 5.5f, image.getWidth() / 5.5f, sentimentCircle);
 
         //Emoji?
         //String someEmojis = "\uD83C\uDF0E";
@@ -353,10 +353,10 @@ public class BubbleMarker implements Serializable{
         //Character.toChars(0x1F369);
         if (emoji_num > 0){
             double theta = -6*Math.PI/4;
-            double increase = 1;
+            double increase = 0.8;
             double place = 0.8;
             Log.d("BubbleMarker","Attempting to draw 1");
-            canvas.translate(canvas.getWidth()/2,canvas.getHeight()/3.2f);
+            canvas.translate(canvas.getWidth()/2,canvas.getHeight()/5.5f);
             canvas.save();
             for(int i = 0; i < emoji_num; i++){
                 Canvas copy = canvas;
@@ -386,7 +386,7 @@ public class BubbleMarker implements Serializable{
 
                 canvas.restore();
                 canvas.save();
-                canvas.translate((float) (canvas.getWidth()/3.2 * Math.cos(theta)), (float) (canvas.getWidth()/3.2 * Math.sin(theta)));
+                canvas.translate((float) (canvas.getWidth()/2.2 * Math.cos(theta)), (float) (canvas.getWidth()/2.2 * Math.sin(theta)));
 
                 StaticLayout lsLayout = new StaticLayout(EmojiCompat.get().process(emoji), paint, 0, Layout.Alignment.ALIGN_CENTER, 1, 1, true);
                 lsLayout.draw(canvas);
