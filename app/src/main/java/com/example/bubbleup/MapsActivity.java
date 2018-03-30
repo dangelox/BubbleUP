@@ -25,6 +25,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.FontRequestEmojiCompatConfig;
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -34,6 +37,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.provider.FontRequest;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.Pair;
@@ -196,6 +200,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         super.onCreate(savedInstanceState);
 
         new updateCheck().execute();
+
+        EmojiCompat.Config config = new BundledEmojiCompatConfig(this);
+        config.setReplaceAll(true);
+        EmojiCompat.init(config);
 
         saved_settings = getSharedPreferences(SAVEDLOCATION_PREF, 0);
         saved_lat = Double.longBitsToDouble(saved_settings.getLong("saved_lat",0));
