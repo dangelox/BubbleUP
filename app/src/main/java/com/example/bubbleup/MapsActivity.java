@@ -429,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         profile_display = true;
                         myFragment.showProfile(myId,myId, profile_display, true);
 
-                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 2);
+                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
 
                         //myFragment.getView().setLayoutParams(param);
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
