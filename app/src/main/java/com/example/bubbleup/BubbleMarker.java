@@ -318,16 +318,16 @@ public class BubbleMarker implements Serializable{
         switch (sentiment){
             case (0):
                 if(analyzed){
-                    sentimentCircle.setColor(Color.parseColor("#f40000"));
+                    sentimentCircle.setColor(Color.parseColor("#ff0000"));
                 } else {
                     sentimentCircle.setColor(Color.parseColor("#6b6b6b"));
                 }
                 break;
             case (1):
-                sentimentCircle.setColor(Color.parseColor("#f45900"));
+                sentimentCircle.setColor(Color.parseColor("#f46100"));
                 break;
             case (2):
-                sentimentCircle.setColor(Color.parseColor("#f49600"));
+                sentimentCircle.setColor(Color.parseColor("#f4a200"));
                 break;
             case (3):
                 sentimentCircle.setColor(Color.parseColor("#f4ef00"));
@@ -336,10 +336,10 @@ public class BubbleMarker implements Serializable{
                 sentimentCircle.setColor(Color.parseColor("#bbf400"));
                 break;
             case (5):
-                sentimentCircle.setColor(Color.parseColor("#7af400"));
+                sentimentCircle.setColor(Color.parseColor("#86f400"));
                 break;
             case (6):
-                sentimentCircle.setColor(Color.parseColor("#00f41c"));
+                sentimentCircle.setColor(Color.parseColor("#00ff00"));
                 break;
             default:
                 sentimentCircle.setColor(Color.parseColor("#6b6b6b"));
