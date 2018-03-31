@@ -57,6 +57,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -255,13 +256,15 @@ public class ContentFragment extends Fragment {
                 else if(currentBubble.myAgeHours <= 23){
                     ageOfPostText.setText(String.valueOf(currentBubble.myAgeHours).concat("h"));
                 }
-                else if(currentBubble.myAgeDays <= 30){
+                else if(currentBubble.myAgeDays <= 7){
                     ageOfPostText.setText(String.valueOf(currentBubble.myAgeDays).concat("d"));
                 }
+                else if(currentBubble.myAgeDays <= 364) {
+                    ageOfPostText.setText("" + currentBubble.myDayOfMonth + " " + getMonthString(currentBubble.myMonthOfYear));
+                }
                 else{
-                    Date myDate = new Date();
-                    myDate.setTime(currentBubble.myAgeDays);
-                    ageOfPostText.setText((CharSequence) myDate.toString());
+
+                    ageOfPostText.setText("" + currentBubble.myDayOfMonth + " " + getMonthString(currentBubble.myMonthOfYear) + " " + currentBubble.myYearOfPost);
                 }
 
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
@@ -1567,5 +1570,36 @@ public class ContentFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public static String getMonthString(int monthNum){
+        switch (monthNum){
+            case 0:
+                return "Jan";
+            case 1:
+                return "Feb";
+            case 2:
+                return "Mar";
+            case 3:
+                return "Apr";
+            case 4:
+                return "May";
+            case 5:
+                return "Jun";
+            case 6:
+                return "Jul";
+            case 7:
+                return "Aug";
+            case 8:
+                return "Sept";
+            case 9:
+                return "Oct";
+            case 10:
+                return "Nov";
+            case 11:
+                return "Dec";
+            default:
+                return "this should not happen";
+        }
     }
 }
