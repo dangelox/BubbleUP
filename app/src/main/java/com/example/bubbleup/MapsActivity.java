@@ -49,6 +49,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -56,6 +58,7 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -169,6 +172,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton theme_button;
     ImageButton profile_button;
     ImageButton reload_button;
+    Spinner sorting_spinner;
     ToggleButton post_button;
 
     boolean pressed;
@@ -308,20 +312,29 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 if(fragment_display){
                     if(profile_display){
+                        theme_button.setVisibility(View.GONE);
+                        reload_button.setVisibility(View.GONE);
+                        sorting_spinner.setVisibility(View.VISIBLE);
                         profile_button.performClick();
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 0);
                     } else {
+                        theme_button.setVisibility(View.VISIBLE);
+                        reload_button.setVisibility(View.VISIBLE);
+                        sorting_spinner.setVisibility(View.GONE);
                         fragmentTransaction.remove(myFragment);
                         fragmentTransaction.commit();
                         fragment_display = false;
                         Log.d("BubbleUp","Hiding content.");
                     }
                 }else{
+                    theme_button.setVisibility(View.GONE);
+                    reload_button.setVisibility(View.GONE);
+                    sorting_spinner.setVisibility(View.VISIBLE);
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
                     fragmentTransaction.commitNow();
-                    myFragment.sendToFragment(myBubbles, currentBound,false);
+                    myFragment.sendToFragment(myBubbles, currentBound,false, 0);
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
                 }
@@ -409,10 +422,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onClick(View view) {
                 if(fragment_display){
                     if(profile_display){
+                        theme_button.setVisibility(View.GONE);
+                        reload_button.setVisibility(View.GONE);
+                        sorting_spinner.setVisibility(View.VISIBLE);
                         profile_display = false;
                         myFragment.showProfile(myId,myId, profile_display, true);
 
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true, 0);
 
                         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
 
@@ -420,6 +436,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
 
                     } else {
+                        theme_button.setVisibility(View.VISIBLE);
+                        reload_button.setVisibility(View.VISIBLE);
+                        sorting_spinner.setVisibility(View.GONE);
                         profile_display = true;
                         myFragment.showProfile(myId,myId, profile_display, true);
 
@@ -429,6 +448,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
                     }
                 } else {
+                    theme_button.setVisibility(View.VISIBLE);
+                    reload_button.setVisibility(View.VISIBLE);
+                    sorting_spinner.setVisibility(View.GONE);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
                     fragmentTransaction.add(R.id.zone, myFragment);
@@ -448,6 +470,35 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onClick(View view) {
                 bubbleLoader();
                 mMap.clear();
+            }
+        });
+
+        sorting_spinner = (Spinner) findViewById(R.id.spinner);
+        sorting_spinner.setVisibility(View.GONE);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sortingArray, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);//specify layout
+        sorting_spinner.setAdapter(adapter);
+
+        sorting_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i){
+                    case 0:
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 0);
+                        break;
+                    case 1:
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 1);
+                        break;
+                    case 2:
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 2);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
 

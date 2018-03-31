@@ -136,9 +136,15 @@ public class ContentFragment extends Fragment {
         }
     }
 
-    public class BubbleComparatorAgeMins implements Comparator<BubbleMarker> {
+    public class BubbleComparatorAgeMinsNewest implements Comparator<BubbleMarker> {
         public int compare(BubbleMarker left, BubbleMarker right) {
             return ((Integer) left.myAgeMins).compareTo((Integer) right.myAgeMins);
+        }
+    }
+
+    public class BubbleComparatorAgeMinsOldest implements Comparator<BubbleMarker> {
+        public int compare(BubbleMarker left, BubbleMarker right) {
+            return ((Integer) right.myAgeMins).compareTo((Integer) left.myAgeMins);
         }
     }
 
@@ -156,7 +162,7 @@ public class ContentFragment extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds, boolean erase){
+    public void sendToFragment(List<BubbleMarker> bubbleList, LatLngBounds bounds, boolean erase, int sortingChoice){
         final LinearLayout myList = (LinearLayout) myView.findViewById(R.id.linear_view);
 
         emptyUserData = new ArrayList<>();
@@ -167,12 +173,25 @@ public class ContentFragment extends Fragment {
             myList.removeAllViews();
         }
 
+        //sorting options
+        switch (sortingChoice){
+            case 0:
+                Collections.sort(bubbleList, new BubbleComparatorSize());
+                break;
+            case 1:
+                Collections.sort(bubbleList, new BubbleComparatorAgeMinsNewest());
+                break;
+            case 2:
+                Collections.sort(bubbleList, new BubbleComparatorAgeMinsOldest());
+                break;
+        }
+
         //Sorting by size
-        if(bounds == null){
-            Collections.sort(bubbleList, new BubbleComparatorAgeMins());
+        /*if(bounds == null){
+            Collections.sort(bubbleList, new BubbleComparatorAgeMinsNewest());
         }else{
             Collections.sort(bubbleList, new BubbleComparatorSize());
-        }
+        }*/
 
         //Creating a new view for each bubble
         int countBubble = 0;
@@ -242,6 +261,9 @@ public class ContentFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         ((MapsActivity) getActivity()).profile_display = true;
+                        ((MapsActivity) getActivity()).theme_button.setVisibility(View.VISIBLE);
+                        ((MapsActivity) getActivity()).reload_button.setVisibility(View.VISIBLE);
+                        ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
@@ -275,6 +297,9 @@ public class ContentFragment extends Fragment {
                     public void onClick(View v) {
 
                         ((MapsActivity) getActivity()).profile_display = true;
+                        ((MapsActivity) getActivity()).theme_button.setVisibility(View.VISIBLE);
+                        ((MapsActivity) getActivity()).reload_button.setVisibility(View.VISIBLE);
+                        ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
                 });
@@ -1364,7 +1389,7 @@ public class ContentFragment extends Fragment {
                                     for (int i = 0; i < json_response.length(); i++)
                                         ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
 
-                                    sendToFragment(myBubbles, null, false);
+                                    sendToFragment(myBubbles, null, false, 1);
 
                                 } catch (JSONException e) {
                                     Log.d("BubbleUp", "JSON object problem!");
@@ -1416,7 +1441,7 @@ public class ContentFragment extends Fragment {
                                     for (int i = 0; i < json_response.length(); i++)
                                         ((MapsActivity) getActivity()).jsonToBubbleMarker((JSONObject) json_response.get(i), myBubbles, true);
 
-                                    sendToFragment(myBubbles, null, false);
+                                    sendToFragment(myBubbles, null, false, 1);
 
                                 } catch (JSONException e) {
                                     Log.d("BubbleUp", "JSON object problem!");
@@ -1574,29 +1599,29 @@ public class ContentFragment extends Fragment {
 
     public static String getMonthString(int monthNum){
         switch (monthNum){
-            case 0:
-                return "Jan";
             case 1:
-                return "Feb";
+                return "Jan";
             case 2:
-                return "Mar";
+                return "Feb";
             case 3:
-                return "Apr";
+                return "Mar";
             case 4:
-                return "May";
+                return "Apr";
             case 5:
-                return "Jun";
+                return "May";
             case 6:
-                return "Jul";
+                return "Jun";
             case 7:
-                return "Aug";
+                return "Jul";
             case 8:
-                return "Sept";
+                return "Aug";
             case 9:
-                return "Oct";
+                return "Sept";
             case 10:
-                return "Nov";
+                return "Oct";
             case 11:
+                return "Nov";
+            case 12:
                 return "Dec";
             default:
                 return "this should not happen";

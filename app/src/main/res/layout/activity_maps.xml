@@ -78,6 +78,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:src="@drawable/ic_action_reload" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@android:drawable/spinner_background" />
     </LinearLayout>
 
 </LinearLayout>

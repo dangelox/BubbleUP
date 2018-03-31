@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sortingArray">
+        <item>Sort by: Size</item>
+        <item>Sort by: Date (New -> Old)</item>
+        <item>Sort by: Date (Old -> New)</item>
+    </string-array>
+</resources>
