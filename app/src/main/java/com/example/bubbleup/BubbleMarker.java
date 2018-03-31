@@ -101,7 +101,7 @@ public class BubbleMarker implements Serializable{
     String [] emojiArray;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image){
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image, boolean showHeatMap){
         bubbleMarkerOption = new MarkerOptions().position(mCoor);
         bubbleMarkerOption.anchor(0.5f, 0.5f);
 
@@ -226,7 +226,41 @@ public class BubbleMarker implements Serializable{
         overlay = overlayAdd(typeBitmap, overlay, "",0.0f, 0.0f);
 
         //adds the scaled bitmap to our marker icon
-        bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(overlay));
+        if(!showHeatMap){
+            bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(overlay));
+        }
+        else{
+            switch (sentiment){
+                case 0:
+                    if(analyzed){
+                        bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_0)));
+                    }
+                    else{
+                        bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_not)));
+                    }
+                    break;
+                case 1:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_1)));
+                    break;
+                case 2:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_2)));
+                    break;
+                case 3:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_3)));
+                    break;
+                case 4:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_4)));
+                    break;
+                case 5:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_5)));
+                    break;
+                case 6:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_6)));
+                    break;
+                default:
+                    bubbleMarkerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(myContext.getResources(), R.drawable.ic_sentiment_not)));
+            }
+        }
 
         wobbler1 = mCoor.latitude * mCoor.latitude;
         wobbler2 = mCoor.longitude * mCoor.longitude;
@@ -255,13 +289,15 @@ public class BubbleMarker implements Serializable{
         }
     }
 
-    public void updateImage(Bitmap image){
-        profile_image = image;
+    public void updateImage(Bitmap image, boolean showHeatMap){
+        if(!showHeatMap){
+            profile_image = image;
 
-        Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image), myWidth, myHeight,true), overlay);
+            Bitmap result = overlay(Bitmap.createScaledBitmap(getclip(image), myWidth, myHeight,true), overlay);
 
-        if(bubbleMarker != null){
-            bubbleMarker.setIcon(BitmapDescriptorFactory.fromBitmap(result));
+            if(bubbleMarker != null){
+                bubbleMarker.setIcon(BitmapDescriptorFactory.fromBitmap(result));
+            }
         }
     }
 

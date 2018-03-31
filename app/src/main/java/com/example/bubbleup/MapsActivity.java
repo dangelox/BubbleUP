@@ -173,9 +173,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton profile_button;
     ImageButton reload_button;
     Spinner sorting_spinner;
+    Button heatMap_button;
     ToggleButton post_button;
 
+    boolean showSentHeatMap = false;
+    //for post button
     boolean pressed;
+
 
 
     //Colors
@@ -508,6 +512,29 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         });
 
+        heatMap_button = (Button) findViewById(R.id.heatMapButton);
+        heatMap_button.setText("ShowHeatMap");
+
+        heatMap_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(showSentHeatMap) {
+                    heatMap_button.setText("Show Heat Map");
+                    Intent intent = getIntent();
+                    finish();
+                    startActivity(intent);
+                    //TODO: figure out why app crashes when I call this (for now avoiding it with restarting activity)
+                    /*showSentHeatMap = false;
+                    reload_button.performClick();*/
+                }
+                else {
+                    heatMap_button.setText("Show Post Map");
+                    showSentHeatMap = true;
+                    reload_button.performClick();
+                }
+            }
+        });
+
         //Set dashboard background color
         if(backGroundColor != null) {
             findViewById(R.id.dashboard).setBackgroundColor(Color.parseColor(backGroundColor));
@@ -586,7 +613,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 //We check if an image has been loaded for the current bubble.
                 if(currentBubble.getProfileImage() == null && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
                     //Updating the bubble image.
-                    currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id));
+                    currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id), showSentHeatMap);
                 }
 
                 //We check if the username has been loaded for the current bubble.
@@ -776,7 +803,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
             if(bubbleMarkerHashMap.get(post_id) == null){
-                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null);
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap);
                 newBubble.addMarker(mMap);
                 bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
                 myBubbles.add(newBubble);
