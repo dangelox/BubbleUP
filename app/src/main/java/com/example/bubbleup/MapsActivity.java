@@ -485,13 +485,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i){
                     case 0:
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 0);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, i);
                         break;
                     case 1:
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 1);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, i);
                         break;
                     case 2:
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 2);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, i);
+                        break;
+                    case 3:
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, i);
+                        break;
+                    case 4:
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, i);
                         break;
                 }
             }

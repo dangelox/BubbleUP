@@ -148,6 +148,18 @@ public class ContentFragment extends Fragment {
         }
     }
 
+    public class BubbleComparatorSentimentGood implements Comparator<BubbleMarker> {
+        public int compare(BubbleMarker left, BubbleMarker right) {
+            return ((Integer) right.sentiment).compareTo((Integer) left.sentiment);
+        }
+    }
+
+    public class BubbleComparatorSentimentBad implements Comparator<BubbleMarker> {
+        public int compare(BubbleMarker left, BubbleMarker right) {
+            return ((Integer) left.sentiment).compareTo((Integer) right.sentiment);
+        }
+    }
+
     public static String getYoutubeVideoIdFromUrl(String inUrl) {
         if (inUrl.toLowerCase().contains("youtu.be")) {
             return inUrl.substring(inUrl.lastIndexOf("/") + 1);
@@ -183,6 +195,12 @@ public class ContentFragment extends Fragment {
                 break;
             case 2:
                 Collections.sort(bubbleList, new BubbleComparatorAgeMinsOldest());
+                break;
+            case 3:
+                Collections.sort(bubbleList, new BubbleComparatorSentimentGood());
+                break;
+            case 4:
+                Collections.sort(bubbleList, new BubbleComparatorSentimentBad());
                 break;
         }
 

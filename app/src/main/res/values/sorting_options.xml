@@ -4,5 +4,7 @@
         <item>Sort by: Size</item>
         <item>Sort by: Date (New -> Old)</item>
         <item>Sort by: Date (Old -> New)</item>
+        <item>Sort by: Sentiment ( G -> R )</item>
+        <item>Sort by: Sentiment ( R -> G )</item>
     </string-array>
 </resources>
