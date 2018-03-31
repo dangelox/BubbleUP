@@ -316,14 +316,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 if(fragment_display){
                     if(profile_display){
-                        theme_button.setVisibility(View.GONE);
-                        reload_button.setVisibility(View.GONE);
+                        /*theme_button.setVisibility(View.GONE);
+                        reload_button.setVisibility(View.GONE);*/
                         sorting_spinner.setVisibility(View.VISIBLE);
                         profile_button.performClick();
                         myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 0);
                     } else {
-                        theme_button.setVisibility(View.VISIBLE);
-                        reload_button.setVisibility(View.VISIBLE);
+                        /*theme_button.setVisibility(View.VISIBLE);
+                        reload_button.setVisibility(View.VISIBLE);*/
                         sorting_spinner.setVisibility(View.GONE);
                         fragmentTransaction.remove(myFragment);
                         fragmentTransaction.commit();
@@ -331,8 +331,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         Log.d("BubbleUp","Hiding content.");
                     }
                 }else{
-                    theme_button.setVisibility(View.GONE);
-                    reload_button.setVisibility(View.GONE);
+                    /*theme_button.setVisibility(View.GONE);
+                    reload_button.setVisibility(View.GONE);*/
                     sorting_spinner.setVisibility(View.VISIBLE);
                     fragmentTransaction.add(R.id.zone, myFragment);
 
@@ -426,8 +426,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onClick(View view) {
                 if(fragment_display){
                     if(profile_display){
-                        theme_button.setVisibility(View.GONE);
-                        reload_button.setVisibility(View.GONE);
+                        /*theme_button.setVisibility(View.GONE);
+                        reload_button.setVisibility(View.GONE);*/
                         sorting_spinner.setVisibility(View.VISIBLE);
                         profile_display = false;
                         myFragment.showProfile(myId,myId, profile_display, true);
@@ -440,8 +440,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
 
                     } else {
-                        theme_button.setVisibility(View.VISIBLE);
-                        reload_button.setVisibility(View.VISIBLE);
+                        /*theme_button.setVisibility(View.VISIBLE);
+                        reload_button.setVisibility(View.VISIBLE);*/
                         sorting_spinner.setVisibility(View.GONE);
                         profile_display = true;
                         myFragment.showProfile(myId,myId, profile_display, true);
@@ -452,8 +452,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         findViewById(R.id.map_constrain_layout).setLayoutParams(param);
                     }
                 } else {
-                    theme_button.setVisibility(View.VISIBLE);
-                    reload_button.setVisibility(View.VISIBLE);
+                    /*theme_button.setVisibility(View.VISIBLE);
+                    reload_button.setVisibility(View.VISIBLE);*/
                     sorting_spinner.setVisibility(View.GONE);
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
