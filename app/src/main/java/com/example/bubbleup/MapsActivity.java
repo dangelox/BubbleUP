@@ -176,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     Button heatMap_button;
     ToggleButton post_button;
 
-    boolean showSentHeatMap = false;
+    static boolean showSentHeatMap = false;
     //for post button
     boolean pressed;
 
@@ -512,12 +512,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             public void onClick(View view) {
                 if(showSentHeatMap) {
                     heatMap_button.setText("Show Heat Map");
-                    Intent intent = getIntent();
-                    finish();
-                    startActivity(intent);
                     //TODO: figure out why app crashes when I call this (for now avoiding it with restarting activity)
-                    /*showSentHeatMap = false;
-                    reload_button.performClick();*/
+                    showSentHeatMap = false;
+                    myBubbles.clear();//this stops the app from crashing. Without this bubbleUpdater will call updateBubbles which calls currentBubble.UpdataeImage() which would crash.
+                    reload_button.performClick();
                 }
                 else {
                     heatMap_button.setText("Show Post Map");
