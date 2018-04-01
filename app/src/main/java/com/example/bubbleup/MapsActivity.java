@@ -8,11 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.location.Location;
@@ -59,6 +61,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -173,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton profile_button;
     ImageButton reload_button;
     Spinner sorting_spinner;
-    Button heatMap_button;
+    Switch map_switch;
     ToggleButton post_button;
 
     static boolean showSentHeatMap = false;
@@ -469,6 +472,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         });
 
+        //creating post sorting drop down menu
         sorting_spinner = (Spinner) findViewById(R.id.spinner);
         sorting_spinner.setVisibility(View.GONE);
 
@@ -510,23 +514,28 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             }
         });
 
-        heatMap_button = (Button) findViewById(R.id.heatMapButton);
-        heatMap_button.setText("Show Heat Map");
+        //switch to toggle on and off heat map
+        map_switch = (Switch) findViewById(R.id.map_switch);
+        map_switch.setThumbDrawable(getResources().getDrawable(R.drawable.ic_sentiment_not));
+        map_switch.getTrackDrawable().setColorFilter(ContextCompat.getColor(this, R.color.gray), PorterDuff.Mode.SRC_OVER);
 
-        heatMap_button.setOnClickListener(new View.OnClickListener() {
+
+        map_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(showSentHeatMap) {
-                    heatMap_button.setText("Show Heat Map");
-                    //TODO: figure out why app crashes when I call this (for now avoiding it with restarting activity)
+                if(showSentHeatMap && !map_switch.isChecked()){
+                    map_switch.getTrackDrawable().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.gray), PorterDuff.Mode.SRC_OVER);
+                    Toast.makeText(getApplicationContext(), "Heat Map Off", Toast.LENGTH_SHORT).show();
                     showSentHeatMap = false;
                     myBubbles.clear();//this stops the app from crashing. Without this bubbleUpdater will call updateBubbles which calls currentBubble.UpdataeImage() which would crash.
                     reload_button.performClick();
-                }
-                else {
-                    heatMap_button.setText("Show Post Map");
+                    map_switch.setThumbDrawable(getResources().getDrawable(R.drawable.ic_sentiment_not));
+                }else{
+                    map_switch.getTrackDrawable().setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.main_color), PorterDuff.Mode.SRC_OVER);
+                    Toast.makeText(getApplicationContext(), "Heat Map On", Toast.LENGTH_SHORT).show();
                     showSentHeatMap = true;
                     reload_button.performClick();
+                    map_switch.setThumbDrawable(getResources().getDrawable(R.drawable.ic_sentiment_6));
                 }
             }
         });
