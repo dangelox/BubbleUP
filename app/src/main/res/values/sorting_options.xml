@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sortingArray">
-        <item>Sort by: Size</item>
-        <item>Sort by: Date (New -> Old)</item>
-        <item>Sort by: Date (Old -> New)</item>
-        <item>Sort by: Sentiment ( G -> R )</item>
-        <item>Sort by: Sentiment ( R -> G )</item>
+        <item>Size</item>
+        <item>Date</item>
+        <item>Date</item>
+        <item>Sentiment</item>
+        <item>Sentiment</item>
     </string-array>
 </resources>

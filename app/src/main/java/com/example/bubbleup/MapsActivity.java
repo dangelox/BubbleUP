@@ -472,9 +472,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         sorting_spinner = (Spinner) findViewById(R.id.spinner);
         sorting_spinner.setVisibility(View.GONE);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sortingArray, android.R.layout.simple_spinner_item);
+        String[] sortingOptions = getResources().getStringArray(R.array.sortingArray);
+        int[] sortingImages = {R.drawable.crystal_bubble, R.drawable.ic_sort_date_new, R.drawable.ic_close_comments_widow, R.drawable.ic_sentiment_6, R.drawable.ic_sentiment_0};
+
+        CustomAdapter customAdapter=new CustomAdapter(getApplicationContext(),sortingImages,sortingOptions);
+        sorting_spinner.setAdapter(customAdapter);
+
+        /*ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sortingArray, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);//specify layout
-        sorting_spinner.setAdapter(adapter);
+        sorting_spinner.setAdapter(adapter);*/
 
         sorting_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -505,7 +511,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         });
 
         heatMap_button = (Button) findViewById(R.id.heatMapButton);
-        heatMap_button.setText("ShowHeatMap");
+        heatMap_button.setText("Show Heat Map");
 
         heatMap_button.setOnClickListener(new View.OnClickListener() {
             @Override
