@@ -321,7 +321,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     if(profile_display){
                         sorting_spinner.setVisibility(View.VISIBLE);
                         profile_button.performClick();
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, 0);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, sorting_spinner.getSelectedItemPosition());
                     } else {
                         sorting_spinner.setVisibility(View.GONE);
                         fragmentTransaction.remove(myFragment);
@@ -335,7 +335,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                     LatLngBounds currentBound = mMap.getProjection().getVisibleRegion().latLngBounds;
                     fragmentTransaction.commitNow();
-                    myFragment.sendToFragment(myBubbles, currentBound,false, 0);
+                    myFragment.sendToFragment(myBubbles, currentBound,false, sorting_spinner.getSelectedItemPosition());
                     fragment_display = true;
                     Log.d("BubbleUp","Showing content.");
                 }
@@ -431,7 +431,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                         profile_display = false;
                         myFragment.showProfile(myId,myId, profile_display, true);
 
-                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true, 0);
+                        myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds, true, sorting_spinner.getSelectedItemPosition());
 
                         LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
 
