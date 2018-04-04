@@ -279,8 +279,6 @@ public class ContentFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         ((MapsActivity) getActivity()).profile_display = true;
-                        ((MapsActivity) getActivity()).theme_button.setVisibility(View.VISIBLE);
-                        ((MapsActivity) getActivity()).reload_button.setVisibility(View.VISIBLE);
                         ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
@@ -315,8 +313,6 @@ public class ContentFragment extends Fragment {
                     public void onClick(View v) {
 
                         ((MapsActivity) getActivity()).profile_display = true;
-                        ((MapsActivity) getActivity()).theme_button.setVisibility(View.VISIBLE);
-                        ((MapsActivity) getActivity()).reload_button.setVisibility(View.VISIBLE);
                         ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
                         showProfile( ((MapsActivity) getActivity()).myId, currentBubble.myUser_id, true, true);
                     }
@@ -1510,6 +1506,125 @@ public class ContentFragment extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void showUserOptions(final int myUserId, final int[] queryUserIds, String s){
+        profileContainer = (LinearLayout) myView.findViewById(R.id.linear_view);
+
+        profileContainer.removeAllViews();
+
+
+        View header = myInflater.inflate(R.layout.search_results_header, profileContainer, false);
+
+        profileContainer.addView(header, 0);
+
+        TextView headerText = (TextView) profileContainer.findViewById(R.id.headerTextView);
+        if(queryUserIds[0] != -1){
+            headerText.setText("Users with " + s + " in their name");
+        }
+        else{
+            headerText.setText("No users found with " + s + " in their name");
+        }
+
+        for(int i = 0; i < queryUserIds.length; i++) {
+
+            if(queryUserIds[i] == -1){
+                i = queryUserIds.length;
+            }
+            else{
+                profileView = myInflater.inflate(R.layout.search_query_user_option, profileContainer, false);
+
+                profileContainer.addView(profileView, 1);
+
+                ///////////////////////////
+                //Code From User Settings//
+                ///////////////////////////
+                int myId = myUserId;
+                final int userId = queryUserIds[i];
+
+                final TextView display_username = (TextView) profileContainer.findViewById((R.id.textView));
+                display_username.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((MapsActivity) getActivity()).profile_display = true;
+                        ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
+                        showProfile( ((MapsActivity) getActivity()).myId, userId, true, true);
+                    }
+                });
+
+                final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
+
+                final ImageButton profpic = (ImageButton) profileContainer.findViewById(R.id.imageButton2);
+                profpic.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((MapsActivity) getActivity()).profile_display = true;
+                        ((MapsActivity) getActivity()).sorting_spinner.setVisibility(View.GONE);
+                        showProfile( ((MapsActivity) getActivity()).myId, userId, true, true);
+                    }
+                });
+
+                if (myId == userId) {
+                    //Getting user BIO
+                    //TODO: Tell dilesh to make a more general get method
+                    StringRequest user_bio_link_request = new StringRequest(Request.Method.GET, url_bio,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        //We get back an array with data for the requested IDs
+                                        JSONObject myJson = new JSONObject(response);
+                                        String bio = myJson.getString("user_bio");
+                                        if (bio != "") {
+                                            display_bio.setText(bio);
+                                        } else {
+                                            display_bio.setText("<Empty Bio>");
+                                        }
+
+                                    } catch (JSONException e) {
+                                        Log.d("BubbleUp", "JSON IDs GET problem!");
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("BubbleUp", "ID get JSOn Response Error! " + error.toString());
+                        }
+                    }) {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap();
+                            headers.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                            return headers;
+                        }
+                    };
+
+                    ((MapsActivity) getActivity()).queue.add(user_bio_link_request);
+
+                    ///////////////////
+                    //Profile Editing//
+                    ///////////////////
+
+
+                } else {
+                    //request for id posts and info
+                    myId = queryUserIds[i];
+                }
+
+                final int reqId = myId;
+
+                if (((MapsActivity) getActivity()).profileNameStorage.get(reqId) != null) {
+                    display_username.setText(((MapsActivity) getActivity()).profileNameStorage.get(myId));
+                }
+
+                if (((MapsActivity) getActivity()).profilePictureStorageBitmap.get(reqId) != null) {
+                    profpic.setImageBitmap(((MapsActivity) getActivity()).profilePictureStorageBitmap.get(myId));
+                }
+            }
+        }
+
+    }
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -1542,6 +1657,7 @@ public class ContentFragment extends Fragment {
         saved_settings = ((MapsActivity) getActivity()).getSharedPreferences(SAVEDLOCATION_PREF, 0);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

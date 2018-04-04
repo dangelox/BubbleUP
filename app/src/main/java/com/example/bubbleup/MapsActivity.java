@@ -49,17 +49,20 @@ import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -137,6 +140,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     //List<GroundOverlay> myBubbles;
 
     List<BubbleMarker> myBubbles;
+    HashMap<String, Integer> userNameList;
+    List<String> userNames;
 
     Marker myMarker;
 
@@ -160,6 +165,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     boolean profile_display = false;
 
+    boolean searchUsers_display = false;
+
     //Composer Fragment
     public ComposerDialogFragment myFragmentComposer = new ComposerDialogFragment();
     boolean fragment_composer_display = false;
@@ -177,6 +184,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     ImageButton reload_button;
     Spinner sorting_spinner;
     Switch map_switch;
+    Button searchUsers;
     ToggleButton post_button;
 
     static boolean showSentHeatMap = false;
@@ -317,7 +325,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         content_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                if(fragment_display){
+                if(searchUsers_display){
+                    searchUsers_display = false;
+                    sorting_spinner.setVisibility(View.VISIBLE);
+                    myFragment.sendToFragment(myBubbles, mMap.getProjection().getVisibleRegion().latLngBounds,true, sorting_spinner.getSelectedItemPosition());
+                    fragment_display = true;
+                }
+                else if(fragment_display){
                     if(profile_display){
                         sorting_spinner.setVisibility(View.VISIBLE);
                         profile_button.performClick();
@@ -425,7 +439,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(fragment_display){
+                if(searchUsers_display){
+                    searchUsers_display = false;
+                    sorting_spinner.setVisibility(View.GONE);
+                    profile_display = true;
+                    fragment_display = true;
+                    myFragment.showProfile(myId,myId, profile_display, true);
+
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+
+                    //myFragment.getView().setLayoutParams(param);
+                    findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+                }
+                else if(fragment_display){
                     if(profile_display){
                         sorting_spinner.setVisibility(View.VISIBLE);
                         profile_display = false;
@@ -479,7 +505,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         String[] sortingOptions = getResources().getStringArray(R.array.sortingArray);
         int[] sortingImages = {R.drawable.crystal_bubble, R.drawable.ic_sort_date_new, R.drawable.ic_close_comments_widow, R.drawable.ic_sentiment_6, R.drawable.ic_sentiment_0};
 
-        CustomAdapter customAdapter=new CustomAdapter(getApplicationContext(),sortingImages,sortingOptions);
+        final CustomAdapter customAdapter=new CustomAdapter(getApplicationContext(),sortingImages, sortingOptions);
         sorting_spinner.setAdapter(customAdapter);
 
         /*ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sortingArray, android.R.layout.simple_spinner_item);
@@ -536,6 +562,125 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     showSentHeatMap = true;
                     reload_button.performClick();
                     map_switch.setThumbDrawable(getResources().getDrawable(R.drawable.ic_sentiment_6));
+                }
+            }
+        });
+
+        searchUsers = (Button) findViewById(R.id.button2);
+        searchUsers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+                alert.setTitle("Search users");
+
+                final EditText input = new EditText(view.getContext());
+                alert.setView(input);
+                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String result = input.getText().toString();
+                        if(result.length() > 1){
+                            if(userNameList.containsKey(result)){
+                                Toast.makeText(getApplicationContext(), "User \"" + result + "\" found", Toast.LENGTH_SHORT).show();
+                                if(fragment_display){
+                                    if(profile_display){
+                                        sorting_spinner.setVisibility(View.GONE);
+                                        profile_display = true;
+                                        searchUsers_display = false;
+                                        myFragment.showProfile(myId, userNameList.get(result), profile_display, true);
+
+                                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+
+                                        //myFragment.getView().setLayoutParams(param);
+                                        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+
+                                    } else {
+                                        sorting_spinner.setVisibility(View.GONE);
+                                        profile_display = true;
+                                        searchUsers_display = false;
+                                        myFragment.showProfile(myId, userNameList.get(result), profile_display, true);
+
+                                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+
+                                        //myFragment.getView().setLayoutParams(param);
+                                        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+                                    }
+                                } else {
+                                    sorting_spinner.setVisibility(View.GONE);
+                                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                                    fragmentTransaction.add(R.id.zone, myFragment);
+
+                                    fragmentTransaction.commitNow();
+                                    myFragment.showProfile(myId, userNameList.get(result), true, true);
+                                    fragment_display = true;
+                                    searchUsers_display = false;
+                                    profile_display = true;
+                                }
+                            }
+                            else{
+                                int[] array = new int[userNames.size()];
+                                int index = 0;
+                                for(int i = 0; i < userNames.size(); i++){
+                                    array[i] = -1;
+                                }
+                                for(int i = 0; i < userNames.size(); i ++){
+                                    if(userNames.get(i).length() >= result.length()){
+                                        if(userNames.get(i).contains(result)){
+                                            array[index] = userNameList.get(userNames.get(i));
+                                            index++;
+                                        }
+                                    }
+                                }
+
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                                if(fragment_display) {
+                                    if (profile_display) {
+                                        profile_button.performClick();
+                                        searchUsers_display = true;
+                                        myFragment.showUserOptions(myId, array, result);
+                                    } else {
+                                        sorting_spinner.setVisibility(View.GONE);
+                                        searchUsers_display = true;
+                                        myFragment.showUserOptions(myId, array, result);
+
+                                        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 3);
+
+                                        //myFragment.getView().setLayoutParams(param);
+                                        findViewById(R.id.map_constrain_layout).setLayoutParams(param);
+                                    }
+                                }
+                                /*else if(searchUsers_display){
+                                    myFragment.showUserOptions(myId, array, result);
+                                }*/
+                                else{
+                                    fragmentTransaction.add(R.id.zone, myFragment);
+
+                                    fragmentTransaction.commitNow();
+                                    searchUsers_display = true;
+                                    fragment_display = true;
+                                    myFragment.showUserOptions(myId, array, result);
+                                }
+                            }
+
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "Search string too short", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Canceled.
+                    }
+                });
+                alert.create();
+                try {
+                    alert.show();
+                    Log.d("BubbleUp","Dialog Success");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("BubbleUp","Dialog Fail");
                 }
             }
         });
@@ -663,6 +808,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         profileNameStorage = new HashMap<>();
 
         profilePictureStorageBitmap = new HashMap<>();
+
+        userNameList = new HashMap<>();
+
+        userNames = new ArrayList<>();
 
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -850,6 +999,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                 myBubbles.clear();//empty the array first.
                                 bubbleMarkerHashMap.clear();
+                                Log.d("BubbleUpMess", "Clearing list");
+                                userNameList.clear();
+                                userNames.clear();
 
                                 //Iterating through the JSON object array.
                                 for (int i = 0; i < json_response.length(); i++)
@@ -887,6 +1039,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                                         //Storing the ID on a table with his corresponding username
                                                         profileNameStorage.put(id,username);
+                                                        Log.d("BubbleUpMess", "adding to list");
+                                                        userNameList.put(username, id);
+                                                        userNames.add(username);
 
                                                         //We proceed to use the internet link to try fetch the user's profile picture
                                                         fetchImageAsync imageFetch = new fetchImageAsync();

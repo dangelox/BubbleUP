@@ -11,13 +11,13 @@ public class CustomAdapter extends BaseAdapter {
     Context context;
     int images[];
     String[] stringValues;
-    LayoutInflater inflter;
+    LayoutInflater inflater;
 
     public CustomAdapter(Context applicationContext, int[] images, String[] stringValues) {
         this.context = applicationContext;
         this.images = images;
         this.stringValues = stringValues;
-        inflter = (LayoutInflater.from(applicationContext));
+        inflater = (LayoutInflater.from(applicationContext));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CustomAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        view = inflter.inflate(R.layout.spinner_item, null);
+        view = inflater.inflate(R.layout.spinner_item, null);
         if(i == 0){
             ImageView icon = (ImageView) view.findViewById(R.id.imageView);
             ImageView icon2 = (ImageView) view.findViewById(R.id.imageView2);
