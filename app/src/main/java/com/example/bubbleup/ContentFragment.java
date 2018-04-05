@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.text.emoji.EmojiCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -304,6 +305,13 @@ public class ContentFragment extends Fragment {
 
                     ageOfPostText.setText("" + currentBubble.myDayOfMonth + " " + getMonthString(currentBubble.myMonthOfYear) + " " + currentBubble.myYearOfPost);
                 }
+
+                TextView emojisText = (TextView) container.findViewById(R.id.textViewEmojis);
+                String emojiString = "";
+                for(int i = 0; i < currentBubble.emoji_num; i++){
+                    emojiString += EmojiCompat.get().process(DeepEmoji.emojiArray[currentBubble.emojis[i]]);
+                }
+                emojisText.setText(emojiString);
 
                 String userName = currentBubble.bubbleMarkerOption.getTitle().substring(0, Math.min(currentBubble.bubbleMarkerOption.getTitle().length(), 6));
 
