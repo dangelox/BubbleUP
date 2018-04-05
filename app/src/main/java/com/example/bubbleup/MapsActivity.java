@@ -577,7 +577,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 alert.setView(input);
                 alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        String result = input.getText().toString();
+                        String result = input.getText().toString().toLowerCase();
                         if(result.length() > 1){
                             if(userNameList.containsKey(result)){
                                 Toast.makeText(getApplicationContext(), "User \"" + result + "\" found", Toast.LENGTH_SHORT).show();
@@ -1040,8 +1040,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                                         //Storing the ID on a table with his corresponding username
                                                         profileNameStorage.put(id,username);
                                                         Log.d("BubbleUpMess", "adding to list");
-                                                        userNameList.put(username, id);
-                                                        userNames.add(username);
+                                                        userNameList.put(username.toLowerCase(), id);
+                                                        userNames.add(username.toLowerCase());
 
                                                         //We proceed to use the internet link to try fetch the user's profile picture
                                                         fetchImageAsync imageFetch = new fetchImageAsync();
