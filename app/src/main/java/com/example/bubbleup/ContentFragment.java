@@ -1525,12 +1525,20 @@ public class ContentFragment extends Fragment {
 
         profileContainer.addView(header, 0);
 
-        TextView headerText = (TextView) profileContainer.findViewById(R.id.headerTextView);
+        TextView userSearch = (TextView) profileContainer.findViewById(R.id.headerTextViewSearch);
+        TextView before = (TextView) profileContainer.findViewById(R.id.headerTextViewBefore);
+        TextView after = (TextView) profileContainer.findViewById(R.id.headerTextViewAfter);
         if(queryUserIds[0] != -1){
-            headerText.setText("Users with " + s + " in their name");
+            before.setText("Users with ");
+            userSearch.setText(s);
+            after.setText(" in their name");
+            userSearch.setTextColor(getResources().getColor(R.color.main_color));
         }
         else{
-            headerText.setText("No users found with " + s + " in their name");
+            before.setText("No users found with ");
+            userSearch.setText(s);
+            after.setText(" in their name");
+            userSearch.setTextColor(getResources().getColor(R.color.main_color));
         }
 
         for(int i = 0; i < queryUserIds.length; i++) {

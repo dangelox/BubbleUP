@@ -5,14 +5,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.bubbleup.MapsActivity"
-    android:id="@+id/ConsBackground">
+    tools:context="com.example.bubbleup.MapsActivity">
 
-
-    <TextView
-        android:id="@+id/headerTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/common_google_signin_btn_icon_dark_normal_background"
-        android:text="" />
+        android:orientation="horizontal"
+        android:background="@drawable/common_google_signin_btn_icon_dark_normal_background">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/headerTextViewBefore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/headerTextViewSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/headerTextViewAfter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text=""
+            android:layout_gravity="center" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
 </LinearLayout>
