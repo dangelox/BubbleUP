@@ -571,6 +571,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+                alert.setIcon(R.drawable.ic_action_name);
                 alert.setTitle("Search users");
 
                 final EditText input = new EditText(view.getContext());

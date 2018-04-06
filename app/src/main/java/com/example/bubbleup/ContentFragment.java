@@ -273,6 +273,37 @@ public class ContentFragment extends Fragment {
                 final int myPost_id = currentBubble.myPost_id;
 
                 //final BubbleMarker bubble = currentBubble;
+                ImageView sentimentBubble = (ImageView) container.findViewById(R.id.sentBubbleImageView);
+                switch (currentBubble.sentiment){
+                    case (0):
+                        if(currentBubble.analyzed){
+                            sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_0));
+                        } else {
+                            sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_not));
+                        }
+                        break;
+                    case (1):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_1));
+                        break;
+                    case (2):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_2));
+                        break;
+                    case (3):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_3));
+                        break;
+                    case (4):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_4));
+                        break;
+                    case (5):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_5));
+                        break;
+                    case (6):
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_6));
+                        break;
+                    default:
+                        sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_not));
+                        break;
+                }
 
                 TextView userNameText = (TextView) container.findViewById(R.id.textViewUserName);
                 userNameText.setText(currentBubble.username);
@@ -454,6 +485,7 @@ public class ContentFragment extends Fragment {
 
                         //Setting the dialog box
                         AlertDialog.Builder alertCommentDialogBuilder = new AlertDialog.Builder(getActivity());
+                        alertCommentDialogBuilder.setIcon(R.drawable.ic_comment);
 
                         LinearLayout commentDialogLayout = new LinearLayout(getContext());
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
