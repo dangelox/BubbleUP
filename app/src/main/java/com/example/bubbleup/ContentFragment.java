@@ -384,6 +384,7 @@ public class ContentFragment extends Fragment {
                                 layout.setPadding(2, 2, 2, 2);
 
                                 alertDialogBuilder.setView(layout);
+                                alertDialogBuilder.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_delete));
                                 alertDialogBuilder.setTitle("Delete this post?");
 
                                 alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
@@ -1046,6 +1047,7 @@ public class ContentFragment extends Fragment {
                                     layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
                                     alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit_name));
                                     alertDialogBuilder.setTitle("Input your new username!");
 
                                     // alertDialogBuilder.setMessage(message);
@@ -1153,6 +1155,7 @@ public class ContentFragment extends Fragment {
                                     layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
                                     alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit_name));
                                     alertDialogBuilder.setTitle("Input your new bio!");
 
                                     // alertDialogBuilder.setMessage(message);
@@ -1273,6 +1276,7 @@ public class ContentFragment extends Fragment {
                                     layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
                                     alertDialogBuilder.setView(layout);
+                                    alertDialogBuilder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit_name));
                                     alertDialogBuilder.setTitle("Input your new profile pic link!");
 
                                     // alertDialogBuilder.setMessage(message);
