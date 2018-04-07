@@ -57,6 +57,17 @@
                     android:layout_weight="1"
                     android:textColor="@android:color/holo_blue_dark" />
 
+                <EditText
+                    android:id="@+id/textViewEditable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textSize="18sp"
+                    android:text="UserName"
+                    android:layout_weight="1"
+                    android:visibility="invisible"
+                    android:textColor="@android:color/holo_blue_dark" />
+
                 <Button
                     android:id="@+id/button_set_username"
                     android:layout_width="25dp"
@@ -70,6 +81,13 @@
                 android:id="@+id/textViewBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/initial_bio" />
+
+            <EditText
+                android:id="@+id/textViewBioEditable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:text="@string/initial_bio" />
 
         </LinearLayout>

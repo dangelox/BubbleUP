@@ -967,7 +967,13 @@ public class ContentFragment extends Fragment {
 
             final TextView display_username = (TextView) profileContainer.findViewById((R.id.textView));
 
+            final EditText display_username_edit = (EditText) profileContainer.findViewById(R.id.textViewEditable);
+            display_username_edit.setVisibility(View.GONE);
+
             final TextView display_bio = (TextView) profileContainer.findViewById(R.id.textViewBio);
+
+            final EditText display_bio_edit = (EditText) profileContainer.findViewById(R.id.textViewBioEditable);
+            display_bio_edit.setVisibility(View.GONE);
 
             final ImageButton profpic = (ImageButton) profileContainer.findViewById(R.id.imageButton2);
 
@@ -1022,234 +1028,17 @@ public class ContentFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if(edit_settings_clicked){
-                            edit_profile.setBackgroundResource(R.drawable.ic_cancel_post);
+                            edit_profile.setBackgroundResource(android.R.drawable.ic_menu_save);
                             edit_settings_clicked = false;
                             //Toast.makeText(getApplicationContext(), "Click on what you wish to edit", Toast.LENGTH_SHORT).show();
 
-                            //change username listener
-                            display_username.setBackgroundResource(R.drawable.edit_background);
-                            display_username.setOnClickListener(new View.OnClickListener() {
-                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                                @Override
-                                public void onClick(View v){
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                            display_username.setVisibility(View.GONE);
+                            display_username_edit.setText(display_username.getText().toString());
+                            display_username_edit.setVisibility(View.VISIBLE);
 
-                                    LinearLayout layout = new LinearLayout(getActivity());
-                                    LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    layout.setOrientation(LinearLayout.VERTICAL);
-                                    layout.setLayoutParams(parms);
-
-                                    layout.setGravity(Gravity.CLIP_VERTICAL);
-                                    layout.setPadding(2, 2, 2, 2);
-
-                                    textEdit = new EditText(getActivity());
-
-                                    layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-                                    alertDialogBuilder.setView(layout);
-                                    alertDialogBuilder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit_name));
-                                    alertDialogBuilder.setTitle("Input your new username!");
-
-                                    // alertDialogBuilder.setMessage(message);
-                                    alertDialogBuilder.setCancelable(false);
-
-                                    // Setting Negative "Cancel" Button
-                                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            dialog.cancel();
-                                        }
-                                    });
-
-                                    // Setting Positive "OK" Button
-                                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            final String newUserName = textEdit.getText().toString();
-
-                                            //Toast.makeText(getApplicationContext(), newUserName, Toast.LENGTH_SHORT).show();
-
-                                            if(!newUserName.equals("")) {
-
-                                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_name,
-                                                        new Response.Listener<String>() {
-                                                            @Override
-                                                            public void onResponse(String response) {
-                                                                Toast.makeText(getActivity(), "Changed Name to: " + newUserName, Toast.LENGTH_SHORT).show();
-
-                                                                //settings.edit().putString("saved_username", newUserName).commit();
-
-                                                                display_username.setText(newUserName);
-
-                                                                Log.d("BubbleUp", "Success Username Change: " + response);
-                                                            }
-                                                        }, new Response.ErrorListener() {
-                                                    @Override
-                                                    public void onErrorResponse(VolleyError error) {
-                                                        Log.d("BubbleUp", "Unsuccessful change");
-                                                        Toast.makeText(getActivity(), "Unsuccessful Name Change", Toast.LENGTH_SHORT).show();
-
-                                                    }
-                                                }) {
-                                                    @Override
-                                                    public byte[] getBody() throws AuthFailureError {
-                                                        String httpPostBody = "{\"name\": \"" + newUserName + "\"}";
-                                                        return httpPostBody.getBytes();
-                                                    }
-
-                                                    @Override
-                                                    public Map<String, String> getHeaders() throws AuthFailureError {
-                                                        Map<String, String> params = new HashMap();
-                                                        params.put("Content-Type", "application/json");
-                                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
-                                                        return params;
-                                                    }
-                                                };
-
-                                                ((MapsActivity) getActivity()).queue.add(loginRequest);
-                                            } else {
-                                                Toast.makeText(getActivity(), "Empty Name", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-
-                                    AlertDialog alertDialog = alertDialogBuilder.create();
-
-                                    try {
-                                        alertDialog.show();
-                                        Log.d("BubbleUp","Dialog Success");
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        Log.d("BubbleUp","Dialog Fail");
-                                    }
-                                    edit_settings_clicked = true;
-                                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        profpic.setForeground(null);
-                                    }
-                                    display_username.setBackground(null);
-                                    display_bio.setBackground(null);
-                                    profpic.setBackground(null);
-                                    display_username.setOnClickListener(null);
-                                    profpic.setOnClickListener(null);
-                                    display_bio.setOnClickListener(null);
-                                }
-                            });
-
-                            //change bio listener
-                            display_bio.setBackgroundResource(R.drawable.edit_background);
-                            display_bio.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-
-                                    LinearLayout layout = new LinearLayout(getActivity());
-                                    LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    layout.setOrientation(LinearLayout.VERTICAL);
-                                    layout.setLayoutParams(parms);
-
-                                    layout.setGravity(Gravity.CLIP_VERTICAL);
-                                    layout.setPadding(2, 2, 2, 2);
-
-                                    textEdit = new EditText(getActivity());
-
-                                    layout.addView(textEdit, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-                                    alertDialogBuilder.setView(layout);
-                                    alertDialogBuilder.setIcon(getResources().getDrawable(R.drawable.ic_action_edit_name));
-                                    alertDialogBuilder.setTitle("Input your new bio!");
-
-                                    // alertDialogBuilder.setMessage(message);
-                                    alertDialogBuilder.setCancelable(false);
-
-                                    // Setting Negative "Cancel" Button
-                                    alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int whichButton) {
-                                            dialog.cancel();
-                                        }
-                                    });
-
-                                    // Setting Positive "OK" Button
-                                    alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-
-                                            final String newUserBio = textEdit.getText().toString();
-
-                                            //Toast.makeText(getApplicationContext(), newUserBio, Toast.LENGTH_SHORT).show();
-
-                                            if(!newUserBio.equals("")) {
-
-                                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_bio,
-                                                        new Response.Listener<String>() {
-                                                            @Override
-                                                            public void onResponse(String response) {
-                                                                Toast.makeText(getActivity(), "Changed Bio to: " + newUserBio, Toast.LENGTH_SHORT).show();
-
-                                                                //TODO: add saved_bio to settings
-                                                                //settings.edit().putString("saved_bio", newUserBio).commit();
-
-                                                                display_bio.setText(newUserBio);
-
-                                                                Log.d("BubbleUp", "Success Username Change: " + response);
-                                                            }
-                                                        }, new Response.ErrorListener() {
-                                                    @Override
-                                                    public void onErrorResponse(VolleyError error) {
-                                                        Log.d("BubbleUp", "Unsuccessful change");
-                                                        Toast.makeText(getActivity(), "Unsuccessful Bio Change", Toast.LENGTH_SHORT).show();
-
-                                                    }
-                                                }) {
-                                                    @Override
-                                                    public Map<String, String> getParams() throws AuthFailureError {
-                                                        HashMap<String, String> params = new HashMap<>();
-                                                        params.put("user_bio", "\"" + newUserBio + "\"");
-                                                        return params;
-                                                    }
-
-                                                    @Override
-                                                    public byte[] getBody() throws AuthFailureError {
-                                                        String httpPostBody = "{\"user_bio\": \"" + newUserBio + "\"}";
-                                                        return httpPostBody.getBytes();
-                                                    }
-
-                                                    @Override
-                                                    public Map<String, String> getHeaders() throws AuthFailureError {
-                                                        Map<String, String> params = new HashMap();
-                                                        params.put("Content-Type", "application/json");
-                                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
-                                                        return params;
-                                                    }
-                                                };
-
-                                                ((MapsActivity) getActivity()).queue.add(loginRequest);
-                                            } else {
-                                                Toast.makeText(getActivity(), "Empty Bio", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-
-                                    AlertDialog alertDialog = alertDialogBuilder.create();
-
-                                    try {
-                                        alertDialog.show();
-                                        Log.d("BubbleUp","Dialog Success");
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                        Log.d("BubbleUp","Dialog Fail");
-                                    }
-                                    edit_settings_clicked = true;
-                                    edit_profile.setBackgroundResource(R.drawable.ic_action_edit_name);
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        profpic.setForeground(null);
-                                    }
-                                    display_username.setBackground(null);
-                                    display_bio.setBackground(null);
-                                    profpic.setBackground(null);
-                                    display_username.setOnClickListener(null);
-                                    profpic.setOnClickListener(null);
-                                    display_bio.setOnClickListener(null);
-                                }
-                            });
+                            display_bio.setVisibility(View.GONE);
+                            display_bio_edit.setText(display_bio.getText().toString());
+                            display_bio_edit.setVisibility(View.VISIBLE);
 
                             //change profile picture listener
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1387,12 +1176,13 @@ public class ContentFragment extends Fragment {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                         profpic.setForeground(null);
                                     }
-                                    display_username.setBackground(null);
-                                    display_bio.setBackground(null);
+                                    display_username.setVisibility(View.VISIBLE);
+                                    display_username_edit.setVisibility(View.GONE);
+                                    display_bio.setVisibility(View.VISIBLE);
+                                    display_bio_edit.setVisibility(View.GONE);
                                     profpic.setBackground(null);
-                                    display_username.setOnClickListener(null);
                                     profpic.setOnClickListener(null);
-                                    display_bio.setOnClickListener(null);
+
                                 }
                             });
 
@@ -1404,12 +1194,111 @@ public class ContentFragment extends Fragment {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 profpic.setForeground(null);
                             }
-                            display_username.setBackground(null);
-                            display_bio.setBackground(null);
+
+                            //checking for valid username change
+                            if(!display_username_edit.getText().toString().equals("") && !display_username_edit.getText().toString().equals(display_username.getText().toString())) {
+
+                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_name,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                Toast.makeText(getActivity(), "Changed Name to: " + display_username_edit.getText().toString(), Toast.LENGTH_SHORT).show();
+
+                                                //settings.edit().putString("saved_username", newUserName).commit();
+
+                                                display_username.setText(display_username_edit.getText().toString());
+
+                                                Log.d("BubbleUp", "Success Username Change: " + response);
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("BubbleUp", "Unsuccessful change");
+                                        Toast.makeText(getActivity(), "Unsuccessful Name Change", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                }) {
+                                    @Override
+                                    public byte[] getBody() throws AuthFailureError {
+                                        String httpPostBody = "{\"name\": \"" + display_username_edit.getText().toString() + "\"}";
+                                        return httpPostBody.getBytes();
+                                    }
+
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap();
+                                        params.put("Content-Type", "application/json");
+                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                        return params;
+                                    }
+                                };
+
+                                ((MapsActivity) getActivity()).queue.add(loginRequest);
+                            } else {
+                                if(display_username_edit.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Empty Name", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            //checking for valid bio change
+                            if(!display_bio_edit.getText().toString().equals("") && !display_bio_edit.getText().toString().equals(display_bio.getText().toString())) {
+
+                                StringRequest loginRequest = new StringRequest(Request.Method.PUT, url_set_bio,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                Toast.makeText(getActivity(), "Changed Bio to: " + display_bio_edit.getText().toString(), Toast.LENGTH_SHORT).show();
+
+                                                //TODO: add saved_bio to settings
+                                                //settings.edit().putString("saved_bio", newUserBio).commit();
+
+                                                display_bio.setText(display_bio_edit.getText().toString());
+
+                                                Log.d("BubbleUp", "Success Username Change: " + response);
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("BubbleUp", "Unsuccessful change");
+                                        Toast.makeText(getActivity(), "Unsuccessful Bio Change", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                }) {
+                                    @Override
+                                    public Map<String, String> getParams() throws AuthFailureError {
+                                        HashMap<String, String> params = new HashMap<>();
+                                        params.put("user_bio", "\"" + display_bio_edit.getText().toString() + "\"");
+                                        return params;
+                                    }
+
+                                    @Override
+                                    public byte[] getBody() throws AuthFailureError {
+                                        String httpPostBody = "{\"user_bio\": \"" + display_bio_edit.getText().toString() + "\"}";
+                                        return httpPostBody.getBytes();
+                                    }
+
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap();
+                                        params.put("Content-Type", "application/json");
+                                        params.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                                        return params;
+                                    }
+                                };
+
+                                ((MapsActivity) getActivity()).queue.add(loginRequest);
+                            } else {
+                                if(display_bio_edit.getText().toString().equals("")) {
+                                    Toast.makeText(getActivity(), "Empty Bio", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            display_username.setVisibility(View.VISIBLE);
+                            display_username_edit.setVisibility(View.GONE);
+                            display_bio.setVisibility(View.VISIBLE);
+                            display_bio_edit.setVisibility(View.GONE);
                             profpic.setBackground(null);
-                            display_username.setOnClickListener(null);
                             profpic.setOnClickListener(null);
-                            display_bio.setOnClickListener(null);
                         }
                     }
                 });
