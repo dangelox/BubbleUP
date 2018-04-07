@@ -205,13 +205,6 @@ public class ContentFragment extends Fragment {
                 break;
         }
 
-        //Sorting by size
-        /*if(bounds == null){
-            Collections.sort(bubbleList, new BubbleComparatorAgeMinsNewest());
-        }else{
-            Collections.sort(bubbleList, new BubbleComparatorSize());
-        }*/
-
         //Creating a new view for each bubble
         int countBubble = 0;
         for (final BubbleMarker currentBubble : bubbleList) {
@@ -1280,6 +1273,41 @@ public class ContentFragment extends Fragment {
             } else {
                 //request for id posts and info
                 myId = queryUserId;
+
+                StringRequest user_bio_link_request = new StringRequest(Request.Method.GET, url_bio + "/" + myId,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    //We get back an array with data for the requested IDs
+                                    JSONObject myJson = new JSONObject(response);
+                                    String bio = myJson.getString("user_bio");
+                                    if(bio!=""){
+                                        display_bio.setText(bio);
+                                    }else{
+                                        display_bio.setText("<Empty Bio>");
+                                    }
+
+                                } catch (JSONException e) {
+                                    Log.d("BubbleUp", "JSON IDs GET problem!");
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("BubbleUp", "ID get JSOn Response Error! " + error.toString());
+                    }
+                }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap();
+                        headers.put("Authorization", "JWT " + ((MapsActivity) getActivity()).token);
+                        return headers;
+                    }
+                };
+
+                ((MapsActivity) getActivity()).queue.add(user_bio_link_request);
             }
 
             final int reqId = myId;
