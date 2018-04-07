@@ -172,16 +172,6 @@
                         android:textOff=""
                         android:textOn="" />
 
-                    <ToggleButton
-                        android:id="@+id/toggleButton_dislike"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginRight="5dp"
-                        android:background="@drawable/ic_action_dislike"
-                        android:text=""
-                        android:textOff=""
-                        android:textOn="" />
-
                 </LinearLayout>
 
             </LinearLayout>

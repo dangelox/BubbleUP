@@ -772,10 +772,6 @@ public class ContentFragment extends Fragment {
                         //Button Animation
                         buttonView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.reaction_button_animation));
                         if (isChecked) {
-                            ToggleButton otherButton = (ToggleButton) container.findViewById(R.id.toggleButton_dislike);
-                            if(otherButton.isChecked())
-                                otherButton.toggle();
-
                             //Like request
                             StringRequest registerRequest = new StringRequest(Request.Method.POST, url_like + myPost_id,
                                     new Response.Listener<String>() {
@@ -853,27 +849,6 @@ public class ContentFragment extends Fragment {
                             };
 
                             ((MapsActivity) getActivity()).queue.add(registerRequest);
-                        }
-                    }
-                });
-
-                ToggleButton dislike_button = (ToggleButton) container.findViewById(R.id.toggleButton_dislike);
-
-                if(currentBubble.userReaction == 2){
-                    dislike_button.toggle();
-                    dislike_button.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike_on));
-                }
-
-                dislike_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (isChecked) {
-                            ToggleButton otherButton = (ToggleButton) container.findViewById(R.id.toggleButton_like);
-                            if(otherButton.isChecked())
-                                otherButton.toggle();
-                            buttonView.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike_on));
-
-                        } else {
-                            buttonView.setBackground(getResources().getDrawable(R.drawable.ic_action_dislike));
                         }
                     }
                 });
