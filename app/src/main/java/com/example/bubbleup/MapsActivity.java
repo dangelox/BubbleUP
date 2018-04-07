@@ -122,6 +122,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     boolean log_status = false;
 
     String url_posts ="https://bubbleup-api.herokuapp.com/posts";
+    String url_tweets ="https://bubbleup-api.herokuapp.com/tweets";
+
     String url_links ="https://bubbleup-api.herokuapp.com/user/image/";
     String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
 
@@ -211,6 +213,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     HashMap<Integer, Bitmap> profilePictureStorageBitmap;
     HashMap<Integer, String> profilePictureStorageLink;
     HashMap<Integer, String> profileNameStorage;
+
+    //Tweets
+    ArrayList<Integer> user_id_list_tweet;
+    HashMap<Integer, Bitmap> profilePictureStorageBitmap_tweet;
+
 
     SharedPreferences saved_settings;
 
@@ -762,9 +769,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 currentBubble.wobble();
 
                 //We check if an image has been loaded for the current bubble.
-                if(currentBubble.getProfileImage() == null && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
+                if(currentBubble.getProfileImage() == null && currentBubble.mySource == 0 && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
                     //Updating the bubble image.
                     currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id), showSentHeatMap);
+                } else if (currentBubble.getProfileImage() == null && currentBubble.mySource == 1 && profilePictureStorageBitmap_tweet.containsKey(currentBubble.myUser_id)){
+                    //Updating the bubble image.
+                    currentBubble.updateImage(profilePictureStorageBitmap_tweet.get(currentBubble.myUser_id), showSentHeatMap);
                 }
 
                 //We check if the username has been loaded for the current bubble.
@@ -809,6 +819,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         profileNameStorage = new HashMap<>();
 
         profilePictureStorageBitmap = new HashMap<>();
+
+        HashMap<Integer, Bitmap> profilePictureStorageBitmap_tweet;
+
 
         userNameList = new HashMap<>();
 
@@ -889,6 +902,111 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    public void jsonToBlubbleMarkerTweet(JSONObject myJson, List<BubbleMarker> bubbleList, boolean react){
+        int user_id;
+        int tweet_id;
+        String handle;
+        //int likeCount;
+        //int commentCount;
+        String text;
+        //boolean visible = false;
+        //int type;
+        double lat;
+        double lng;
+        String date;
+
+        try {
+            tweet_id = myJson.getInt("id");
+            user_id = myJson.getInt("user_id");
+            handle = myJson.getString("handle");
+            text = myJson.getString("text");
+
+            //likeCount = Integer.parseInt(myJson.get("like").toString());
+
+            /*
+            if(react) {
+                commentCount = myJson.getInt("comment_count");
+            } else {
+                commentCount = 0;
+            }
+            */
+
+            //type = Integer.parseInt(myJson.get("content_type").toString());
+
+            String date_str = myJson.get("created_at").toString().substring(5, 10);
+            Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0, 4));
+            Integer month = Integer.parseInt(date_str.substring(0, 2));
+            Integer day = Integer.parseInt(date_str.substring(3, 5));
+            String time_str = myJson.get("created_at").toString().substring(11, 16);
+            Integer hour = Integer.parseInt(time_str.substring(0, 2));
+            Integer minute = Integer.parseInt(time_str.substring(3, 5));
+
+            /*
+            int reaction;
+            if(react) {
+                reaction = myJson.getInt("i_like");
+            } else {
+                reaction = 0;
+            }
+            */
+
+            //We check if the user of the current post is already on our user array.
+
+
+            //TODO: Make a a data structure for holding twitter users
+            if (user_id_list_tweet != null && !user_id_list_tweet.contains(user_id)) {
+                user_id_list_tweet.add(user_id);
+                Log.d("BubbleUp", "Added User to Tweet List " + user_id);
+            }
+
+            //Calculating Post Times.
+
+            DateTime bubbleTime = new DateTime(year, month, day, hour, minute, DateTimeZone.UTC);
+            DateTime currentTime = new DateTime();//Local Date Time
+
+            int dayDiff = Days.daysBetween(bubbleTime, currentTime).getDays();
+            int hourDiff = Hours.hoursBetween(bubbleTime, currentTime).getHours();
+            int minDiff = Minutes.minutesBetween(bubbleTime, currentTime).getMinutes();
+            int monthOfYear = bubbleTime.getMonthOfYear();
+            int dayOfMonth = bubbleTime.getDayOfMonth();
+            int yearOfPost = bubbleTime.getYear();
+
+            double size_calc = 130 * Math.pow(0.65, minDiff / (1440.0)) + 90;
+            int size = (int) size_calc;
+
+            date = date_str + " " + time_str;
+
+            //Parsing bubble coordinates.
+
+            //visible = Boolean.parseBoolean(myJson.get("visible").toString());
+            lat = myJson.getDouble("lat");
+            lng = myJson.getDouble("lng");
+
+            //Creating the bubble marker objects.
+            BubbleMarker newBubble;
+            //Adding the bubble to the google map fragment.
+            if(bubbleMarkerHashMap.get(tweet_id) == null){
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, 0, 0, 0, 0, tweet_id, text , "@" + handle + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 1);
+                newBubble.addMarker(mMap);
+                bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
+                myBubbles.add(newBubble);
+            } else {
+                newBubble = bubbleMarkerHashMap.get(tweet_id);
+            }
+
+            if(myBubbles != bubbleList){
+                bubbleList.add(newBubble);
+            }
+
+        }catch (JSONException e) {
+            Log.d("BubbleUp", "Failure While Converting JSON to Bubble :" + e.getMessage());
+            Toast.makeText(getApplicationContext(), "JSON Twitter Error", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void jsonToBubbleMarker(JSONObject myJson, List<BubbleMarker> bubbleList, boolean react){
         int user_id;
         int post_id;
@@ -906,7 +1024,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             user_id = Integer.parseInt(myJson.get("user_id").toString());
             body = myJson.get("body").toString();
             likeCount = Integer.parseInt(myJson.get("like").toString());
-            commentCount = Integer.parseInt(myJson.get("comment_count").toString());
+
+            if(react) {
+                commentCount = myJson.getInt("comment_count");
+            } else {
+                commentCount = 0;
+            }
+
             type = Integer.parseInt(myJson.get("content_type").toString());
 
             String date_str = myJson.get("created_at").toString().substring(5, 10);
@@ -920,10 +1044,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             //User reaction (like etc)
             int reaction;
             //When Posting post doesnt return "i_like"
-            if(react)
+            if(react) {
                 reaction = myJson.getInt("i_like");
-            else
+            } else {
                 reaction = 0;
+            }
 
             //We check if the user of the current post is already on our user array.
             if (user_id_list != null && !user_id_list.contains(user_id)) {
@@ -958,7 +1083,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
             if(bubbleMarkerHashMap.get(post_id) == null){
-                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap);
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 0);
                 newBubble.addMarker(mMap);
                 bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
                 myBubbles.add(newBubble);
@@ -983,6 +1108,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         //Array for storing user ID that have been returned from the query
         user_id_list = new ArrayList();
+        user_id_list_tweet = new ArrayList();
 
         if(log_status) {
             //If the user is logged in then we make a request for getting all users posts
@@ -1092,6 +1218,76 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 }
             };
             queue.add(tokenRequest);
+
+            /////////
+            //TWEET//
+            /////////
+            StringRequest tweetRequest = new StringRequest(Request.Method.GET, url_tweets,
+                    new Response.Listener<String>() {
+                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("BubbleUpTweet", "JSOn Post Get Response Successful");
+                            Log.d("BubbleUpTweet", response);
+
+                            try {
+                                //We convert the response into an JSONArray object so as to iterate through the posts.
+                                JSONArray json_response = new JSONArray(response.toString());
+
+                                //myBubbles.clear();//No need to erase here
+                                //bubbleMarkerHashMap.clear();
+                                Log.d("BubbleUpMess", "Clearing list");
+                                //userNameList.clear();
+                                //userNames.clear();
+
+                                //Iterating through the JSON object array.
+                                for (int i = 0; i < json_response.length(); i++)
+                                    jsonToBlubbleMarkerTweet((JSONObject) json_response.get(i), myBubbles, false);
+
+                                //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
+
+                                Log.d("BubbleUp", "JSON Requesting ID Links");
+
+                                //Building request URL
+
+
+
+                                //String url_links_ids = url_links_by_ids;
+                                //boolean c = true;
+                                for (int id : user_id_list_tweet){
+                                    fetchImageAsync_tweet imageFetchTweet = new fetchImageAsync_tweet();
+                                    imageFetchTweet.execute( Pair.create(id, "https://avatars.io/twitter/" +  id));
+                                }
+
+                                //https://avatars.io/twitter/
+
+                                //TODO: Do piccasso request here
+
+                                //profilePictureStorageBitmap_tweet.put(usr_id_image.first,usr_id_image.second);
+
+                            } catch (JSONException e) {
+                                Log.d("BubbleUpTweet", "JSON object problem!");
+                                Toast.makeText(getApplicationContext(), "JSON Tweet Error", Toast.LENGTH_LONG).show();
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("BubbleUpTweet", ": Bubble Loader Response Error! " + error.toString());
+                    Log.d("BubbleUpTweet", ": " + error.getLocalizedMessage());
+
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap();
+                    params.put("Content-Type", "application/json");
+                    params.put("Authorization", "JWT " + token);
+                    return params;
+                }
+            };
+            queue.add(tweetRequest);
         }else{
             //TODO: ADD FREE VIEW ROUTE TO HEROKU?
         }
@@ -1262,6 +1458,34 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             if(usr_id_image.second != null) {
                 //If an image has been fetched successfully then we store it on a table using the user ID as the key.
                 profilePictureStorageBitmap.put(usr_id_image.first,usr_id_image.second);
+            }
+        }
+    }
+
+    private class fetchImageAsync_tweet extends AsyncTask<Pair<Integer,String>, Void, Pair<Integer,Bitmap>> {
+        @Override
+        protected Pair<Integer,Bitmap> doInBackground(Pair<Integer,String>... params) {
+            int usrId = params[0].first;
+            String url = params[0].second;
+
+            Bitmap profile_image;
+            try {
+                Log.d("BubbleUp", "Trying profile picture fetch. From: " + url);
+                profile_image = BitmapFactory.decodeStream((InputStream) new URL(url).getContent());
+                Log.d("BubbleUp", "Success profile picture fetch. From: " + url);
+            } catch (Exception e) {
+                Log.d("BubbleUp", "Profile picture fetch failed. " + e.toString());
+                profile_image = null;
+            }
+
+            return Pair.create(usrId, profile_image);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<Integer,Bitmap> usr_id_image) {
+            if(usr_id_image.second != null) {
+                //If an image has been fetched successfully then we store it on a table using the user ID as the key.
+                profilePictureStorageBitmap_tweet.put(usr_id_image.first,usr_id_image.second);
             }
         }
     }

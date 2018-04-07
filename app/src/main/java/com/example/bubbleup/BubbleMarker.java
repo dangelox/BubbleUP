@@ -1,5 +1,6 @@
 package com.example.bubbleup;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
@@ -48,6 +49,7 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,6 +94,7 @@ public class BubbleMarker implements Serializable{
     int emoji_num;
     int [] emojis;
     int sentiment;
+    int mySource;
     boolean analyzed = false;
 
     Uri myUri;
@@ -100,9 +103,15 @@ public class BubbleMarker implements Serializable{
 
     String [] emojiArray;
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image, boolean showHeatMap){
-        bubbleMarkerOption = new MarkerOptions().position(mCoor);
+    public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image, boolean showHeatMap, int source){
+        if(source == 0){
+            bubbleMarkerOption = new MarkerOptions().position(mCoor);
+        } else {
+            bubbleMarkerOption = new MarkerOptions().position(new LatLng(38.9575 + ThreadLocalRandom.current().nextDouble(-0.04, 0.04),-95.2728 + ThreadLocalRandom.current().nextDouble(-0.07, 0.07)));
+        }
+
         bubbleMarkerOption.anchor(0.5f, 0.5f);
 
         emojis = new int[3];

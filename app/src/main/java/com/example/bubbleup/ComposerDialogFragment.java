@@ -175,6 +175,7 @@ public class ComposerDialogFragment extends DialogFragment {
 
                     StringRequest bubblePostRequest = new StringRequest(Request.Method.POST, url_tasks,
                             new Response.Listener<String>() {
+                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                                 @Override
                                 public void onResponse(String response) {
                                     try {
