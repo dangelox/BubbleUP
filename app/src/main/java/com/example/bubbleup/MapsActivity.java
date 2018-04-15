@@ -128,7 +128,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
 
     //Version Checker Link
-    final String next_update = "https://people.eecs.ku.edu/~d481s306/0002app.apk";
+    final String next_update = "https://people.eecs.ku.edu/~d481s306/0003app.apk";
 
     String token;
 
@@ -772,8 +772,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 if(currentBubble.getProfileImage() == null && currentBubble.mySource == 0 && profilePictureStorageBitmap.containsKey(currentBubble.myUser_id)){
                     //Updating the bubble image.
                     currentBubble.updateImage(profilePictureStorageBitmap.get(currentBubble.myUser_id), showSentHeatMap);
-                } else if (currentBubble.getProfileImage() == null && currentBubble.mySource == 1 && profilePictureStorageBitmap_tweet.containsKey(currentBubble.myUser_id)){
+                } else if (currentBubble.getProfileImage() == null && profilePictureStorageBitmap_tweet.containsKey(currentBubble.myUser_id)){
                     //Updating the bubble image.
+                    Log.d("BubbleUpTweet","Updating image");
                     currentBubble.updateImage(profilePictureStorageBitmap_tweet.get(currentBubble.myUser_id), showSentHeatMap);
                 }
 
@@ -820,7 +821,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
         profilePictureStorageBitmap = new HashMap<>();
 
-        HashMap<Integer, Bitmap> profilePictureStorageBitmap_tweet;
+        profilePictureStorageBitmap_tweet = new HashMap<>();
 
 
         userNameList = new HashMap<>();
@@ -933,11 +934,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
             //type = Integer.parseInt(myJson.get("content_type").toString());
 
-            String date_str = myJson.get("created_at").toString().substring(5, 10);
-            Integer year = Integer.parseInt(myJson.get("created_at").toString().substring(0, 4));
+            String date_str = myJson.get("created").toString().substring(5, 10);
+            Integer year = Integer.parseInt(myJson.get("created").toString().substring(0, 4));
             Integer month = Integer.parseInt(date_str.substring(0, 2));
             Integer day = Integer.parseInt(date_str.substring(3, 5));
-            String time_str = myJson.get("created_at").toString().substring(11, 16);
+            String time_str = myJson.get("created").toString().substring(11, 16);
             Integer hour = Integer.parseInt(time_str.substring(0, 2));
             Integer minute = Integer.parseInt(time_str.substring(3, 5));
 
@@ -974,19 +975,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             double size_calc = 130 * Math.pow(0.65, minDiff / (1440.0)) + 90;
             int size = (int) size_calc;
 
-            date = date_str + " " + time_str;
+            //date = date_str + " " + time_str;
 
             //Parsing bubble coordinates.
 
             //visible = Boolean.parseBoolean(myJson.get("visible").toString());
             lat = myJson.getDouble("lat");
-            lng = myJson.getDouble("lng");
+            lng = myJson.getDouble("long");
 
             //Creating the bubble marker objects.
             BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
             if(bubbleMarkerHashMap.get(tweet_id) == null){
-                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, 0, 0, 0, 0, tweet_id, text , "@" + handle + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 1);
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, 0, 0, 0, 0, tweet_id, text , "@" + handle, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 1);
                 newBubble.addMarker(mMap);
                 bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
                 myBubbles.add(newBubble);
@@ -1241,7 +1242,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 //userNames.clear();
 
                                 //Iterating through the JSON object array.
-                                for (int i = 0; i < json_response.length(); i++)
+                                for (int i = 0; i < 25; i++)
                                     jsonToBlubbleMarkerTweet((JSONObject) json_response.get(i), myBubbles, false);
 
                                 //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
@@ -1254,11 +1255,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                                 //String url_links_ids = url_links_by_ids;
                                 //boolean c = true;
+
+                                for (int i = 0; i < 25; i++) {
+                                    fetchImageAsync_tweet imageFetchTweet = new fetchImageAsync_tweet();
+                                    imageFetchTweet.execute( Pair.create(((JSONObject) json_response.get(i)).getInt("user_id"), "https://avatars.io/twitter/" + ((JSONObject) json_response.get(i)).get("handle")));
+                                }
+                                /*
                                 for (int id : user_id_list_tweet){
                                     fetchImageAsync_tweet imageFetchTweet = new fetchImageAsync_tweet();
-                                    imageFetchTweet.execute( Pair.create(id, "https://avatars.io/twitter/" +  id));
+                                    imageFetchTweet.execute( Pair.create(id, "https://avatars.io/twitter/" + id));
                                 }
-
+                                */
                                 //https://avatars.io/twitter/
 
                                 //TODO: Do piccasso request here
@@ -1274,16 +1281,29 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d("BubbleUpTweet", ": Bubble Loader Response Error! " + error.toString());
-                    Log.d("BubbleUpTweet", ": " + error.getLocalizedMessage());
-
+                    Log.d("BubbleUpTweet", "Bubble Loader Response Error! : " + error.toString());
+                    Log.d("BubbleUpTweet", "Localized Message: " + error.getLocalizedMessage());
+                    //Log.d("BubbleUpTweet", "Localized Message: " + error.networkResponse.allHeaders);
+                    Log.d("BubbleUpTweet", "error code: " + error.networkResponse.statusCode);
                 }
             }) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String> params = new HashMap();
-                    params.put("Content-Type", "application/json");
                     params.put("Authorization", "JWT " + token);
+                    return params;
+                }
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    String httpPostBody="{\"Authorization\": " + "JWT " + token + "}";
+                    return httpPostBody.getBytes();
+                }
+                @Override
+                public Map<String, String> getParams() throws AuthFailureError {
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put("Content-Type","application/json");
+                    params.put("Authorization", "JWT " + token);
+
                     return params;
                 }
             };
