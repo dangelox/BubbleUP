@@ -942,7 +942,7 @@ public class ContentFragment extends Fragment {
             ///////////////////////////
             final Button edit_profile = (Button) profileContainer.findViewById(R.id.button_set_username);
             int myId = myUserId;
-            int userId = queryUserId;
+            final int userId = queryUserId;
 
             //checking to see if the profile is that of the current user's, if not then we hide the edit button
             if(currentUserId != userId){
@@ -1007,6 +1007,7 @@ public class ContentFragment extends Fragment {
                 //Profile Editing//
                 ///////////////////
 
+                final int finalMyId = myId;
                 edit_profile.setOnClickListener(new View.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
                     @Override
@@ -1103,6 +1104,8 @@ public class ContentFragment extends Fragment {
                                                                             //If an image has been fetched successfully then we store it on a table using the user ID as the key.
                                                                             profpic.setImageBitmap(usr_image);
                                                                             profpic.setBackgroundResource(0);
+                                                                            ((MapsActivity) getActivity()).profilePictureStorageBitmap.put(finalMyId,usr_image);
+                                                                            ((MapsActivity) getActivity()).reload_button.performClick();
                                                                         }
                                                                     }
                                                                 }

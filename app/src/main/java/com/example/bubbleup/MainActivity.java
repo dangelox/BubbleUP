@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
         saved_token = settings.getString("saved_token", null);
 
-        bt_free_view = (Button) findViewById(R.id.button_freeview);
+        //bt_free_view = (Button) findViewById(R.id.button_freeview);
         bt_login =  (Button) findViewById(R.id.button_login);
         bt_register = (Button) findViewById(R.id.button_register);
         remember_me = (CheckBox) findViewById(R.id.checkBox);
@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Setting behaviour for screen buttons
+        /*
         bt_free_view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(myIntent);
             }
         });
+        */
 
 
 
@@ -271,6 +273,22 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("BubbleUp","Stopped");
+        if(!remember_me.isChecked()){
+            Log.d("BubbleUp","Checkbox is off");
+            SharedPreferences settings = getSharedPreferences(TOKEN_PREF, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("saved_token", "");
+            editor.putString("saved_username", "");
+            editor.putString("email", "");
+            editor.putBoolean("display_username", remember_me.isChecked());
+            editor.apply();
         }
     }
 }

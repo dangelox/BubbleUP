@@ -122,7 +122,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     boolean log_status = false;
 
     String url_posts ="https://bubbleup-api.herokuapp.com/posts";
-    String url_tweets ="https://bubbleup-api.herokuapp.com/tweets";
+    String url_tweets ="https://bubbleup-api.herokuapp.com/tweets/latest";
 
     String url_links ="https://bubbleup-api.herokuapp.com/user/image/";
     String url_links_by_ids ="https://bubbleup-api.herokuapp.com/user/image/byids/";
@@ -501,6 +501,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             @Override
             public void onClick(View view) {
                 bubbleLoader();
+                if(fragment_display && profile_display){
+                    myFragment.showProfile(myId,myId,true,true);
+                }
                 mMap.clear();
             }
         });
@@ -1242,7 +1245,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 //userNames.clear();
 
                                 //Iterating through the JSON object array.
-                                for (int i = 0; i < 25; i++)
+                                for (int i = 0; i < json_response.length(); i++)
                                     jsonToBlubbleMarkerTweet((JSONObject) json_response.get(i), myBubbles, false);
 
                                 //After finishing the post querying we proceed to request the user names and profile pictures link for the user in the user array.
@@ -1256,9 +1259,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                                 //String url_links_ids = url_links_by_ids;
                                 //boolean c = true;
 
-                                for (int i = 0; i < 25; i++) {
+                                for (int i = 0; i < json_response.length(); i++) {
                                     fetchImageAsync_tweet imageFetchTweet = new fetchImageAsync_tweet();
-                                    imageFetchTweet.execute( Pair.create(((JSONObject) json_response.get(i)).getInt("user_id"), "https://avatars.io/twitter/" + ((JSONObject) json_response.get(i)).get("handle")));
+                                    imageFetchTweet.execute( Pair.create(((JSONObject) json_response.get(i)).getInt("user_id"), "https://avatars.io/twitter/" + ((JSONObject) json_response.get(i)).get("handle") + "/medium"));
                                 }
                                 /*
                                 for (int id : user_id_list_tweet){
