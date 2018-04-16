@@ -106,6 +106,7 @@ public class BubbleMarker implements Serializable{
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public BubbleMarker(LatLng mCoor, int user_id, int reaction, int like_count, int comment_count, int type, int post_id, String text, String poster, String tittle, int width, int height, int age_minutes, int age_hours, int age_days, int  day_of_month, int month_of_year, int year_of_post, Context myContext, Bitmap image, boolean showHeatMap, int source){
+        mySource = source;
         if(source == 0){
             bubbleMarkerOption = new MarkerOptions().position(mCoor);
         } else {
@@ -216,7 +217,11 @@ public class BubbleMarker implements Serializable{
                 icon = R.drawable.ic_beach_umbrella;
                 break;
             default:
-                icon = R.drawable.ic_post;
+                if(mySource == 1){
+                    icon = R.drawable.ic_twitter;
+                } else {
+                    icon = R.drawable.ic_post;
+                }
                 break;
         }
 
