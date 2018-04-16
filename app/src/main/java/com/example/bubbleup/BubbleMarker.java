@@ -119,6 +119,10 @@ public class BubbleMarker implements Serializable{
 
         myPost_id = post_id;
 
+        //TODO: Remove after demo
+        width += 80;
+        height += 80;
+
         myCommentCount = comment_count;
 
         myAgeMins = age_minutes;
@@ -129,6 +133,8 @@ public class BubbleMarker implements Serializable{
         myYearOfPost = year_of_post;
 
         userReaction = reaction;
+
+        username = poster;
 
         myType = type;
         //How is the weather here? 623247363
@@ -361,7 +367,7 @@ public class BubbleMarker implements Serializable{
         canvas.drawBitmap(bubbleOverlay, new Matrix(), null);
 
         Paint circlePaint = new Paint();
-        circlePaint.setColor(Color.parseColor("#d3d3d3"));
+        circlePaint.setColor(Color.parseColor("#efefef"));
         circlePaint.setAntiAlias(true);
         canvas.drawCircle(x + image.getWidth() / 2, y +image.getHeight() / 2, image.getWidth() / 2, circlePaint);
 

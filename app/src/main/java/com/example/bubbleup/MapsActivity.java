@@ -1084,7 +1084,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             BubbleMarker newBubble;
             //Adding the bubble to the google map fragment.
             if(bubbleMarkerHashMap.get(post_id) == null){
-                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "#" + user_id + " " + date, "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 0);
+                newBubble = new BubbleMarker(new LatLng(lat, lng), user_id, reaction, likeCount, commentCount, type, post_id, body + " #" + post_id, "", "", size, size, minDiff, hourDiff, dayDiff, dayOfMonth, monthOfYear, yearOfPost, getApplicationContext(), null, showSentHeatMap, 0);
                 newBubble.addMarker(mMap);
                 bubbleMarkerHashMap.put(newBubble.myPost_id, newBubble);
                 myBubbles.add(newBubble);

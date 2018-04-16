@@ -218,7 +218,11 @@ public class ContentFragment extends Fragment {
                 final LinearLayout body = (LinearLayout) container.findViewById(R.id.fragment_body_linear);
 
                 final TextView myCommentCounter = (TextView) container.findViewById(R.id.comment_counter);
-                myCommentCounter.setText(Integer.toString(currentBubble.myCommentCount));
+                if(currentBubble.mySource == 1) {
+                    myCommentCounter.setVisibility(View.INVISIBLE);
+                } else {
+                    myCommentCounter.setText(Integer.toString(currentBubble.myCommentCount));
+                }
 
                 if(!currentBubble.myUrl.equals("")){
                     Log.d("BubbleUp_URL","Loading from: " + currentBubble.myUrl);
@@ -261,7 +265,11 @@ public class ContentFragment extends Fragment {
                 */
 
                 final TextView likeCounter = (TextView) container.findViewById(R.id.text_like_counter);
-                likeCounter.setText(Integer.toString(currentBubble.myLikes));
+                if(currentBubble.mySource == 1){
+                    likeCounter.setVisibility(View.INVISIBLE);
+                } else {
+                    likeCounter.setText(Integer.toString(currentBubble.myLikes));
+                }
 
                 final int myPost_id = currentBubble.myPost_id;
 
@@ -272,7 +280,11 @@ public class ContentFragment extends Fragment {
                         if(currentBubble.analyzed){
                             sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_0));
                         } else {
-                            sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_not));
+                            if (currentBubble.mySource == 1) {
+                                sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_twitter));
+                            } else {
+                                sentimentBubble.setBackground(getResources().getDrawable(R.drawable.ic_sentiment_not));
+                            }
                         }
                         break;
                     case (1):
@@ -622,111 +634,116 @@ public class ContentFragment extends Fragment {
 
                 final ToggleButton toggleComments = (ToggleButton) container.findViewById(R.id.comment_toggle_button);
 
-                toggleComments.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                        if (isChecked) {
-                            postCardVertical.addView(commentSection);
+                if(currentBubble.mySource == 1){
+                    toggleComments.setVisibility(View.INVISIBLE);
+                } else {
+                    toggleComments.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                            if (isChecked) {
+                                postCardVertical.addView(commentSection);
 
-                            StringRequest getComments = new StringRequest(Request.Method.GET, url_comments + currentBubble.myPost_id,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            try {
+                                StringRequest getComments = new StringRequest(Request.Method.GET, url_comments + currentBubble.myPost_id,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                try {
 
-                                                commentSectionList.removeAllViews();
+                                                    commentSectionList.removeAllViews();
 
-                                                final JSONArray commentsArr = new JSONArray(response);
+                                                    final JSONArray commentsArr = new JSONArray(response);
 
-                                                if(commentsArr.length() == 0){
-                                                    TextView emptyPostMessage = new TextView(getContext());
-                                                    emptyPostMessage.setText("No comments.");
-                                                    commentSectionList.addView(emptyPostMessage);
-                                                } else {
-                                                    for (int i = 0; i < commentsArr.length(); i++) {
-                                                        final JSONObject commentJSON = (JSONObject) commentsArr.get(i);
+                                                    if(commentsArr.length() == 0){
+                                                        TextView emptyPostMessage = new TextView(getContext());
+                                                        emptyPostMessage.setText("No comments.");
+                                                        commentSectionList.addView(emptyPostMessage);
+                                                    } else {
+                                                        for (int i = 0; i < commentsArr.length(); i++) {
+                                                            final JSONObject commentJSON = (JSONObject) commentsArr.get(i);
 
-                                                        final LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
-                                                        TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
-                                                        commentBody.setText(commentJSON.getString("comment"));
+                                                            final LinearLayout comment = (LinearLayout) myInflater.inflate(R.layout.post_comment, commentSectionList, false);
+                                                            TextView commentBody = (TextView) comment.findViewById(R.id.comment_body);
+                                                            commentBody.setText(commentJSON.getString("comment"));
 
-                                                        TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
-                                                        String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
-                                                        if (username != null) {
-                                                            commentUser.setText(username);
-                                                        } else {
-                                                            commentUser.setText("User #" + commentJSON.getInt("user_id"));
-                                                        }
+                                                            TextView commentUser = (TextView) comment.findViewById(R.id.comment_username);
+                                                            String username = ((MapsActivity) getActivity()).profileNameStorage.get(commentJSON.getInt("user_id"));
+                                                            if (username != null) {
+                                                                commentUser.setText(username);
+                                                            } else {
+                                                                commentUser.setText("User #" + commentJSON.getInt("user_id"));
+                                                            }
 
-                                                        //check if post is current user's comment, if so keep the delete button
-                                                        if (getActivity() instanceof MapsActivity){
-                                                            currentUserId = ((MapsActivity) getActivity()).myId;
-                                                        }
-                                                        if(commentJSON.getInt("user_id") == currentUserId){
-                                                            Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
-                                                            deleteCommentButton.setOnClickListener(new View.OnClickListener() {
-                                                                public void onClick(View v) {
-                                                                    try {
-                                                                        StringRequest deleteCommentRequest = new StringRequest(Request.Method.DELETE, url_comments + commentJSON.getInt("id"),
-                                                                                new Response.Listener<String>() {
-                                                                                    @Override
-                                                                                    public void onResponse(String response) {
-                                                                                        Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
-                                                                                        ViewGroup vg = commentSectionList;
-                                                                                        vg.removeView(comment);
-                                                                                    }
-                                                                                }, new Response.ErrorListener() {
-                                                                            @Override
-                                                                            public void onErrorResponse(VolleyError error) {
-                                                                                Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
-                                                                            }
-                                                                        }) {
-                                                                            @Override
-                                                                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                                                                Map<String, String> params = new HashMap();
-                                                                                params.put("Authorization", "JWT " + fragmentToken);
-                                                                                return params;
-                                                                            }
-                                                                        };
+                                                            //check if post is current user's comment, if so keep the delete button
+                                                            if (getActivity() instanceof MapsActivity){
+                                                                currentUserId = ((MapsActivity) getActivity()).myId;
+                                                            }
+                                                            if(commentJSON.getInt("user_id") == currentUserId){
+                                                                Button deleteCommentButton = (Button) comment.findViewById(R.id.delete_comment_button);
+                                                                deleteCommentButton.setOnClickListener(new View.OnClickListener() {
+                                                                    public void onClick(View v) {
+                                                                        try {
+                                                                            StringRequest deleteCommentRequest = new StringRequest(Request.Method.DELETE, url_comments + commentJSON.getInt("id"),
+                                                                                    new Response.Listener<String>() {
+                                                                                        @Override
+                                                                                        public void onResponse(String response) {
+                                                                                            Toast.makeText(getActivity(), "Deletion Success", Toast.LENGTH_SHORT).show();
+                                                                                            ViewGroup vg = commentSectionList;
+                                                                                            vg.removeView(comment);
+                                                                                        }
+                                                                                    }, new Response.ErrorListener() {
+                                                                                @Override
+                                                                                public void onErrorResponse(VolleyError error) {
+                                                                                    Log.d("BubbleUp", " : Bubble Loader Response Error! " + error.getMessage());
+                                                                                }
+                                                                            }) {
+                                                                                @Override
+                                                                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                                                                    Map<String, String> params = new HashMap();
+                                                                                    params.put("Authorization", "JWT " + fragmentToken);
+                                                                                    return params;
+                                                                                }
+                                                                            };
 
-                                                                        ((MapsActivity) getActivity()).queue.add(deleteCommentRequest);
-                                                                    } catch (JSONException e) {
-                                                                        e.printStackTrace();
+                                                                            ((MapsActivity) getActivity()).queue.add(deleteCommentRequest);
+                                                                        } catch (JSONException e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        return;
                                                                     }
-                                                                    return;
-                                                                }
-                                                            });
-                                                        }//get rid of delete button
-                                                        else{
-                                                            comment.findViewById(R.id.delete_comment_button).setVisibility(View.GONE);
+                                                                });
+                                                            }//get rid of delete button
+                                                            else{
+                                                                comment.findViewById(R.id.delete_comment_button).setVisibility(View.GONE);
+                                                            }
+                                                            commentSectionList.addView(comment);
                                                         }
-                                                        commentSectionList.addView(comment);
                                                     }
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
                                                 }
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
                                             }
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.d("BubbleUp", " : Bubble Comments Response Error! " + error.getMessage());
-                                }
-                            }) {
-                                @Override
-                                public Map<String, String> getHeaders() throws AuthFailureError {
-                                    Map<String, String> params = new HashMap();
-                                    params.put("Authorization", "JWT " + fragmentToken);
-                                    return params;
-                                }
-                            };
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("BubbleUp", " : Bubble Comments Response Error! " + error.getMessage());
+                                    }
+                                }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap();
+                                        params.put("Authorization", "JWT " + fragmentToken);
+                                        return params;
+                                    }
+                                };
 
-                            ((MapsActivity) getActivity()).queue.add(getComments);
-                        } else {
-                            postCardVertical.removeView(commentSection);
+                                ((MapsActivity) getActivity()).queue.add(getComments);
+                            } else {
+                                postCardVertical.removeView(commentSection);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
 
                 Button hideCommentsButton = (Button) commentSection.findViewById(R.id.hide_comment_button);
                 hideCommentsButton.setOnClickListener(new View.OnClickListener() {
@@ -751,101 +768,100 @@ public class ContentFragment extends Fragment {
                 //Like / Dislike Buttons
                 ToggleButton like_button = (ToggleButton) container.findViewById(R.id.toggleButton_like);
 
-                //User Reaction Values (Bound to change)
-                //1 = Like
-                //2 = Dislike
-                //3 = ??
-                if(currentBubble.userReaction == 1){
-                    like_button.toggle();
-                    like_button.setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
-                }
-
-                like_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        //Button Animation
-                        buttonView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.reaction_button_animation));
-                        if (isChecked) {
-                            //Like request
-                            StringRequest registerRequest = new StringRequest(Request.Method.POST, url_like + myPost_id,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            //Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
-                                            currentBubble.userReaction = 1;
-                                            currentBubble.myLikes++;
-                                            likeCounter.setText(Integer.toString(currentBubble.myLikes));
-                                            container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
-                                }
-                            }){
-                                @Override
-                                public byte[] getBody() throws AuthFailureError {
-                                    String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
-                                    return httpPostBody.getBytes();
-                                }
-                                @Override
-                                public Map<String,String> getParams(){
-                                    Map<String, String> params = new HashMap();
-                                    params.put("posts_id","\"" + myPost_id + "\"");
-                                    return params;
-                                }
-                                @Override
-                                public Map<String, String> getHeaders() throws AuthFailureError {
-                                    Map<String,String> params = new HashMap();
-                                    params.put("Content-Type","application/json");
-                                    params.put("Authorization", "JWT " + fragmentToken);
-                                    return params;
-                                }
-                            };
-
-                            ((MapsActivity) getActivity()).queue.add(registerRequest);
-                        } else {
-                            //Like request
-                            StringRequest registerRequest = new StringRequest(Request.Method.DELETE, url_like + myPost_id,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            //Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
-                                            currentBubble.userReaction = 0;
-                                            currentBubble.myLikes--;
-                                            likeCounter.setText(Integer.toString(currentBubble.myLikes));
-                                            container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like));
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
-                                }
-                            }){
-                                @Override
-                                public byte[] getBody() throws AuthFailureError {
-                                    String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
-                                    return httpPostBody.getBytes();
-                                }
-                                @Override
-                                public Map<String,String> getParams(){
-                                    Map<String, String> params = new HashMap();
-                                    params.put("posts_id","\"" + myPost_id + "\"");
-                                    return params;
-                                }
-                                @Override
-                                public Map<String, String> getHeaders() throws AuthFailureError {
-                                    Map<String,String> params = new HashMap();
-                                    params.put("Content-Type","application/json");
-                                    params.put("Authorization", "JWT " + fragmentToken);
-                                    return params;
-                                }
-                            };
-
-                            ((MapsActivity) getActivity()).queue.add(registerRequest);
-                        }
+                if(currentBubble.mySource == 1) {
+                    like_button.setVisibility(View.INVISIBLE);
+                } else {
+                    if(currentBubble.userReaction == 1){
+                        like_button.toggle();
+                        like_button.setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
                     }
-                });
 
+                    like_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            //Button Animation
+                            buttonView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.reaction_button_animation));
+                            if (isChecked) {
+                                //Like request
+                                StringRequest registerRequest = new StringRequest(Request.Method.POST, url_like + myPost_id,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                //Toast.makeText(getContext(), "Liked", Toast.LENGTH_SHORT).show();
+                                                currentBubble.userReaction = 1;
+                                                currentBubble.myLikes++;
+                                                likeCounter.setText(Integer.toString(currentBubble.myLikes));
+                                                container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like_on));
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                }){
+                                    @Override
+                                    public byte[] getBody() throws AuthFailureError {
+                                        String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
+                                        return httpPostBody.getBytes();
+                                    }
+                                    @Override
+                                    public Map<String,String> getParams(){
+                                        Map<String, String> params = new HashMap();
+                                        params.put("posts_id","\"" + myPost_id + "\"");
+                                        return params;
+                                    }
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String,String> params = new HashMap();
+                                        params.put("Content-Type","application/json");
+                                        params.put("Authorization", "JWT " + fragmentToken);
+                                        return params;
+                                    }
+                                };
+
+                                ((MapsActivity) getActivity()).queue.add(registerRequest);
+                            } else {
+                                //Like request
+                                StringRequest registerRequest = new StringRequest(Request.Method.DELETE, url_like + myPost_id,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                //Toast.makeText(getContext(), "unliked", Toast.LENGTH_SHORT).show();
+                                                currentBubble.userReaction = 0;
+                                                currentBubble.myLikes--;
+                                                likeCounter.setText(Integer.toString(currentBubble.myLikes));
+                                                container.findViewById(R.id.toggleButton_like).setBackground(getResources().getDrawable(R.drawable.ic_action_like));
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Toast.makeText(getContext(), "Response Error", Toast.LENGTH_SHORT).show();
+                                    }
+                                }){
+                                    @Override
+                                    public byte[] getBody() throws AuthFailureError {
+                                        String httpPostBody="{\"posts_id\": \"" + myPost_id + "\"}";
+                                        return httpPostBody.getBytes();
+                                    }
+                                    @Override
+                                    public Map<String,String> getParams(){
+                                        Map<String, String> params = new HashMap();
+                                        params.put("posts_id","\"" + myPost_id + "\"");
+                                        return params;
+                                    }
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String,String> params = new HashMap();
+                                        params.put("Content-Type","application/json");
+                                        params.put("Authorization", "JWT " + fragmentToken);
+                                        return params;
+                                    }
+                                };
+
+                                ((MapsActivity) getActivity()).queue.add(registerRequest);
+                            }
+                        }
+                    });
+                }
 
                 if(currentBubble.profile_image != null) {
                     userImage.setImageBitmap(currentBubble.profile_image);
