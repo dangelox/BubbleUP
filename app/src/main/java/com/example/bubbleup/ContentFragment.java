@@ -929,6 +929,8 @@ public class ContentFragment extends Fragment {
         if(display){ //If true we display, if false we eliminate the view
             profileView = myInflater.inflate(R.layout.activity_user_settings, myViewGroupContainer, false);
 
+            ((MapsActivity) getActivity()).profile_display = true;
+
             profileContainer = (LinearLayout) myView.findViewById(R.id.linear_view);
 
             if(profileContainer.getChildCount() > 0){
@@ -945,7 +947,7 @@ public class ContentFragment extends Fragment {
             final int userId = queryUserId;
 
             //checking to see if the profile is that of the current user's, if not then we hide the edit button
-            if(currentUserId != userId){
+            if(myUserId != queryUserId){
                 edit_profile.setVisibility(View.GONE);
             }
 

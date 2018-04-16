@@ -488,9 +488,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     fragmentTransaction.add(R.id.zone, myFragment);
 
                     fragmentTransaction.commitNow();
-                    myFragment.showProfile(myId, myId, true, true);
+
                     fragment_display = true;
                     profile_display = true;
+
+                    Log.d("BubbleUpUI","got here " + myId);
+
+                    myFragment.showProfile(myId, myId, profile_display, true);
                 }
             }
         });

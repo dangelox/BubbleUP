@@ -65,7 +65,7 @@ public class SplashScreen extends AppCompatActivity {
                             try {
                                 Log.d("BubbleUp","Splash Token Response:" + response);
                                 JSONObject json_response = new JSONObject(response.toString());
-                                profile_pic_link = (String) json_response.get("profile_image");
+                                profile_pic_link = json_response.getString("profile_image");
                                 myId = (Integer) json_response.get("id");
                                 user_name = (String) json_response.get("name");
                                 email = (String) json_response.get("email");

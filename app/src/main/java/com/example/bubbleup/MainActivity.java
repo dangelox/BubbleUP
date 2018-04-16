@@ -209,11 +209,14 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(String response) {
                                 // Display the first 500 characters of the response string.
                                 //mTextView.setText("Response: "+ response.toString());
+                                Toast.makeText(MainActivity.this, "Registry Success!!", Toast.LENGTH_SHORT).show();
                             }
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         //mTextView.setText("Could not register!");
+                        Toast.makeText(MainActivity.this, "Registry Failure!!", Toast.LENGTH_SHORT).show();
+
                     }
                 }){
                     @Override
